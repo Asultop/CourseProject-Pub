@@ -8,6 +8,7 @@
 #include "passwordInputSimulator.h"
 #include "md5.h"
 #include "championHistoryColManager.h"
+#include "problemBankManager.h"
 #ifdef _WIN32
     #define sleep(seconds) Sleep((seconds) * 1000)
 #endif
@@ -345,6 +346,7 @@ void initDataBase(){
 int main(int argc,char *argv[]){
     // 初始化
     initDataBase();
+    puts("");
     // 检查是否存在 userData.txt 文件
     if(!hasUsrInDB(globalUserGroup)){
         UsrProfile adminUser;
@@ -416,7 +418,8 @@ int main(int argc,char *argv[]){
                 break;
             case 2:
                 // ACM 题库
-                // manageProblemBank();
+                cleanBuffer();
+                interactiveProblemBank(PROBLEM_DIR);
                 break;
             case 0:
                 // 退出程序

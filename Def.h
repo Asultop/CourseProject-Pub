@@ -17,7 +17,6 @@
 #define DATABASE_DIR "./database"
 #define PLATFORM_DIR DATABASE_DIR "/Platform"
 #define PROBLEM_DIR PLATFORM_DIR "/Problems"
-#define SOLUTION_DIR PLATFORM_DIR "/Solutions"
 #define USERDATA_DIR DATABASE_DIR "/usrData"
 
 // 文件定义

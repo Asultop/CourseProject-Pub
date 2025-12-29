@@ -9,6 +9,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/course_project.dir/md5.c.o.d"
   "CMakeFiles/course_project.dir/passwordInputSimulator.c.o"
   "CMakeFiles/course_project.dir/passwordInputSimulator.c.o.d"
+  "CMakeFiles/course_project.dir/problemBankManager.c.o"
+  "CMakeFiles/course_project.dir/problemBankManager.c.o.d"
   "CMakeFiles/course_project.dir/usrManager.c.o"
   "CMakeFiles/course_project.dir/usrManager.c.o.d"
   "course_project"

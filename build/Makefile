@@ -249,6 +249,30 @@ passwordInputSimulator.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/passwordInputSimulator.c.s
 .PHONY : passwordInputSimulator.c.s
 
+problemBankManager.o: problemBankManager.c.o
+.PHONY : problemBankManager.o
+
+# target to build an object file
+problemBankManager.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/problemBankManager.c.o
+.PHONY : problemBankManager.c.o
+
+problemBankManager.i: problemBankManager.c.i
+.PHONY : problemBankManager.i
+
+# target to preprocess a source file
+problemBankManager.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/problemBankManager.c.i
+.PHONY : problemBankManager.c.i
+
+problemBankManager.s: problemBankManager.c.s
+.PHONY : problemBankManager.s
+
+# target to generate assembly for a file
+problemBankManager.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/problemBankManager.c.s
+.PHONY : problemBankManager.c.s
+
 usrManager.o: usrManager.c.o
 .PHONY : usrManager.o
 
@@ -297,6 +321,9 @@ help:
 	@echo "... passwordInputSimulator.o"
 	@echo "... passwordInputSimulator.i"
 	@echo "... passwordInputSimulator.s"
+	@echo "... problemBankManager.o"
+	@echo "... problemBankManager.i"
+	@echo "... problemBankManager.s"
 	@echo "... usrManager.o"
 	@echo "... usrManager.i"
 	@echo "... usrManager.s"
