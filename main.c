@@ -91,6 +91,38 @@ bool login(UsrProfile * prof){
         return false;
     }
 }
+bool registerUser(UsrProfile * prof){
+    char name[MAX_NAME_LEN];
+    char password[MAX_PASSWORD_LEN];
+    printf("=> 请输入用户名：");
+    scanf("%s", name);
+    UsrActionReturnType queryResult = queryUserByName(globalUserGroup, name);
+    if(queryResult.info == SUCCESS){
+        printf("x> 用户名已存在，请重新注册！\n");
+        return false;
+    }
+    printf("=> 请输入密码：");
+    scanf("%s", password);
+    if(!checkCaptcha()){
+        printf("x> 验证码错误，请重新注册！\n");
+        return false;
+    }
+    UsrProfile newUser;
+    UsrActionReturnType createResult = createUser(globalUserGroup, &newUser, name, password);
+    if(createResult.info == ERR){
+        printf("x> %s\n", createResult.message);
+        return false;
+    }
+    UsrActionReturnInfo saveResult = saveAllUsrToDataFile(globalUserGroup, USERDATA_DIR "/userData.txt");
+    if(saveResult == ERR){
+        printf("x> 保存用户数据失败！\n");
+        return false;
+    }
+    printf("√> 注册成功！欢迎，%s\n", name);
+    strcpy(prof->name, name);
+    strcpy(prof->password, password);
+    return true;
+}
 
 void initDataBase(){
     // 初始化用户数据文件
@@ -121,7 +153,7 @@ int main(int argc,char *argv[]){
         printf("√> 已创建默认管理员账号：admin，密码：admin123\n");
     }
 
-    start: { // Splash 登录/注册界面
+    splash: { // Splash 登录/注册界面
         printSplashScreen();
         int choice;
         scanf("%d", &choice);
@@ -135,7 +167,10 @@ int main(int argc,char *argv[]){
                 
                 break;
             case 2:
-                // 注册逻辑
+                if(!registerUser(&currentUser)){
+                    printf("x> 注册失败\n");
+                    exit(EXIT_FAILURE);
+                }
                 break;
             case 0:
                 // 退出程序
@@ -143,12 +178,9 @@ int main(int argc,char *argv[]){
                 exit(0);
             default:
                 printf("?> 无效的选择，请重新输入。\n");
-                goto start;
+                goto splash;
                 break;
         }
-    }
-    while(true){ // 进入主界面
-
     }
     return 0;
 }
