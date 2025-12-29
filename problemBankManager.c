@@ -587,9 +587,12 @@ void interactiveProblemBank(const char* problemsDir) {
 				continue;
 			}
 			printf("√> 找到 %d 条题目：\n", rcount);
+            printf("|      -------- 题目列表 (%d) ---------       |\n", rcount);
+            printf("ID\t\t标题\t\t难度\n");
 			for (int i=0;i<rcount;i++) 
-			                printf("%s - %s\n", results[i].id, results[i].title);
-			printf("=> 输入题目 ID 打开详情，或 0 返回：");
+			                printf("%s\t\t%s\t\t%s\n", results[i].id, results[i].title, results[i].difficulty);
+			printf(".      -------------------------------       .\n");
+            printf("=> 输入题目 ID 打开详情，或 0 返回：");
 			char idBuf[128];
 			if(scanf("%s", idBuf) != 1) 
 			                continue;
