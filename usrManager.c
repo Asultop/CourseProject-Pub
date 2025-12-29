@@ -93,3 +93,24 @@ UsrActionReturnInfo saveAllUsrToDataFile(UsrProfile globalUserGroup[],const char
     fclose(file);
     return SUCCESS;
 }
+bool loginUser(const char* name, const char* password){
+    extern UsrProfile globalUserGroup[MAX_USER_COUNT];
+    UsrActionReturnType queryResult = queryUserByName(globalUserGroup, name);
+    if(queryResult.info == ERR){
+        return false;
+    }
+    char hashedPassword[33];
+    MD5_String(password, hashedPassword);
+    if(strcmp(queryResult.user->password, hashedPassword) == 0){
+        return true;
+    }
+    return false;
+}
+bool hasUsrInDB(UsrProfile globalUserGroup[]){
+    for(int i = 0; i < MAX_USER_COUNT; i++){
+        if(globalUserGroup[i].name[0] != '\0'){
+            return true;
+        }
+    }
+    return false;
+}

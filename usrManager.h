@@ -17,6 +17,7 @@ UsrActionReturnType addToGlobalUserGroup(UsrProfile globalUserGroup[], UsrProfil
 UsrActionReturnInfo getAllUsrByReadDataFile(UsrProfile globalUserGroup[],const char* filename);
 UsrActionReturnInfo saveAllUsrToDataFile(UsrProfile globalUserGroup[],const char* filename);
 
-
+bool loginUser(const char* name, const char* password);
 bool hasUsrInDB(UsrProfile globalUserGroup[]);
+
 #endif // USRMANAGER_H
