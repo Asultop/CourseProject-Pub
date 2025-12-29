@@ -11,6 +11,7 @@ set(SOURCES
 	md5.c
 	usrManager.c
     fileHelper.c
+    passwordInputSimulator.c
 )
 
 add_executable(course_project ${SOURCES})

@@ -5,7 +5,10 @@
 #include "Def.h"
 #include "usrManager.h"
 #include "fileHelper.h"
-
+#include "passwordInputSimulator.h"
+#ifdef _WIN32
+    #define sleep(seconds) Sleep((seconds) * 1000)
+#endif
 void cleanScreen(){
     #ifdef _WIN32
         system("cls");
@@ -27,7 +30,22 @@ void printSplashScreen(){
     printf("=> 请输入选项：[ ]\b\b"         );
 }
 void printMainScreen(const char * username){
-    // To-do
+    cleanScreen();
+    printf("==== ACM 竞赛管理与训练系统 ====\n");
+    printf("用户：%s\n", username);
+    puts(  "|----------------------------|");
+    puts(  "|         请选择操作         |" );
+    puts(  "|----------------------------|");
+    puts(  "|                            |");
+    puts(  "|    1.查看题目列表          |" );
+    puts(  "|    2.提交代码              |" );
+    puts(  "|    3.查看提交记录          |" );
+    puts(  "|    4.修改密码              |" );
+    puts(  "|                            |");
+    puts(  "|----------------------------|");
+    puts(  "|    0.退出                  |");
+    puts(  "|----------------------------|");
+    printf("=> 请输入选项：[ ]\b\b"         );
 }
 
 UsrProfile globalUserGroup[MAX_USER_COUNT]={0};
@@ -37,7 +55,8 @@ char* getRandomCaptcha(){
     // 时间随机种子
     srand(time(NULL));
     // 字符表
-    static char c[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    // static char c[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"; //全字表
+    static char c[]="0123456789"; //数字字表
     char captcha[5];
     // 生成4位随机验证码
     for(int i = 0; i < 4; i++){
@@ -74,22 +93,42 @@ bool login(UsrProfile * prof){
         printf("x> 用户不存在！\n");
         return false;
     }
-    printf("=> 请输入密码：");
-    scanf("%s", password);
-    if(!checkCaptcha()){
-        printf("x> 验证码错误，请重新登录！\n");
-        return false;
+    int attempts = 0;
+    while(true){
+        if(attempts > 0 && attempts % SLOW_TRY_LIMIT == 0){
+            printf("x> 尝试次数过多 请等待 %d 秒 再尝试\n", RETRY_DELAY_SECONDS);
+            for(int i = RETRY_DELAY_SECONDS; i > 0; i--){
+                printf("\r=> 等待时间：%d 秒 ", i);
+                fflush(stdout);
+                sleep(1);
+            }
+            puts("");
+        }
+        if(attempts > MAX_TRY_COUNT){
+            printf("\n x> 尝试次数过多，登录失败！\n");
+            return false;
+        }
+        printf("=> 请输入密码 (输入IDK退出)：");
+        getpwd(password, MAX_PASSWORD_LEN);
+        if(strcmp(password, "IDK") == 0){
+            printf("x> 已取消登录！\n");
+            return false;
+        }
+        if(!checkCaptcha()){
+            printf("x> 验证码错误，请重新登录！\n");
+            return false;
+        }
+        if(loginUser(name, password)){
+            strcpy(prof->name, name);
+            strcpy(prof->password, password);
+            printf("√> 登录成功！欢迎，%s\n", name);
+            return true;
+        }else{
+            printf("x> 用户名或密码错误！\n");
+        }
+        attempts++;
     }
-
-    if(loginUser(name, password)){
-        strcpy(prof->name, name);
-        strcpy(prof->password, password);
-        printf("√> 登录成功！欢迎，%s\n", name);
-        return true;
-    }else{
-        printf("x> 用户名或密码错误！\n");
-        return false;
-    }
+    
 }
 bool registerUser(UsrProfile * prof){
     char name[MAX_NAME_LEN];
@@ -102,7 +141,19 @@ bool registerUser(UsrProfile * prof){
         return false;
     }
     printf("=> 请输入密码：");
-    scanf("%s", password);
+    getpwd(password, MAX_PASSWORD_LEN);
+    if(strcmp(password, "IDK") == 0){
+        printf("x> 无法使用IDK作为密码，已取消注册！\n");
+        return false;
+    }
+    printf("=> 请再次输入密码：");
+    char passwordConfirm[MAX_PASSWORD_LEN];
+    getpwd(passwordConfirm, MAX_PASSWORD_LEN);
+    if(strcmp(password, passwordConfirm) != 0){
+        printf("x> 两次输入的密码不一致，请重新注册！\n");
+        return false;
+    }
+    
     if(!checkCaptcha()){
         printf("x> 验证码错误，请重新注册！\n");
         return false;
@@ -153,7 +204,7 @@ int main(int argc,char *argv[]){
         printf("√> 已创建默认管理员账号：admin，密码：admin123\n");
     }
 
-    splash: { // Splash 登录/注册界面
+    LINE_DIFF_25_splash: { // Splash 登录/注册界面
         printSplashScreen();
         int choice;
         scanf("%d", &choice);
@@ -178,9 +229,16 @@ int main(int argc,char *argv[]){
                 exit(0);
             default:
                 printf("?> 无效的选择，请重新输入。\n");
-                goto splash;
+                goto LINE_DIFF_25_splash; // LINE DIFF_25 从定义处
                 break;
         }
     }
+    // while(true){
+    //     printMainScreen(currentUser.name);
+        
+    //     int choice;
+    //     scanf("%d", &choice);
+
+    // }
     return 0;
 }

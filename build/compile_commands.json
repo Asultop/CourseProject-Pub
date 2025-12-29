@@ -22,5 +22,11 @@
   "command": "/usr/bin/gcc  -I/home/asultop/CourseProject -g -std=gnu99 -o CMakeFiles/course_project.dir/fileHelper.c.o -c /home/asultop/CourseProject/fileHelper.c",
   "file": "/home/asultop/CourseProject/fileHelper.c",
   "output": "CMakeFiles/course_project.dir/fileHelper.c.o"
+},
+{
+  "directory": "/home/asultop/CourseProject/build",
+  "command": "/usr/bin/gcc  -I/home/asultop/CourseProject -g -std=gnu99 -o CMakeFiles/course_project.dir/passwordInputSimulator.c.o -c /home/asultop/CourseProject/passwordInputSimulator.c",
+  "file": "/home/asultop/CourseProject/passwordInputSimulator.c",
+  "output": "CMakeFiles/course_project.dir/passwordInputSimulator.c.o"
 }
 ]

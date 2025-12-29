@@ -7,7 +7,9 @@
 #define MAX_PASSWORD_LEN 100
 #define MAX_USER_COUNT 1000
 #define MAX_MESSAGE_LEN 256
-
+#define RETRY_DELAY_SECONDS 5
+#define SLOW_TRY_LIMIT 5
+#define MAX_TRY_COUNT 15
 // 目录定义
 #define DATABASE_DIR "./database"
 #define PLATFORM_DIR DATABASE_DIR "/Platform"

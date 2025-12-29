@@ -201,6 +201,30 @@ md5.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/md5.c.s
 .PHONY : md5.c.s
 
+passwordInputSimulator.o: passwordInputSimulator.c.o
+.PHONY : passwordInputSimulator.o
+
+# target to build an object file
+passwordInputSimulator.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/passwordInputSimulator.c.o
+.PHONY : passwordInputSimulator.c.o
+
+passwordInputSimulator.i: passwordInputSimulator.c.i
+.PHONY : passwordInputSimulator.i
+
+# target to preprocess a source file
+passwordInputSimulator.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/passwordInputSimulator.c.i
+.PHONY : passwordInputSimulator.c.i
+
+passwordInputSimulator.s: passwordInputSimulator.c.s
+.PHONY : passwordInputSimulator.s
+
+# target to generate assembly for a file
+passwordInputSimulator.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/passwordInputSimulator.c.s
+.PHONY : passwordInputSimulator.c.s
+
 usrManager.o: usrManager.c.o
 .PHONY : usrManager.o
 
@@ -243,6 +267,9 @@ help:
 	@echo "... md5.o"
 	@echo "... md5.i"
 	@echo "... md5.s"
+	@echo "... passwordInputSimulator.o"
+	@echo "... passwordInputSimulator.i"
+	@echo "... passwordInputSimulator.s"
 	@echo "... usrManager.o"
 	@echo "... usrManager.i"
 	@echo "... usrManager.s"
