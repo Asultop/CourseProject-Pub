@@ -7,6 +7,8 @@
 #define MAX_PASSWORD_LEN 100
 #define MAX_USER_COUNT 1000
 #define MAX_MESSAGE_LEN 256
+#define MAX_PROBLEMS 2048
+
 #define RETRY_DELAY_SECONDS 5
 #define SLOW_TRY_LIMIT 5
 #define MAX_TRY_COUNT 15
@@ -40,6 +42,16 @@ typedef struct {
     char teamMembers[512];
     char coach[256];
 } ChampionRecord;
+// 问题集定义
+typedef struct {
+    char id[64];
+    char title[256];
+    char difficulty[64];
+    char type[128];
+    char folderName[128];
+    char problemPath[512];
+} ProblemEntry;
+
 // 返回信息定义
 typedef enum {
     ERR=-1,

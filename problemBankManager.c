@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include <sys/select.h>
+// 去除字符串末尾的换行符
 static void trim_newline(char* s) {
 	if(!s) return;
 	size_t i=strlen(s);
@@ -18,7 +19,7 @@ static void trim_newline(char* s) {
 	if(s[i-1]=='\n') s[i-1]='\0';
 	if(i>1 && s[i-2]=='\r') s[i-2]='\0';
 }
-// 读取小文件到动态分配字符串（调用者负责free）
+// 读取小文件到动态分配字符串
 static char* readFileToString(const char* path) {
 	FILE* f = fopen(path, "r");
 	if(!f) return NULL;
@@ -39,7 +40,7 @@ static char* readFileToString(const char* path) {
 	fclose(f);
 	return buf;
 }
-// 打印面包屑头部，例如： 欢迎>>系统>>ACM 题库>>子页面
+// 打印面包屑头部
 static void print_breadcrumb(const char* sub) {
 	cleanScreen();
 	if(sub && sub[0]) {
@@ -388,6 +389,7 @@ void addProblemInteractive(const char* problemsDir) {
 	}
 	printf("√> 题目 %s 添加完成。\n", id);
 }
+// 打印题目详细信息及内容
 static void printProblemDetails(const ProblemEntry* e) {
 	if(!e) return;
 	puts(  "|----------------------------|");
@@ -416,6 +418,7 @@ void pauseScreen() {
     getchar();
 	// 等待用户按键
 }
+// 交互式题库管理主界面
 void interactiveProblemBank(const char* problemsDir) {
 	while(true) {
 		cleanScreen();
