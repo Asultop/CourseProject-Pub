@@ -43,9 +43,9 @@ static char* readFileToString(const char* path) {
 static void print_breadcrumb(const char* sub) {
 	cleanScreen();
 	if(sub && sub[0]) {
-		printf("========= 欢迎>>系统>>ACM 题库>>%s =========\n", sub);
+		printf("========= ACM 题库>>%s =========\n", sub);
 	} else {
-		printf("========= 欢迎>>系统>>ACM 题库 =========\n");
+		printf("========= ACM 题库 =========\n");
 	}
 }
 // 不区分大小写包含匹配
@@ -200,7 +200,7 @@ void addProblemInteractive(const char* problemsDir) {
 	snprintf(newDir, sizeof(newDir), "%s/%s", problemsDir, id);
 	struct stat st;
 	if(stat(newDir, &st) == 0) {
-		printf("x> 题目目录已存在：%s\n", newDir);
+		printf("x> 题目目录已存在：%s \n", newDir);
 		return;
 	}
 	printf("=> 输入标题：");
@@ -335,25 +335,41 @@ void addProblemInteractive(const char* problemsDir) {
 				printf("√ 已拷贝题干至 problem.txt\n");
 			} else printf("x> 拷贝失败：%s\n", pstart);
 		} else if(strlen(lowb) > 3 && strcmp(lowb + strlen(lowb) - 3, ".in") == 0) {
-			// 收集 .in 文件，稍后统一拷贝到 in/
-			if(inCnt < (int)(sizeof(inFiles)/sizeof(inFiles[0]))) {
-				strncpy(inFiles[inCnt].name, b, sizeof(inFiles[inCnt].name)-1);
-				strncpy(inFiles[inCnt].src, pstart, sizeof(inFiles[inCnt].src)-1);
-				inFiles[inCnt].name[sizeof(inFiles[inCnt].name)-1] = '\0';
-				inFiles[inCnt].src[sizeof(inFiles[inCnt].src)-1] = '\0';
-				inCnt++;
-				printf("√ 已收集输入文件 %s (待拷贝)\n", b);
-			} else printf("x> .in 文件过多，无法收集：%s\n", b);
+			// 收集 .in 文件，稍后统一拷贝到 in/，但先按文件名去重以避免重复拷贝
+			{
+				bool dup = false;
+				for(int k=0;k<inCnt;k++) {
+					if(strcmp(inFiles[k].name, b) == 0) { dup = true; break; }
+				}
+				if(dup) {
+					printf("?> 已收集过输入文件 %s，忽略重复项\n", b);
+				} else if(inCnt < (int)(sizeof(inFiles)/sizeof(inFiles[0]))) {
+					strncpy(inFiles[inCnt].name, b, sizeof(inFiles[inCnt].name)-1);
+					strncpy(inFiles[inCnt].src, pstart, sizeof(inFiles[inCnt].src)-1);
+					inFiles[inCnt].name[sizeof(inFiles[inCnt].name)-1] = '\0';
+					inFiles[inCnt].src[sizeof(inFiles[inCnt].src)-1] = '\0';
+					inCnt++;
+					printf("√ 已收集输入文件 %s (待拷贝)\n", b);
+				} else printf("x> .in 文件过多，无法收集：%s\n", b);
+			}
 		} else if(strlen(lowb) > 4 && strcmp(lowb + strlen(lowb) - 4, ".out") == 0) {
-			// 收集 .out 文件，稍后统一拷贝到 out/
-			if(outCnt < (int)(sizeof(outFiles)/sizeof(outFiles[0]))) {
-				strncpy(outFiles[outCnt].name, b, sizeof(outFiles[outCnt].name)-1);
-				strncpy(outFiles[outCnt].src, pstart, sizeof(outFiles[outCnt].src)-1);
-				outFiles[outCnt].name[sizeof(outFiles[outCnt].name)-1] = '\0';
-				outFiles[outCnt].src[sizeof(outFiles[outCnt].src)-1] = '\0';
-				outCnt++;
-				printf("√ 已收集输出文件 %s (待拷贝)\n", b);
-			} else printf("x> .out 文件过多，无法收集：%s\n", b);
+			// 收集 .out 文件，稍后统一拷贝到 out/，先按文件名去重
+			{
+				bool dup = false;
+				for(int k=0;k<outCnt;k++) {
+					if(strcmp(outFiles[k].name, b) == 0) { dup = true; break; }
+				}
+				if(dup) {
+					printf("?> 已收集过输出文件 %s，忽略重复项\n", b);
+				} else if(outCnt < (int)(sizeof(outFiles)/sizeof(outFiles[0]))) {
+					strncpy(outFiles[outCnt].name, b, sizeof(outFiles[outCnt].name)-1);
+					strncpy(outFiles[outCnt].src, pstart, sizeof(outFiles[outCnt].src)-1);
+					outFiles[outCnt].name[sizeof(outFiles[outCnt].name)-1] = '\0';
+					outFiles[outCnt].src[sizeof(outFiles[outCnt].src)-1] = '\0';
+					outCnt++;
+					printf("√ 已收集输出文件 %s (待拷贝)\n", b);
+				} else printf("x> .out 文件过多，无法收集：%s\n", b);
+			}
 		} else {
 			// 复制到原名，但不会计入必须三项
 			snprintf(dst, sizeof(dst), "%s/%s", newDir, b);
@@ -376,18 +392,13 @@ static void printProblemDetails(const ProblemEntry* e) {
 	printf("|  难度: %s\n", e->difficulty);
 	printf("|  类型: %s\n", e->type);
 	printf("|  题目文件: %s\n", e->problemPath);
-	char* stmt = readFileToString(e->problemPath);
-	if(stmt) {
-		printf("\n题干：\n%s\n", stmt);
-		free(stmt);
-	} else {
-		printf("\n题干：无法读取 %s\n", e->problemPath);
-	}
+	puts(  "|----------------------------|");
 }
 void cleanScreen();
 void pauseScreen() {
 	printf("=> 按任意键继续...");
 	getchar();
+    getchar();
 	// 等待用户按键
 }
 void interactiveProblemBank(const char* problemsDir) {
@@ -422,7 +433,29 @@ void interactiveProblemBank(const char* problemsDir) {
 				while((cc=getchar())!='\n' && cc!=EOF);
 				continue;
 			}
-			printf("确认删除 %s 吗？(y/n)：", idbuf);
+            
+			// 在删除前尝试加载并显示该题目的 MetaData (若找到)
+			ProblemEntry entries[MAX_PROBLEMS];
+			int cnt = loadAllProblems(problemsDir, entries, MAX_PROBLEMS);
+			int found = -1;
+			if(cnt > 0) {
+				for (int i=0;i<cnt;i++) {
+					if(strcmp(entries[i].id, idbuf) == 0 || strcmp(entries[i].folderName, idbuf) == 0) {
+						found = i;
+						break;
+					}
+				}
+			}
+			if(found != -1) {
+				printf("将要删除如下题目：\n");
+				printProblemDetails(&entries[found]);
+				printf("确认删除以上题目吗？(y/n)：");
+			} else {
+				// 未找到题目，提示并返回菜单（不再询问确认删除）
+				printf("x> 未找到题目：%s\n", idbuf);
+				pauseScreen();
+				continue;
+			}
 			char ans[8];
 			if(scanf("%s", ans) != 1) continue;
 			if(ans[0]=='y' || ans[0]=='Y') {
@@ -449,8 +482,9 @@ void interactiveProblemBank(const char* problemsDir) {
 				continue;
 			}
 			printf("-------- 题目列表 (%d) ---------\n", cnt);
+			printf("难度\t\tID\t\t标题\n");
 			for (int i=0;i<cnt;i++) {
-				printf("| %s - %s\n", entries[i].id, entries[i].title);
+				printf("| %s\t\t%s\t\t%s\n", entries[i].difficulty, entries[i].id, entries[i].title);
 			}
 			puts("|------------------------------");
 			printf("=> 输入题目 ID 打开详情，或 0 返回：");
