@@ -1,0 +1,1 @@
+gcc md5.c usrManager.c main.c fileHelper.c -o CourseProject -lm

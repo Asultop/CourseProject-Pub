@@ -1,0 +1,26 @@
+[
+{
+  "directory": "/home/asultop/CourseProject/build",
+  "command": "/usr/bin/gcc  -I/home/asultop/CourseProject -g -std=gnu99 -o CMakeFiles/course_project.dir/main.c.o -c /home/asultop/CourseProject/main.c",
+  "file": "/home/asultop/CourseProject/main.c",
+  "output": "CMakeFiles/course_project.dir/main.c.o"
+},
+{
+  "directory": "/home/asultop/CourseProject/build",
+  "command": "/usr/bin/gcc  -I/home/asultop/CourseProject -g -std=gnu99 -o CMakeFiles/course_project.dir/md5.c.o -c /home/asultop/CourseProject/md5.c",
+  "file": "/home/asultop/CourseProject/md5.c",
+  "output": "CMakeFiles/course_project.dir/md5.c.o"
+},
+{
+  "directory": "/home/asultop/CourseProject/build",
+  "command": "/usr/bin/gcc  -I/home/asultop/CourseProject -g -std=gnu99 -o CMakeFiles/course_project.dir/usrManager.c.o -c /home/asultop/CourseProject/usrManager.c",
+  "file": "/home/asultop/CourseProject/usrManager.c",
+  "output": "CMakeFiles/course_project.dir/usrManager.c.o"
+},
+{
+  "directory": "/home/asultop/CourseProject/build",
+  "command": "/usr/bin/gcc  -I/home/asultop/CourseProject -g -std=gnu99 -o CMakeFiles/course_project.dir/fileHelper.c.o -c /home/asultop/CourseProject/fileHelper.c",
+  "file": "/home/asultop/CourseProject/fileHelper.c",
+  "output": "CMakeFiles/course_project.dir/fileHelper.c.o"
+}
+]

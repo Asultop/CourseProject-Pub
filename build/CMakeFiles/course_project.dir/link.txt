@@ -1,0 +1,1 @@
+/usr/bin/gcc -g CMakeFiles/course_project.dir/main.c.o CMakeFiles/course_project.dir/md5.c.o CMakeFiles/course_project.dir/usrManager.c.o CMakeFiles/course_project.dir/fileHelper.c.o -o course_project  -lm 

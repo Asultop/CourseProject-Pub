@@ -1,0 +1,3 @@
+/home/asultop/CourseProject/build/CMakeFiles/course_project.dir
+/home/asultop/CourseProject/build/CMakeFiles/edit_cache.dir
+/home/asultop/CourseProject/build/CMakeFiles/rebuild_cache.dir
