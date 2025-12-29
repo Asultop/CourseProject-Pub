@@ -10,7 +10,7 @@
 #define RETRY_DELAY_SECONDS 5
 #define SLOW_TRY_LIMIT 5
 #define MAX_TRY_COUNT 15
-
+#define CAPTCHA_RETRY_LIMIT 3
 // 目录定义
 #define DATABASE_DIR "./database"
 #define PLATFORM_DIR DATABASE_DIR "/Platform"

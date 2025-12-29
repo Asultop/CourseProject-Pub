@@ -6,9 +6,14 @@
 #include "usrManager.h"
 #include "fileHelper.h"
 #include "passwordInputSimulator.h"
+#include "md5.h"
 #ifdef _WIN32
     #define sleep(seconds) Sleep((seconds) * 1000)
 #endif
+void cleanBuffer(){
+    // int c;
+    // while ((c = getchar()) != '\n' && c != EOF);
+}
 void cleanScreen(){
     #ifdef _WIN32
         system("cls");
@@ -46,6 +51,60 @@ void printMainScreen(const char * username){
     puts(  "|----------------------------|");
     printf("=> 请输入选项：[ ]\b\b"         );
 }
+void displayFileContent(const char* filepath){
+    FILE* file = fopen(filepath, "r");
+    if(file == NULL){
+        printf("x> 无法打开文件：%s\n", filepath);
+        return;
+    }
+    char line[MAX_MESSAGE_LEN];
+    printf("====== 文件内容：%s ======\n", filepath);
+    while(fgets(line, sizeof(line), file) != NULL){
+        printf("%s", line);
+    }
+    printf("\n====== 文件结束 ======\n");
+    fclose(file);
+    printf("=> 按任意键继续...");
+    getchar(); // 捕获换行符
+    getchar(); // 等待用户按键
+}
+void getInACMIntroduction(){
+    while(true){
+        cleanScreen();
+        puts("====== ACM 竞赛简介 ======");
+        puts("|----------------------------|");
+        puts("|         1.参赛规则         |");
+        puts("|         2.评分标准         |");
+        puts("|         3.赛事构成         |");
+        puts("|         4.赛事介绍         |");
+        puts("|----------------------------|");
+        puts("|         0.返回主菜单       |");
+        puts("|----------------------------|");
+        printf("=> 请输入选项：[ ]\b\b");
+        int choice;
+        cleanBuffer();
+        scanf("%d", &choice);
+        switch (choice){
+            case 1:
+                displayFileContent(RULEFILE);
+                break;
+            case 2:
+                displayFileContent(RATEDFILE);
+                break;
+            case 3:
+                displayFileContent(COMPFILE);
+                break;
+            case 4:
+                displayFileContent(INTRFILE);
+                break;
+            case 0:
+                return;
+            default:
+                printf("?> 无效的选择，请重新输入。\n");
+                break;
+        }
+    }
+}
 
 UsrProfile globalUserGroup[MAX_USER_COUNT]={0};
 UsrProfile currentUser={0};
@@ -67,24 +126,30 @@ char* getRandomCaptcha(){
     strcpy(result, captcha);
     return result;
 }
-bool checkCaptcha(){
+bool checkCaptcha(int retryCount){
+    if(retryCount <= 0){
+        printf("x> 验证码尝试次数过多，操作已取消！\n");
+        return false;
+    }
     char* generatedCaptcha = getRandomCaptcha();
     char userInput[5];
     printf("=> 验证码：%4s\n", generatedCaptcha);
     printf("=> 请输入验证码：");
+    cleanBuffer();
     scanf("%s", userInput);
     if(strcmp(generatedCaptcha, userInput) == 0){
         free(generatedCaptcha);
         return true;
     }else{
         free(generatedCaptcha);
-        return checkCaptcha();
+        return checkCaptcha(retryCount - 1);
     }
 }
 bool login(UsrProfile * prof){
     char name[MAX_NAME_LEN];
     char password[MAX_PASSWORD_LEN];
     printf("=> 请输入用户名：");
+    cleanBuffer();
     scanf("%s", name);
 
     UsrActionReturnType result = queryUserByName(globalUserGroup, name);
@@ -113,7 +178,7 @@ bool login(UsrProfile * prof){
             printf("x> 已取消登录！\n");
             return false;
         }
-        if(!checkCaptcha()){
+        if(!checkCaptcha(CAPTCHA_RETRY_LIMIT)){
             printf("x> 验证码错误，请重新登录！\n");
             return false;
         }
@@ -133,6 +198,7 @@ bool registerUser(UsrProfile * prof){
     char name[MAX_NAME_LEN];
     char password[MAX_PASSWORD_LEN];
     printf("=> 请输入用户名：");
+    cleanBuffer();
     scanf("%s", name);
     UsrActionReturnType queryResult = queryUserByName(globalUserGroup, name);
     if(queryResult.info == SUCCESS){
@@ -153,7 +219,7 @@ bool registerUser(UsrProfile * prof){
         return false;
     }
     
-    if(!checkCaptcha()){
+    if(!checkCaptcha(CAPTCHA_RETRY_LIMIT)){
         printf("x> 验证码错误，请重新注册！\n");
         return false;
     }
@@ -178,8 +244,76 @@ bool modifyAccount(){
     char oldPassword[MAX_PASSWORD_LEN];
     char newPassword[MAX_PASSWORD_LEN];
     printf("=> 请输入用户名：");
+    cleanBuffer();
     scanf("%s", name);
-    //TODO-RECENT
+    if(!checkCaptcha(CAPTCHA_RETRY_LIMIT)){
+        printf("x> 验证码错误，已取消修改！\n");
+        return false;
+    }
+    UsrActionReturnType queryResult = queryUserByName(globalUserGroup, name);
+    if(queryResult.info == ERR){
+        printf("x> 用户不存在！\n");
+        return false;
+    }
+    printf("=> 请输入旧密码：");
+    getpwd(oldPassword, MAX_PASSWORD_LEN);
+    char md5OldPassword[33];
+    MD5_String(oldPassword, md5OldPassword);
+    if(strcmp(md5OldPassword, queryResult.user->password) != 0){
+        printf("x> 旧密码错误！\n");
+        return false;
+    }
+    printf("=> 请输入新密码：");
+    getpwd(newPassword, MAX_PASSWORD_LEN);
+    if(strcmp(newPassword, "IDK") == 0){
+        printf("x> 无法使用IDK作为密码，已取消修改！\n");
+        return false;
+    }
+    char newPasswordConfirm[MAX_PASSWORD_LEN];
+    printf("=> 请再次输入新密码：");
+    getpwd(newPasswordConfirm, MAX_PASSWORD_LEN);
+
+    
+    if(strcmp(newPassword, newPasswordConfirm) != 0){
+        printf("x> 两次输入的新密码不一致！\n");
+        return false;
+    }
+    char md5NewPassword[33];
+    MD5_String(newPassword, md5NewPassword);
+    strcpy(queryResult.user->password, md5NewPassword);
+    UsrActionReturnInfo saveResult = saveAllUsrToDataFile(globalUserGroup, USERDATA_DIR "/userData.txt");
+    if(saveResult == ERR){
+        printf("x> 保存用户数据失败！\n");
+        return false;
+    }
+    printf("√> 密码修改成功！\n");
+    return true;
+}
+bool deleteUserFlow(UsrProfile globalUserGroup[]){
+    char name[MAX_NAME_LEN];
+    printf("=> 请输入要删除的用户名：");
+    cleanBuffer();
+    scanf("%s", name);
+    if(!checkCaptcha(CAPTCHA_RETRY_LIMIT)){
+        printf("x> 验证码错误，已取消删除！\n");
+        return false;
+    }
+    UsrActionReturnType queryResult = queryUserByName(globalUserGroup, name);
+    if(queryResult.info == ERR){
+        printf("x> 用户不存在！\n");
+        return false;
+    }
+    UsrActionReturnType deleteResult = deleteUserByName(globalUserGroup, name);
+    if(deleteResult.info == ERR){
+        printf("x> 删除用户失败！\n");
+        return false;
+    }
+    UsrActionReturnInfo saveResult = saveAllUsrToDataFile(globalUserGroup, USERDATA_DIR "/userData.txt");
+    if(saveResult == ERR){
+        printf("x> 保存用户数据失败！\n");
+        return false;
+    }
+    return true;
 }
 void initDataBase(){
     // 初始化用户数据文件
@@ -213,6 +347,7 @@ int main(int argc,char *argv[]){
     LINE_DIFF_25_splash: { // Splash 登录/注册界面
         printSplashScreen();
         int choice;
+        cleanBuffer();
         scanf("%d", &choice);
         switch (choice){
             case 1:
@@ -231,8 +366,22 @@ int main(int argc,char *argv[]){
                 break;
             case 3:
                 //修改密码
-
+                if(!modifyAccount()){
+                    printf("x> 修改密码失败\n");
+                    exit(EXIT_FAILURE);
+                }
+                printf("√> 请重新登录以使用新密码。\n");
+                exit(0);
+                break;
             case 4:
+                //删除用户
+                if(!deleteUserFlow(globalUserGroup)){
+                    printf("x> 删除用户失败\n");
+                    exit(EXIT_FAILURE);
+                }
+                printf("√> 用户删除成功！请重新登录。\n");
+                exit(0);
+                break;
             case 0:
                 // 退出程序
                 printf("√> 感谢使用，再见！\n");
@@ -243,11 +392,30 @@ int main(int argc,char *argv[]){
                 break;
         }
     }
+    sleep(1);
+    // 进入主界面
     while(true){
         printMainScreen(currentUser.name);
         int choice;
+        cleanBuffer();
         scanf("%d", &choice);
-
+        switch (choice){
+            case 1:
+                // ACM 竞赛简介
+                getInACMIntroduction();
+                break;
+            case 2:
+                // ACM 题库
+                // manageProblemBank();
+                break;
+            case 0:
+                // 退出程序
+                printf("√> 感谢使用，再见！\n");
+                exit(0);
+            default:
+                printf("?> 无效的选择，请重新输入。\n");
+                break;
+        }
     }
     return 0;
 }

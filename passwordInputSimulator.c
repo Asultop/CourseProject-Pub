@@ -36,12 +36,30 @@ static void move_cursor(int n) {
     }
     fflush(stdout);
 }
+
+// 重绘当前输入区域：先清空之前显示的字符，再显示当前长度的*，并把光标放回 pos 位置
+// 重绘当前输入区域：从当前光标位置(cur_pos)回到起始，清除 prev_len，打印 len 个 '*'，
+// 最后把光标放到 target_pos 位置。
+static void redraw_masked(int prev_len, int len, int cur_pos, int target_pos) {
+    // 从当前光标位置移动到起始位置
+    move_cursor(-cur_pos);
+    // 清除之前的显示（用空格覆盖）
+    for (int i = 0; i < prev_len; i++) putchar(' ');
+    // 光标回到起始位置（因为打印了 prev_len 个空格）
+    move_cursor(-prev_len);
+    // 打印当前的*掩码
+    for (int i = 0; i < len; i++) putchar('*');
+    // 将光标移动到正确的位置
+    move_cursor(target_pos - len);
+    fflush(stdout);
+}
 void getpwd(char *pwd, int pwdlen) {
     if (!pwd || pwdlen <= 0) return;
 
     char pass[PWDLEN + 1] = {0}; // 存储密码
     int len = 0;                 // 密码长度
     int pos = 0;                 // 光标位置（0~len）
+    int prev_len = 0;            // 上次显示的长度，用于重绘清除残留
     memset(pwd, 0, pwdlen + 1);
 
     term_init();
@@ -88,21 +106,17 @@ void getpwd(char *pwd, int pwdlen) {
 
         // 3. 退格键：删除光标前字符（核心修复显示）
         if ((ch == BS_CHAR || ch == '\b') && pos > 0) {
-            // 1. 删除内存中的字符
+            // 保存当前光标位置（当前光标在 pos 处）
+            int cur_pos = pos;
+            // 删除内存中的字符并保持以\0结尾
             memmove(&pass[pos-1], &pass[pos], len - pos);
             len--;
             pos--;
+            pass[len] = '\0';
 
-            // 2. 终端显示修正（精确控制光标）
-            move_cursor(-1);          // 光标左移到要删除的*位置
-            printf(" ");              // 空格覆盖*
-            move_cursor(-1);          // 光标回退
-            // 重绘后面的*（如果有）
-            for (int i = pos; i < len; i++) {
-                printf("*");
-            }
-            // 光标移回正确位置
-            move_cursor(pos - len);
+            // 使用重绘函数：告诉它当前光标位置 cur_pos，以及删除后目标位置 pos
+            redraw_masked(prev_len, len, cur_pos, pos);
+            prev_len = len;
             continue;
         }
 
@@ -111,19 +125,18 @@ void getpwd(char *pwd, int pwdlen) {
 
         // 5. 可打印字符：插入到光标位置
         if (isprint((unsigned char)ch)) {
-            // 1. 内存中插入字符
+            // 保存当前光标位置（当前光标在 pos 处）
+            int cur_pos = pos;
+            // 内存中插入字符并保持以\0结尾
             memmove(&pass[pos+1], &pass[pos], len - pos);
-            pass[pos] = ch;
+            pass[pos] = (char)ch;
             len++;
-
-            // 2. 终端显示修正
-            // 先重绘光标后的所有*（腾出位置）
-            for (int i = pos; i < len; i++) {
-                printf("*");
-            }
-            // 光标移回插入位置的下一位
-            move_cursor(pos - len + 1);
+            pass[len] = '\0';
             pos++;
+
+            // 重绘显示以修正*号偏移和残留，传入当前光标 cur_pos 和新目标 pos
+            redraw_masked(prev_len, len, cur_pos, pos);
+            prev_len = len;
         }
     }
 
