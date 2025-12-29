@@ -411,6 +411,91 @@ static void printProblemDetails(const ProblemEntry* e) {
         printf("x> 题目内容文件不存在：%s\n", e->problemPath);
     }
 }
+// 题目详情子菜单：查看题目/解析/题解/运行样例等（循环直到返回）
+static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
+	if(!e) return;
+	int sub = -1;
+	do {
+		printProblemDetails(e);
+		printf("\n1. 提交结果\n2. 查看解析\n3. 查看题解\n4. 运行正确样例\n0. 返回\n=> 请选择：");
+		if(scanf("%d", &sub) != 1) {
+			int c; while((c=getchar())!='\n' && c!=EOF);
+			continue;
+		}
+		if(sub == 1) {
+			printf("提交功能暂未实现。\n");
+		} else if(sub == 2) {
+			char path[1200];
+			snprintf(path, sizeof(path), "%s/%s/analyzing.txt", problemsDir, e->folderName);
+			if(fileExists(path)) {
+				char* txt = readFileToString(path);
+				if(txt) { printf("====== 解析文件: %s ======\n%s\n====== 解析结束 ======\n", path, txt); free(txt); }
+				else printf("x> 无法读取解析文件：%s\n", path);
+			} else {
+				printf("x> 解析文件不存在：%s\n", path);
+			}
+		} else if(sub == 3) {
+			char path[1200];
+			snprintf(path, sizeof(path), "%s/%s/%s.cpp", problemsDir, e->folderName, e->id);
+			if(!fileExists(path)) snprintf(path, sizeof(path), "%s/%s/general_solution.cpp", problemsDir, e->folderName);
+			if(fileExists(path)) {
+				char* txt = readFileToString(path);
+				if(txt) { printf("====== 题解文件: %s ======\n%s\n====== 题解结束 ======\n", path, txt); free(txt); }
+				else printf("x> 无法读取题解文件：%s\n", path);
+			} else {
+				printf("x> 题解文件不存在：%s 或 %s.cpp\n", e->folderName, e->id);
+			}
+		} else if(sub == 4) {
+			// 运行正确样例：编译 {id}.cpp 到临时目录并执行，优先使用 in/ 下第一个 .in 作为输入
+			char src[1200];
+			snprintf(src, sizeof(src), "%s/%s/%s.cpp", problemsDir, e->folderName, e->id);
+			if(!fileExists(src)) snprintf(src, sizeof(src), "%s/%s/general_solution.cpp", problemsDir, e->folderName);
+			if(!fileExists(src)) {
+				printf("x> 找不到可运行的源文件：%s.cpp 或 general_solution.cpp\n", e->id);
+			} else {
+				char tmpTemplate[] = "/tmp/progrunXXXXXX";
+				char* tmpdir = mkdtemp(tmpTemplate);
+				if(!tmpdir) {
+					printf("x> 无法创建临时目录\n");
+				} else {
+					char exePath[1400];
+					snprintf(exePath, sizeof(exePath), "%s/%s_exec", tmpdir, e->id);
+					char compileCmd[1800];
+					snprintf(compileCmd, sizeof(compileCmd), "g++ -std=c++17 -O2 -o '%s' '%s' 2>&1", exePath, src);
+					printf("=> 编译: %s\n", compileCmd);
+					int cret = system(compileCmd);
+					if(cret != 0) {
+						printf("x> 编译失败 (返回 %d)\n", cret);
+					} else {
+						// 查找第一个 .in
+						char inDir[1200]; snprintf(inDir, sizeof(inDir), "%s/%s/in", problemsDir, e->folderName);
+						char inPath[1400] = "";
+						DIR* dd = opendir(inDir);
+						if(dd) {
+							struct dirent* de;
+							while((de = readdir(dd))!=NULL) {
+								if(de->d_name[0]=='.') continue;
+								size_t L = strlen(de->d_name);
+								if(L>3 && strcmp(de->d_name+L-3, ".in")==0) { snprintf(inPath, sizeof(inPath), "%s/%s", inDir, de->d_name); break; }
+							}
+							closedir(dd);
+						}
+						printf("===== %s 正确样例运行开始 =====\n", e->id);
+						fflush(stdout);
+						char runCmd[1600];
+						if(inPath[0]) snprintf(runCmd, sizeof(runCmd), "'%s' < '%s'", exePath, inPath);
+						else snprintf(runCmd, sizeof(runCmd), "'%s'", exePath);
+						int rret = system(runCmd); (void)rret;
+						printf("===== %s 正确样例运行结束 =====\n", e->id);
+						remove(exePath);
+					}
+					rmdir(tmpdir);
+				}
+			}
+		}
+		if(sub != 0) pauseScreen();
+	} while(sub != 0);
+}
 void cleanScreen();
 void pauseScreen() {
 	printf("=> 按任意键继续...");
@@ -534,51 +619,7 @@ void interactiveProblemBank(const char* problemsDir) {
 				pauseScreen();
 				continue;
 			}
-			// 进入题目子菜单，循环直到用户选择 0 返回
-			{
-				int sub = -1;
-				do {
-					printProblemDetails(&entries[found]);
-					printf("\n1. 提交结果\n2. 查看解析\n3. 查看题解\n0. 返回\n=> 请选择：");
-					// CleanBuffer
-					if(scanf("%d", &sub) != 1) {
-						int c;
-						while((c=getchar())!='\n' && c!=EOF);
-						continue;
-					}
-					if(sub == 1) {
-						printf("提交功能暂未实现。\n");
-					} else if(sub == 2) {
-						char path[1200];
-						snprintf(path, sizeof(path), "%s/%s/analyzing.txt", problemsDir, entries[found].folderName);
-						if(fileExists(path)) {
-							char* txt = readFileToString(path);
-							if(txt) {
-								printf("====== 解析文件: %s ======\n%s\n====== 解析结束 ======\n", path, txt);
-								free(txt);
-							} else printf("x> 无法读取解析文件：%s\n", path);
-						} else {
-							printf("x> 解析文件不存在：%s\n", path);
-						}
-					} else if(sub == 3) {
-						char path[1200];
-						snprintf(path, sizeof(path), "%s/%s/%s.cpp", problemsDir, entries[found].folderName, entries[found].id);
-						if(!fileExists(path)) {
-							snprintf(path, sizeof(path), "%s/%s/general_solution.cpp", problemsDir, entries[found].folderName);
-						}
-						if(fileExists(path)) {
-							char* txt = readFileToString(path);
-							if(txt) {
-								printf("====== 题解文件: %s ======\n%s\n====== 题解结束 ======\n", path, txt);
-								free(txt);
-							} else printf("x> 无法读取题解文件：%s\n", path);
-						} else {
-							printf("x> 题解文件不存在：%s 或 %s.cpp\n", entries[found].folderName, entries[found].id);
-						}
-					}
-					if(sub != 0) pauseScreen();
-				} while(sub != 0);
-			}
+			problemDetailMenu(problemsDir, &entries[found]);
 			continue;
 		} else if(choice == 2) {
 			// 交互式筛选：标题，题干，难度，类型
@@ -664,49 +705,7 @@ void interactiveProblemBank(const char* problemsDir) {
 				pauseScreen();
 				continue;
 			}
-			{
-				int sub = -1;
-				do {
-					printProblemDetails(&results[found]);
-					printf("\n1. 提交结果\n2. 查看解析\n3. 查看题解\n0. 返回\n=> 请选择：");
-					if(scanf("%d", &sub) != 1) {
-						int c;
-						while((c=getchar())!='\n' && c!=EOF);
-						continue;
-					}
-					if(sub == 1) {
-						printf("提交功能暂未实现。\n");
-					} else if(sub == 2) {
-						char path[1200];
-						snprintf(path, sizeof(path), "%s/%s/analyzing.txt", problemsDir, results[found].folderName);
-						if(fileExists(path)) {
-							char* txt = readFileToString(path);
-							if(txt) {
-								printf("====== 解析文件: %s ======\n%s\n====== 解析结束 ======\n", path, txt);
-								free(txt);
-							} else printf("x> 无法读取解析文件：%s\n", path);
-						} else {
-							printf("x> 解析文件不存在：%s\n", path);
-						}
-					} else if(sub == 3) {
-						char path[1200];
-						snprintf(path, sizeof(path), "%s/%s/%s.cpp", problemsDir, results[found].folderName, results[found].id);
-						if(!fileExists(path)) {
-							snprintf(path, sizeof(path), "%s/%s/general_solution.cpp", problemsDir, results[found].folderName);
-						}
-						if(fileExists(path)) {
-							char* txt = readFileToString(path);
-							if(txt) {
-								printf("====== 题解文件: %s ======\n%s\n====== 题解结束 ======\n", path, txt);
-								free(txt);
-							} else printf("x> 无法读取题解文件：%s\n", path);
-						} else {
-							printf("x> 题解文件不存在：%s 或 %s.cpp\n", results[found].folderName, results[found].id);
-						}
-					}
-					if(sub != 0) pauseScreen();
-				} while(sub != 0);
-			}
+			problemDetailMenu(problemsDir, &results[found]);
 			continue;
 		} else {
 			printf("?> 无效选项。\n");
