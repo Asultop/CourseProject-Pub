@@ -2,17 +2,7 @@
 #define CHAMPION_HISTORY_COL_MANAGER_H
 #include <stdio.h>
 #include <stdbool.h>
-
-#define MAX_CHAMPION_RECORDS 1024
-
-typedef struct {
-    char year[16];
-    char location[128];
-    char university[256];
-    char country[128];
-    char teamMembers[512];
-    char coach[256];
-} ChampionRecord;
+#include "Def.h"
 
 // 从文件加载记录，返回加载条目数
 int loadChampionHistory(const char* filename, ChampionRecord records[], int maxRecords);

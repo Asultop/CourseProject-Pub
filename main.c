@@ -48,7 +48,7 @@ void printMainScreen(const char * username){
     puts(  "|    2.ACM 题库              |" );
     puts(  "|                            |");
     puts(  "|----------------------------|");
-    puts(  "|    0.退出                  |");
+    puts(  "|          0.返回            |");
     puts(  "|----------------------------|");
     printf("=> 请输入选项：[ ]\b\b"         );
 }
@@ -408,6 +408,7 @@ int main(int argc,char *argv[]){
         int choice;
         cleanBuffer();
         scanf("%d", &choice);
+        if(choice == 0) break;
         switch (choice){
             case 1:
                 // ACM 竞赛简介
@@ -419,12 +420,13 @@ int main(int argc,char *argv[]){
                 break;
             case 0:
                 // 退出程序
-                printf("√> 感谢使用，再见！\n");
-                exit(0);
+                break;
             default:
                 printf("?> 无效的选择，请重新输入。\n");
                 break;
         }
     }
+    cleanScreen();
+    main(argc,argv);
     return 0;
 }
