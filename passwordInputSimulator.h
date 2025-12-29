@@ -40,7 +40,7 @@ static int getch_safe() ;
 // 光标移动：相对当前位置移动n步（n>0右移，n<0左移）
 static void move_cursor(int n) ;
 
-// 密码输入函数（终极修复显示问题）
+// 密码输入函数
 void getpwd(char *pwd, int pwdlen) ;
 
 
