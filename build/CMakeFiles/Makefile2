@@ -81,12 +81,12 @@ clean: CMakeFiles/course_project.dir/clean
 CMakeFiles/course_project.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=1,2,3,4,5,6 "Built target course_project"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=1,2,3,4,5,6,7 "Built target course_project"
 .PHONY : CMakeFiles/course_project.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/course_project.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/asultop/CourseProject/build/CMakeFiles 6
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/asultop/CourseProject/build/CMakeFiles 7
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/course_project.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/asultop/CourseProject/build/CMakeFiles 0
 .PHONY : CMakeFiles/course_project.dir/rule

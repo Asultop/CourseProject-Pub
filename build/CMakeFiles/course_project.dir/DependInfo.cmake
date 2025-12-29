@@ -8,6 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/home/asultop/CourseProject/championHistoryColManager.c" "CMakeFiles/course_project.dir/championHistoryColManager.c.o" "gcc" "CMakeFiles/course_project.dir/championHistoryColManager.c.o.d"
   "/home/asultop/CourseProject/fileHelper.c" "CMakeFiles/course_project.dir/fileHelper.c.o" "gcc" "CMakeFiles/course_project.dir/fileHelper.c.o.d"
   "/home/asultop/CourseProject/main.c" "CMakeFiles/course_project.dir/main.c.o" "gcc" "CMakeFiles/course_project.dir/main.c.o.d"
   "/home/asultop/CourseProject/md5.c" "CMakeFiles/course_project.dir/md5.c.o" "gcc" "CMakeFiles/course_project.dir/md5.c.o.d"

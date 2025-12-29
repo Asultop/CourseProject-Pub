@@ -1,0 +1,50 @@
+1975|北京|清华大学|中国|张伟,李强,王芳|刘海
+1976|上海|复旦大学|中国|王俊,赵磊,孙丽|陈刚
+1977|东京|东京大学|日本|佐藤健,鈴木一郎,高桥美香|山本明
+1978|伦敦|University of Cambridge|英国|John Smith,Alan Brown,Mary Clarke|Robert Green
+1979|莫斯科|Moscow State University|俄罗斯|Иван Иванов,Андрей Смирнов,Ольга Петрова|Сергей Козлов
+1980|纽约|Massachusetts Institute of Technology|美国|Michael Johnson,David Lee,Sarah Miller|James Wilson
+1981|巴黎|Université Paris-Sorbonne|法国|Jean Dupont,Marie Lefevre,Luc Martin|Pierre Durand
+1982|柏林|Technische Universität Berlin|德国|Hans Müller,Peter Schmidt,Anna Becker|Klaus Fischer
+1983|首尔|Seoul National University|韩国|Kim Minho,Lee Jisoo,Park Hyun|Choi Sung
+1984|墨尔本|University of Melbourne|澳大利亚|James Brown,Emily Davis,Oliver Wilson|Benjamin Clark
+1985|多伦多|University of Toronto|加拿大|William Turner,Jessica Hall,Mark Young|David King
+1986|香港|香港大学|中国香港|陈志强,李美玲,黄志华|刘祖德
+1987|新加坡|National University of Singapore|新加坡|Tan Wei,Lim Hui,Ng Kuan|Lee Seng
+1988|台北|国立台湾大学|中国台湾|林志明,蔡佳慧,郑宇|许宏
+1989|圣保罗|University of São Paulo|巴西|Carlos Souza,Ana Pereira,João Silva|Marcos Alves
+1990|马德里|Universidad Complutense de Madrid|西班牙|Miguel García,Laura Martínez,Javier López|Antonio Ruiz
+1991|米兰|Università di Milano|意大利|Luca Rossi,Francesca Bianchi,Marco Romano|Giovanni Esposito
+1992|阿姆斯特丹|University of Amsterdam|荷兰|Jan de Vries,Emma van Dijk,Tom Bakker|Pieter Smit
+1993|斯德哥尔摩|KTH Royal Institute of Technology|瑞典|Erik Andersson,Sara Lind,Jonas Berg|Olof Nilsson
+1994|苏黎世|ETH Zurich|瑞士|Hans Keller,Martin Weber,Anna Schmid|Peter Meier
+1995|孟买|Indian Institute of Technology Bombay|印度|Ravi Kumar,Anita Sharma,Sunil Patel|Suresh Menon
+1996|莫斯科|Moscow Institute of Physics and Technology|俄罗斯|Dmitri Orlov,Sergey Ivanov,Olga Kuznetsova|Vladimir Petrov
+1997|北京|北京大学|中国|王磊,陈晨,赵敏|高峰
+1998|上海|上海交通大学|中国|刘洋,周超,吴玲|孙宏
+1999|西安|西安交通大学|中国|张涛,李晓,马丽|何军
+2000|武汉|武汉大学|中国|黄强,周燕,郑浩|彭刚
+2001|南京|南京大学|中国|何平,许静,杜明|吕刚
+2002|重庆|重庆大学|中国|李刚,赵婷,陈浩|杨林
+2003|天津|天津大学|中国|孙波,刘欣,王林|张辉
+2004|哈尔滨|哈尔滨工业大学|中国|高峰,宋丽,赖明|范进
+2005|杭州|浙江大学|中国|施晨,章薇,方勇|徐立
+2006|合肥|中国科学技术大学|中国|周晨,郑凯,刘敏|顾松
+2007|广州|中山大学|中国|罗俊,薛婷,唐伟|蔡强
+2008|成都|电子科技大学|中国|付强,黄蓉,曾峰|邱建
+2009|苏州|东南大学|中国|蒋杰,丁洁,侯亮|秦海
+2010|长沙|湖南大学|中国|谭博,魏静,彭涛|欧阳平
+2011|武汉|华中科技大学|中国|周洋,蔡明,贺超|何安
+2012|北京|北京航空航天大学|中国|杨帆,石磊,董悦|王冲
+2013|成都|四川大学|中国|赵宇,牟洁,柴亮|刘波
+2014|台北|国立清华大学（台湾）|中国台湾|黄志宏,陈依婷,刘哲|林前
+2015|香港|香港科技大学|中国香港|梁文,何怡,邱俊|陈志
+2016|首尔|KAIST|韩国|Kim Hyun,Park Joon,Lee Min|Kang Dae
+2017|旧金山|Stanford University|美国|Ethan Scott,Olivia Brown,Noah Davis|Sophia Martinez
+2018|剑桥|University of Cambridge|英国|Oliver King,Grace Hill,Henry Wood|Edward Clarke
+2019|苏黎世|ETH Zurich|瑞士|Lena Fischer,Marc Keller,Nina Baumann|Stefan Huber
+2020|线上|全球虚拟决赛|国际|Team Alpha:Alex Chen,Maria Gomez,Igor Petrov|Global Coach:Sam Tan
+2021|东京|University of Tokyo|日本|Sato Rina,Okada Ken,Inoue Mei|Nakagawa Sho
+2022|北京|清华大学|中国|陈子豪,赵雪,周晨|李涛
+2023|上海|复旦大学|中国|王熙,刘雨,张楠|郑磊
+2024|深圳|南方科技大学|中国|陈川,何灵,许斌|林涛

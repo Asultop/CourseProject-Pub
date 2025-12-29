@@ -7,6 +7,7 @@
 #include "fileHelper.h"
 #include "passwordInputSimulator.h"
 #include "md5.h"
+#include "championHistoryColManager.h"
 #ifdef _WIN32
     #define sleep(seconds) Sleep((seconds) * 1000)
 #endif
@@ -77,6 +78,7 @@ void getInACMIntroduction(){
         puts("|         2.评分标准         |");
         puts("|         3.赛事构成         |");
         puts("|         4.赛事介绍         |");
+        puts("|         5.历届获奖         |");
         puts("|----------------------------|");
         puts("|         0.返回主菜单       |");
         puts("|----------------------------|");
@@ -97,6 +99,11 @@ void getInACMIntroduction(){
             case 4:
                 displayFileContent(INTRFILE);
                 break;
+            case 5:
+                cleanBuffer();
+                interactiveChampionQuery(AWARFILE);
+                break;
+                
             case 0:
                 return;
             default:

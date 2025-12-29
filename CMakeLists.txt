@@ -12,6 +12,7 @@ set(SOURCES
 	usrManager.c
     fileHelper.c
     passwordInputSimulator.c
+	championHistoryColManager.c
 )
 
 add_executable(course_project ${SOURCES})

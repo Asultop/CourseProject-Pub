@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/course_project.dir/championHistoryColManager.c.o"
+  "CMakeFiles/course_project.dir/championHistoryColManager.c.o.d"
   "CMakeFiles/course_project.dir/fileHelper.c.o"
   "CMakeFiles/course_project.dir/fileHelper.c.o.d"
   "CMakeFiles/course_project.dir/main.c.o"

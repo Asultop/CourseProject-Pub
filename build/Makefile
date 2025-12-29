@@ -129,6 +129,30 @@ course_project/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/build
 .PHONY : course_project/fast
 
+championHistoryColManager.o: championHistoryColManager.c.o
+.PHONY : championHistoryColManager.o
+
+# target to build an object file
+championHistoryColManager.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/championHistoryColManager.c.o
+.PHONY : championHistoryColManager.c.o
+
+championHistoryColManager.i: championHistoryColManager.c.i
+.PHONY : championHistoryColManager.i
+
+# target to preprocess a source file
+championHistoryColManager.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/championHistoryColManager.c.i
+.PHONY : championHistoryColManager.c.i
+
+championHistoryColManager.s: championHistoryColManager.c.s
+.PHONY : championHistoryColManager.s
+
+# target to generate assembly for a file
+championHistoryColManager.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/championHistoryColManager.c.s
+.PHONY : championHistoryColManager.c.s
+
 fileHelper.o: fileHelper.c.o
 .PHONY : fileHelper.o
 
@@ -258,6 +282,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... course_project"
+	@echo "... championHistoryColManager.o"
+	@echo "... championHistoryColManager.i"
+	@echo "... championHistoryColManager.s"
 	@echo "... fileHelper.o"
 	@echo "... fileHelper.i"
 	@echo "... fileHelper.s"

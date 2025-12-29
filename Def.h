@@ -23,6 +23,7 @@
 #define RATEDFILE PLATFORM_DIR "/评分标准.txt"
 #define COMPFILE PLATFORM_DIR "/赛事构成.txt"
 #define INTRFILE PLATFORM_DIR "/赛事介绍.txt"
+#define AWARFILE PLATFORM_DIR "/历届获奖.txt"
 // 用户信息结构体定义
 typedef struct {
     char name[MAX_NAME_LEN];
