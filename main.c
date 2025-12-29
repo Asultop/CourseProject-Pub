@@ -22,10 +22,11 @@ void printSplashScreen(){
     puts(  "|         请选择操作         |" );
     puts(  "|----------------------------|");
     puts(  "|                            |");
-    puts(  "|    1.登录     2.注册       |" );
+    puts(  "|   1.登录      2.注册       |" );
+    puts(  "|   3.修改密码  4.删除用户   |" );
     puts(  "|                            |");
     puts(  "|----------------------------|");
-    puts(  "|    0.退出                  |");
+    puts(  "|          0.退出            |");
     puts(  "|----------------------------|");
     printf("=> 请输入选项：[ ]\b\b"         );
 }
@@ -37,10 +38,8 @@ void printMainScreen(const char * username){
     puts(  "|         请选择操作         |" );
     puts(  "|----------------------------|");
     puts(  "|                            |");
-    puts(  "|    1.查看题目列表          |" );
-    puts(  "|    2.提交代码              |" );
-    puts(  "|    3.查看提交记录          |" );
-    puts(  "|    4.修改密码              |" );
+    puts(  "|    1.ACM 竞赛简介          |" );
+    puts(  "|    2.ACM 题库              |" );
     puts(  "|                            |");
     puts(  "|----------------------------|");
     puts(  "|    0.退出                  |");
@@ -174,7 +173,14 @@ bool registerUser(UsrProfile * prof){
     strcpy(prof->password, password);
     return true;
 }
-
+bool modifyAccount(){
+    char name[MAX_NAME_LEN];
+    char oldPassword[MAX_PASSWORD_LEN];
+    char newPassword[MAX_PASSWORD_LEN];
+    printf("=> 请输入用户名：");
+    scanf("%s", name);
+    //TODO-RECENT
+}
 void initDataBase(){
     // 初始化用户数据文件
     if(fileExists(USERDATA_DIR "/userData.txt") == false){
@@ -223,6 +229,10 @@ int main(int argc,char *argv[]){
                     exit(EXIT_FAILURE);
                 }
                 break;
+            case 3:
+                //修改密码
+
+            case 4:
             case 0:
                 // 退出程序
                 printf("√> 感谢使用，再见！\n");
@@ -233,12 +243,11 @@ int main(int argc,char *argv[]){
                 break;
         }
     }
-    // while(true){
-    //     printMainScreen(currentUser.name);
-        
-    //     int choice;
-    //     scanf("%d", &choice);
+    while(true){
+        printMainScreen(currentUser.name);
+        int choice;
+        scanf("%d", &choice);
 
-    // }
+    }
     return 0;
 }

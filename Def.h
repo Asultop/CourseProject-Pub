@@ -10,6 +10,7 @@
 #define RETRY_DELAY_SECONDS 5
 #define SLOW_TRY_LIMIT 5
 #define MAX_TRY_COUNT 15
+
 // 目录定义
 #define DATABASE_DIR "./database"
 #define PLATFORM_DIR DATABASE_DIR "/Platform"
@@ -17,6 +18,11 @@
 #define SOLUTION_DIR PLATFORM_DIR "/Solutions"
 #define USERDATA_DIR DATABASE_DIR "/usrData"
 
+// 文件定义
+#define RULEFILE PLATFORM_DIR "/参赛规则.txt"
+#define RATEDFILE PLATFORM_DIR "/评分标准.txt"
+#define COMPFILE PLATFORM_DIR "/赛事构成.txt"
+#define INTRFILE PLATFORM_DIR "/赛事介绍.txt"
 // 用户信息结构体定义
 typedef struct {
     char name[MAX_NAME_LEN];
