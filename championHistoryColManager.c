@@ -91,7 +91,7 @@ int queryChampionByCriteria(ChampionRecord records[], int count, ChampionRecord 
 
 // 打印字段并对匹配子串高亮（红色）
 static void print_field_highlight(const char* label, const char* value, const char* filter){
-    const char* RED = "\x1b[31m";
+    const char* RED = "\x1b[31m"; //红色 ANSI 转义码
     const char* RESET = "\x1b[0m";
     if(!label) label = "";
     if(!value) value = "";
@@ -171,6 +171,7 @@ void interactiveChampionQuery(const char* filename){
     char coach[128] = "";
 
     printf("=> 输入查询条件，留空表示通配（回车跳过）\n");
+    fgets(buf, sizeof(buf), stdin); // 清除残留换行 BUG WORK
     printf("年份：");
     fgets(buf, sizeof(buf), stdin);
     trim_newline(buf);
@@ -206,6 +207,5 @@ void interactiveChampionQuery(const char* filename){
     for(int i=0;i<found;i++){
         printChampionRecord(&results[i], year, location, university, country, teamMembers, coach);
     }
-    printf("√> 按下任意键继续...");
-    getchar();
+    
 }

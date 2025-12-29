@@ -48,3 +48,15 @@
 2022|北京|清华大学|中国|陈子豪,赵雪,周晨|李涛
 2023|上海|复旦大学|中国|王熙,刘雨,张楠|郑磊
 2024|深圳|南方科技大学|中国|陈川,何灵,许斌|林涛
+2025|柏林|Humboldt-Universität zu Berlin|德国|Lukas Fischer,Anna Köhler,Jonas Meier|Katrin Beck
+2026|班加罗尔|Indian Institute of Science|印度|Amit Rao,Priya Singh,Rohit Sharma|Suresh Menon
+2027|旧金山|University of California, Berkeley|美国|Maya Thompson,Daniel Park,Ella Nguyen|Robert Hayes
+2028|巴黎|École Polytechnique|法国|Lucas Martin,Claire Dubois,Élodie Moreau|Jean-Pierre Laurent
+2029|悉尼|University of Sydney|澳大利亚|Oliver Clarke,Sophia Wright,Henry Taylor|Margaret Lee
+2030|开普敦|University of Cape Town|南非|Thabo Nkosi,Aisha Patel,Michael van der Merwe|Nomvula Dlamini
+2031|莫斯科|Skolkovo Institute of Science and Technology|俄罗斯|Alexey Kuznetsov,Irina Sokolova,Maxim Volkov|Dmitri Ivanov
+2032|汉诺威|Leibniz University Hannover|德国|Felix Neumann,Laura Brandt,Simon Krause|Helga Meier
+2033|墨西哥城|Universidad Nacional Autónoma de México|墨西哥|Luis Hernández,María Rivera,Carlos López|Ana Gómez
+2034|首尔|Yonsei University|韩国|Kim Soo-jin,Park Min-joon,Lee Hye-rin|Choi Min-suk
+2035|维也纳|University of Vienna|奥地利|Alexander Mayer,Julia Baumgartner,Sebastian Hofer|Renate Fischer
+2036|伦敦|Imperial College London|英国|Emily Carter,Thomas Reed,Amir Khan|Dr. Helen Price

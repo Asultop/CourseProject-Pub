@@ -102,6 +102,8 @@ void getInACMIntroduction(){
             case 5:
                 cleanBuffer();
                 interactiveChampionQuery(AWARFILE);
+                printf("√> 按下任意键继续...");
+                getchar();
                 break;
                 
             case 0:
