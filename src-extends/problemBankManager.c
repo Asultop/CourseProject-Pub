@@ -888,7 +888,21 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 					snprintf(typeline, sizeof(typeline), "类型: %s", entries[found].type);
 					printLeft(typeline);
 					char probline[512];
-					snprintf(probline, sizeof(probline), "题目文件: %s", entries[found].problemPath);
+					// snprintf(probline, sizeof(probline), "题目文件: %s", entries[found].problemPath);
+					{
+						char buf[1024];
+						size_t w = snprintf(buf, sizeof(buf), "题目文件: ");
+						if (w < 0) w = 0;
+						if ((size_t)w < sizeof(buf)) {
+							size_t rem = sizeof(buf) - (size_t)w - 1;
+							strncat(buf, entries[found].problemPath, rem);
+							strncpy(probline, buf, sizeof(probline));
+							probline[sizeof(probline) - 1] = '\0';
+						} else {
+							strncpy(probline, "题目文件: [路径过长，无法显示完整]", sizeof(probline));
+							probline[sizeof(probline) - 1] = '\0';
+						}
+					}
 					printLeft(probline);
 				}
 				printFooter();

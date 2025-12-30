@@ -2,6 +2,7 @@ echo "编译 CourseProject 主程序..."
 gcc -std=c11 main.c src-extends/chineseSupport.c src-extends/screenManager.c src-extends/stack.c src-extends/md5.c src-extends/usrManager.c src-extends/fileHelper.c src-extends/passwordInputSimulator.c src-extends/championHistoryColManager.c src-extends/problemBankManager.c src-extends/markdownPrinter.c src-extends/ACMLocalJudger.c -o CourseProject -lm
 
 echo "编译测试程序..."
+mkdir -p src-test/build
 echo "  编译 test_input_simulator..."
 gcc -std=c11 src-extends/passwordInputSimulator.c src-test/test_input_simulator.c -o src-test/build/test_input_simulator -lm
 echo "  编译 test_markdown..."
