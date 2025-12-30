@@ -746,8 +746,11 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 		if(choice == 4) {
 			// 添加题目
 			print_breadcrumb("添加题目");
-			addProblemInteractive(problemsDir);
-			pauseScreen();
+			addProblemInteractive(problemsDir);  
+			printf("=> 按 Enter 键返回主菜单...");  // 特殊处理， cleanBuffer 在这里不适用
+			fflush(stdout);
+			cleanBuffer();
+			
 			continue;
 		}
 		if(choice == 1) {

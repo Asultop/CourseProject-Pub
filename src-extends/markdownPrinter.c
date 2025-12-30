@@ -256,7 +256,6 @@ bool is_header(const char *str){
 
 char *mdcat_render_header(char **dstline, char *str){
 	char *lineptr = NULL;
-
 	do {
 		assert(str != NULL);
 		assert(dstline != NULL);
