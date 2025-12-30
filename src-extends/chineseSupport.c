@@ -255,3 +255,90 @@ unsigned long get_real_Length(const char * str, EncodingType *encoding) {
 
     return real_len;
 }
+
+// 将原始行拆分为显示单元数组（每个单元是一个字符串），最后一个单元为 "EOL"。
+char ** processRawChar(const char * rawLine) {
+    if(!rawLine) return NULL;
+    EncodingType enc = detect_encoding(rawLine);
+    size_t blen = strlen(rawLine);
+    // 预分配指针数组，最多每字节一个单元，再加EOL
+    size_t cap = blen + 2;
+    char **arr = (char**)malloc(sizeof(char*) * cap);
+    if(!arr) return NULL;
+    size_t idx = 0;
+    size_t i = 0;
+    const unsigned char *s = (const unsigned char*)rawLine;
+
+    while (i < blen) {
+        // 跳过并整段保留 ANSI ESC 序列（\x1b[...m）作为单个单元
+        if (s[i] == 0x1B && i + 1 < blen && s[i+1] == '[') {
+            size_t j = i + 2;
+            while (j < blen && !(s[j] >= 0x40 && s[j] <= 0x7E)) j++;
+            size_t len = (j < blen) ? (j + 1 - i) : (blen - i);
+            char *tok = (char*)malloc(len + 1);
+            if(!tok) break;
+            memcpy(tok, s + i, len);
+            tok[len] = '\0';
+            arr[idx++] = tok;
+            i += len;
+            continue;
+        }
+
+        if (enc == ENCODING_UTF8) {
+            unsigned char c = s[i];
+            if (c < 0x80) {
+                // ASCII 单字符
+                char *tok = (char*)malloc(2);
+                if(!tok) break;
+                tok[0] = (char)c; tok[1] = '\0';
+                arr[idx++] = tok;
+                i += 1;
+            } else {
+                // 多字节 UTF-8
+                size_t w = 1;
+                if ((c & 0xF8) == 0xF0) w = 4;
+                else if ((c & 0xF0) == 0xE0) w = 3;
+                else if ((c & 0xE0) == 0xC0) w = 2;
+                if (i + w > blen) w = blen - i;
+                char *tok = (char*)malloc(w + 1);
+                if(!tok) break;
+                memcpy(tok, s + i, w);
+                tok[w] = '\0';
+                arr[idx++] = tok;
+                i += w;
+            }
+        } else { // GBK: 非ASCII为双字节
+            unsigned char c = s[i];
+            if (c < 0x80) {
+                char *tok = (char*)malloc(2);
+                if(!tok) break;
+                tok[0] = (char)c; tok[1] = '\0';
+                arr[idx++] = tok;
+                i += 1;
+            } else {
+                size_t w = (i + 1 < blen) ? 2 : 1;
+                char *tok = (char*)malloc(w + 1);
+                if(!tok) break;
+                memcpy(tok, s + i, w);
+                tok[w] = '\0';
+                arr[idx++] = tok;
+                i += w;
+            }
+        }
+    }
+    // 添加 EOL 标记
+    arr[idx] = (char*)malloc(4);
+    if (arr[idx]) strcpy(arr[idx], "EOL");
+    idx++;
+    // 可缩减数组大小
+    arr[idx] = NULL;
+    return arr;
+}
+
+void freeProcessedChars(char ** arr) {
+    if(!arr) return;
+    for (size_t i = 0; arr[i] != NULL; ++i) {
+        free(arr[i]);
+    }
+    free(arr);
+}

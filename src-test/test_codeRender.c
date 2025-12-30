@@ -12,7 +12,7 @@ int main(int argc, char* argv[]){
         for(int i=1;i<argc;i++){
             printf("====== 渲染文件：%s ======\n", argv[i]);
             codeRender_worker(argv[i]);
-            puts("====== 文件结束 ======\n");
+            puts("\n====== 文件结束 ======\n");
         }
         return 0;
     }
