@@ -39,6 +39,8 @@ static int is_operator(char c);
 static int is_variable(const char* restrict token);  // 新增：变量判断
 static void render_cpp_line(const char* restrict line, int* restrict in_multi_comment);
 static void join_basedir_and_rel(const char *basedir, const char *rel, char *out, size_t outsz);
+static char * read_file_to_str_alloc(const char *path);
+static char * find_top_level_semicolon(char *start);
 // 已知类型集合（从 include 文件中收集）
 static char ** known_types = NULL;
 static size_t known_types_count = 0;
@@ -53,7 +55,6 @@ static void clear_known_types(void) {
 
 static int add_known_type(const char *name) {
     if (!name || name[0] == '\0') return 0;
-    // 检查是否已存在
     for (size_t i = 0; i < known_types_count; ++i) if (strcmp(known_types[i], name) == 0) return 0;
     if (known_types_count + 1 >= known_types_cap) {
         size_t nc = (known_types_cap == 0) ? 64 : known_types_cap * 2;
@@ -74,22 +75,6 @@ static int is_known_type(const char *name) {
     return 0;
 }
 
-// 从单个文件扫描类型定义（struct/typedef/class/using/enum）并加入 known_types
-static char * read_file_to_str_alloc(const char *path) {
-    if (!path) return NULL;
-    FILE *f = fopen(path, "rb");
-    if (!f) return NULL;
-    if (fseek(f, 0, SEEK_END) != 0) { fclose(f); return NULL; }
-    long len = ftell(f);
-    if (len < 0) { fclose(f); return NULL; }
-    rewind(f);
-    char *buf = (char*)malloc((size_t)len + 1);
-    if (!buf) { fclose(f); return NULL; }
-    size_t r = fread(buf, 1, (size_t)len, f);
-    buf[r] = '\0';
-    fclose(f);
-    return buf;
-}
 
 static void collect_types_from_file(const char *path) {
     if (!path) return;
@@ -99,25 +84,20 @@ static void collect_types_from_file(const char *path) {
     // 1) 找 typedef ... ; 并取分号前最后一个标识符
     char *p = content;
     while ((p = strstr(p, "typedef")) != NULL) {
-        char *semi = strchr(p, ';');
+        char *semi = find_top_level_semicolon(p);
         if (!semi) break;
-        // 从 semi 向前找到第一个字母数字序列
         char *q = semi - 1;
         while (q > p && isspace((unsigned char)*q)) q--;
-        // 找到标识符的结束位置
         char *end = q;
-        // 找到标识符的起始位置
         while (end > p && (isalnum((unsigned char)*(end-1)) || *(end-1) == '_' || *(end-1) == '*')) end--;
-        // 去除 '*' 和空格
         while (*end == '*' || isspace((unsigned char)*end)) end++;
+        if (end > q) { p = semi + 1; continue; }
         size_t len = (size_t)(q - end + 1);
         if (len > 0 && len < 256) {
             char id[256]; size_t j=0; char *r2=end;
             while (r2<=q && j+1<sizeof(id)) { if (*r2 != '*') id[j++]=*r2; r2++; }
             id[j]='\0';
-            // 去除空格
             while (j>0 && isspace((unsigned char)id[j-1])) id[--j]='\0';
-            // 取最后一个标识符
             char *last = NULL; char *tok = strtok(id, " \t\n\r");
             while (tok) { last = tok; tok = strtok(NULL, " \t\n\r"); }
             if (last && last[0]) add_known_type(last);
@@ -208,7 +188,9 @@ static void collect_types_from_includes_recursive(const char *file, char ***visi
         join_basedir_and_rel(basedir, rel, normalized, sizeof(normalized));
         strncpy(incpath, normalized, sizeof(incpath)-1);
         incpath[sizeof(incpath)-1] = '\0';
+        (void)0;
         collect_types_from_file(incpath);
+        (void)0;
         collect_types_from_includes_recursive(incpath, visited_files, visited_count, visited_cap);
     }
     free(dup);
@@ -232,6 +214,7 @@ static void join_basedir_and_rel(const char *basedir, const char *rel, char *out
         out[outsz-1] = '\0';
         return;
     }
+    (void)basedir; (void)rel;
     // If rel is absolute, normalize rel alone
     if (rel[0] == '/') {
         // 规范化绝对路径 rel
@@ -265,29 +248,22 @@ static void join_basedir_and_rel(const char *basedir, const char *rel, char *out
     char joined[PATH_MAX];
     if (basedir && basedir[0] != '\0') snprintf(joined, sizeof(joined), "%s/%s", basedir, rel);
     else snprintf(joined, sizeof(joined), "%s", rel);
+    (void)joined;
 
     // 规范化 joined 路径
     char buf[PATH_MAX]; strncpy(buf, joined, sizeof(buf)-1); buf[sizeof(buf)-1] = '\0';
-    // 使用栈分割组件 
+    // 使用 strtok 分割组件，保证每个组件以 '\0' 结尾
     char *components[PATH_MAX]; size_t compc = 0;
-    char *p = buf;
-    while (*p) {
-        while (*p == '/') p++;
-        if (*p == '\0') break;
-        char *start = p;
-        while (*p && *p != '/') p++;
-        char prev = *p; *p = '\0';
-        if (strcmp(start, ".") == 0) {
-            // 跳过
-        } else if (strcmp(start, "..") == 0) {
-            if (compc > 0) compc--; // pop
-        } else {
-            components[compc++] = start;
-        }
-        *p = prev;
+    char *tok = strtok(buf, "/");
+    while (tok) {
+        if (strcmp(tok, ".") == 0) { tok = strtok(NULL, "/"); continue; }
+        if (strcmp(tok, "..") == 0) { if (compc > 0) compc--; tok = strtok(NULL, "/"); continue; }
+        components[compc++] = tok;
+        tok = strtok(NULL, "/");
     }
     // 重构路径
     size_t pos = 0;
+    (void)compc;
     // 检查是否为绝对路径
     if (joined[0] == '/') {
         if (pos + 1 < outsz) out[pos++] = '/';
@@ -305,6 +281,48 @@ static void join_basedir_and_rel(const char *basedir, const char *rel, char *out
     } else {
         if (pos < outsz) out[pos-1] = '\0'; else out[outsz-1] = '\0';
     }
+    (void)out;
+}
+
+// Read entire file into a malloc'd buffer, null-terminated. Caller must free.
+static char * read_file_to_str_alloc(const char *path) {
+    if (!path) return NULL;
+    FILE *f = fopen(path, "rb");
+    if (!f) return NULL;
+    if (fseek(f, 0, SEEK_END) != 0) { fclose(f); return NULL; }
+    long len = ftell(f);
+    if (len < 0) { fclose(f); return NULL; }
+    rewind(f);
+    char *buf = (char*)malloc((size_t)len + 1);
+    if (!buf) { fclose(f); return NULL; }
+    size_t r = fread(buf, 1, (size_t)len, f);
+    buf[r] = '\0';
+    fclose(f);
+    return buf;
+}
+
+// Find semicolon at top-level (not inside braces), skipping strings and comments.
+static char * find_top_level_semicolon(char *start) {
+    char *i = start;
+    int brace = 0;
+    while (*i) {
+        if (*i == '"' || *i == '\'') {
+            char quote = *i; i++;
+            while (*i) {
+                if (*i == '\\') { i += 2; continue; }
+                if (*i == quote) { i++; break; }
+                i++;
+            }
+            continue;
+        }
+        if (*i == '/' && *(i+1) == '/') { i += 2; while (*i && *i != '\n') i++; continue; }
+        if (*i == '/' && *(i+1) == '*') { i += 2; while (*i && !(*i == '*' && *(i+1) == '/')) i++; if (*i) i += 2; continue; }
+        if (*i == '{') { brace++; i++; continue; }
+        if (*i == '}') { if (brace > 0) brace--; i++; continue; }
+        if (*i == ';' && brace == 0) return i;
+        i++;
+    }
+    return NULL;
 }
 static _Noreturn void print_error(const char* restrict msg);
 
@@ -577,6 +595,8 @@ int codeRender_worker(const char* restrict file) {
     clear_known_types();
     collect_types_from_file(file); // 收集文件本身（支持多行 typedef/struct/using）
     collect_types_from_includes(file);
+    // DEBUG: 输出已收集的类型，便于诊断（开发时用）
+    (void)known_types_count;
 
     // 逐行读取并渲染
     while (fgets(line, (int)sizeof(line), fp) != NULL) {
