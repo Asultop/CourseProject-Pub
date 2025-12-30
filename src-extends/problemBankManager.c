@@ -1,3 +1,7 @@
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 200809L
+#endif
+// 修复 Warning 
 #include "problemBankManager.h"
 #include "Def.h"
 #include "fileHelper.h"
@@ -68,13 +72,17 @@ static void print_breadcrumb(const char* sub) {
 static bool contains_case_insensitive(const char* text, const char* pat) {
 	if(!pat || pat[0]=='\0') return true;
 	if(!text) return false;
-	char *lowText = strdup(text);
-	char *lowPat = strdup(pat);
+	char *lowText = NULL;
+	char *lowPat = NULL;
+	lowText = (char*)malloc(strlen(text) + 1);
+	lowPat = (char*)malloc(strlen(pat) + 1);
 	if(!lowText || !lowPat) {
 		free(lowText);
 		free(lowPat);
 		return false;
 	}
+	strcpy(lowText, text);
+	strcpy(lowPat, pat);
 	for (char* p = lowText; *p; ++p) *p = (char)tolower((unsigned char)*p);
 	for (char* p = lowPat; *p; ++p) *p = (char)tolower((unsigned char)*p);
 	bool res = strstr(lowText, lowPat) != NULL;
@@ -216,7 +224,8 @@ int loadAllProblems(const char* problemsDir, ProblemEntry entries[], int maxEntr
 		fclose(mf);
 		trim_newline(line);
 		// id|题干|难度|类型
-		char* tmp = strdup(line);
+		char* tmp = (char*)malloc(strlen(line) + 1);
+		if(tmp) strcpy(tmp, line);
 		char* tok = strtok(tmp, "|");
 		char id[64] = "";
 		char title[256] = "";

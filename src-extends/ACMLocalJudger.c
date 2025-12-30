@@ -86,11 +86,11 @@ JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *e
     }
 
     // 编译源文件
-    char exePath[1400];
+    char exePath[2048];
     snprintf(exePath, sizeof(exePath), "%s/run_exec", tmpdir);
-    char compileLog[1400];
+    char compileLog[2048];
     snprintf(compileLog, sizeof(compileLog), "%s/compile.log", tmpdir);
-    char compileCmd[2048];
+    char compileCmd[8192];
     snprintf(compileCmd, sizeof(compileCmd), "g++ -std=c++17 -O2 -o '%s' '%s' 2> '%s'", exePath, source_file_path, compileLog);
     int cret = system(compileCmd);
 
@@ -101,7 +101,8 @@ JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *e
         if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0) continue;
         // 仅处理 .in 文件
         if (!ends_with(de->d_name, ".in")) continue;
-        char inpath[1400];
+        // 构造输入文件路径并检查
+        char inpath[2048];
         snprintf(inpath, sizeof(inpath), "%s/%s", indir, de->d_name);
         struct stat st;
         if (stat(inpath, &st) != 0) continue;
@@ -110,8 +111,6 @@ JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *e
         // 准备评测条目
         char base[512]; strncpy(base, de->d_name, sizeof(base)-1); base[sizeof(base)-1] = '\0';
         char *dot = strrchr(base, '.'); if (dot) *dot = '\0';
-        char expectedOut[1400];
-        snprintf(expectedOut, sizeof(expectedOut), "%s/%s.out", outdir, base);
 
         // 初始化结果条目
         summary.infos[idx].result = JUDGE_RESULT_WRONG_ANSWER;
@@ -127,9 +126,11 @@ JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *e
         }
 
         // 运行可执行文件，使用 fork/exec 并支持超时
-        char tmpOut[1400];
+        char expectedOut[2048];
+        snprintf(expectedOut, sizeof(expectedOut), "%s/%s.out", outdir, base);
+        char tmpOut[4096];
         snprintf(tmpOut, sizeof(tmpOut), "%s/out_%d.txt", tmpdir, idx);
-        char tmpErr[1400];
+        char tmpErr[4096];
         snprintf(tmpErr, sizeof(tmpErr), "%s/run_err_%d.log", tmpdir, idx);
 
         pid_t pid = fork();
@@ -266,7 +267,7 @@ JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *e
 
     // 清理临时文件和目录
     // 仅删除已知文件，避免误删
-    char rmCmd[1600];
+    char rmCmd[8192];
     #ifdef __linux__
     snprintf(rmCmd, sizeof(rmCmd), "rm -f '%s' '%s'/*.txt '%s'/*.log 2>/dev/null; rmdir '%s' 2>/dev/null", exePath, tmpdir, tmpdir, tmpdir);
     #else

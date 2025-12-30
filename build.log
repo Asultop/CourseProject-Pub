@@ -1,0 +1,66 @@
+编译 CourseProject 主程序...
+src-extends/championHistoryColManager.c: In function ‘loadChampionHistory’:
+src-extends/championHistoryColManager.c:34:21: warning: implicit declaration of function ‘strdup’; did you mean ‘strcmp’? [-Wimplicit-function-declaration]
+   34 |         char* tmp = strdup(line);
+      |                     ^~~~~~
+      |                     strcmp
+src-extends/championHistoryColManager.c:34:21: warning: initialization of ‘char *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+src-extends/problemBankManager.c: In function ‘contains_case_insensitive’:
+src-extends/problemBankManager.c:71:25: warning: implicit declaration of function ‘strdup’; did you mean ‘strcmp’? [-Wimplicit-function-declaration]
+   71 |         char *lowText = strdup(text);
+      |                         ^~~~~~
+      |                         strcmp
+src-extends/problemBankManager.c:71:25: warning: initialization of ‘char *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+src-extends/problemBankManager.c:72:24: warning: initialization of ‘char *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+   72 |         char *lowPat = strdup(pat);
+      |                        ^~~~~~
+src-extends/problemBankManager.c: In function ‘loadAllProblems’:
+src-extends/problemBankManager.c:219:29: warning: initialization of ‘char *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+  219 |                 char* tmp = strdup(line);
+      |                             ^~~~~~
+src-extends/problemBankManager.c: In function ‘problemDetailMenu’:
+src-extends/problemBankManager.c:762:40: warning: implicit declaration of function ‘mkdtemp’ [-Wimplicit-function-declaration]
+  762 |                         char* tmpdir = mkdtemp(tmpTemplate);
+      |                                        ^~~~~~~
+src-extends/problemBankManager.c:762:40: warning: initialization of ‘char *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+src-extends/ACMLocalJudger.c: In function ‘acm_local_judge’:
+src-extends/ACMLocalJudger.c:82:20: warning: implicit declaration of function ‘mkdtemp’ [-Wimplicit-function-declaration]
+   82 |     char *tmpdir = mkdtemp(tmpTemplate);
+      |                    ^~~~~~~
+src-extends/ACMLocalJudger.c:82:20: warning: initialization of ‘char *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+src-extends/ACMLocalJudger.c:146:29: warning: implicit declaration of function ‘fileno’; did you mean ‘d_fileno’? [-Wimplicit-function-declaration]
+  146 |             if (fin) { dup2(fileno(fin), STDIN_FILENO); fclose(fin); }
+      |                             ^~~~~~
+      |                             d_fileno
+src-extends/ACMLocalJudger.c:170:17: warning: implicit declaration of function ‘kill’ [-Wimplicit-function-declaration]
+  170 |                 kill(pid, SIGKILL);
+      |                 ^~~~
+src-extends/ACMLocalJudger.c:179:13: warning: implicit declaration of function ‘nanosleep’ [-Wimplicit-function-declaration]
+  179 |             nanosleep(&ts, NULL);
+      |             ^~~~~~~~~
+src-extends/ACMLocalJudger.c:94:83: warning: ‘%s’ directive output may be truncated writing up to 1399 bytes into a region of size between 617 and 2016 [-Wformat-truncation=]
+   94 |     snprintf(compileCmd, sizeof(compileCmd), "g++ -std=c++17 -O2 -o '%s' '%s' 2> '%s'", exePath, source_file_path, compileLog);
+      |                                                                                   ^~                               ~~~~~~~~~~
+src-extends/ACMLocalJudger.c:94:5: note: ‘snprintf’ output 34 or more bytes (assuming 2832) into a destination of size 2048
+   94 |     snprintf(compileCmd, sizeof(compileCmd), "g++ -std=c++17 -O2 -o '%s' '%s' 2> '%s'", exePath, source_file_path, compileLog);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src-extends/ACMLocalJudger.c:105:46: warning: ‘%s’ directive output may be truncated writing up to 255 bytes into a region of size between 200 and 1399 [-Wformat-truncation=]
+  105 |         snprintf(inpath, sizeof(inpath), "%s/%s", indir, de->d_name);
+      |                                              ^~
+src-extends/ACMLocalJudger.c:105:9: note: ‘snprintf’ output between 2 and 1456 bytes into a destination of size 1400
+  105 |         snprintf(inpath, sizeof(inpath), "%s/%s", indir, de->d_name);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src-extends/ACMLocalJudger.c:114:56: warning: ‘%s’ directive output may be truncated writing up to 511 bytes into a region of size between 200 and 1399 [-Wformat-truncation=]
+  114 |         snprintf(expectedOut, sizeof(expectedOut), "%s/%s.out", outdir, base);
+      |                                                        ^~               ~~~~
+src-extends/ACMLocalJudger.c:114:9: note: ‘snprintf’ output between 6 and 1716 bytes into a destination of size 1400
+  114 |         snprintf(expectedOut, sizeof(expectedOut), "%s/%s.out", outdir, base);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+编译测试程序...
+  编译 test_input_simulator...
+  编译 test_markdown...
+  编译 test_md5...
+  编译 test_printf...
+  编译 test_stack...
+  编译 test_screenManager...
+  编译 test_chineseSupport...

@@ -1,6 +1,11 @@
 
 #ifndef DEF_H
 #define DEF_H
+// 启用 POSIX 特性宏，确保 strdup/mkdtemp/fileno/nanosleep 等声明可用
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 200809L
+#endif
+// 囚服 Warning
 //颜色&格式定义
 #define ANSI_FRMT_RESET     "\e[0m"
 #define ANSI_FRMT_BOLD      "\e[1m"

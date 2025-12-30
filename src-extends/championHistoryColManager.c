@@ -31,7 +31,8 @@ int loadChampionHistory(const char* filename, ChampionRecord records[], int maxR
         trim_newline(line);
         if(line[0]=='\0') continue;
         // 使用 '|' 分割：年份|地点|大学|国家|队员|教练
-        char* tmp = strdup(line);
+        char* tmp = (char*)malloc(strlen(line) + 1);
+        if(tmp) strcpy(tmp, line);
         char* tok;
         int field = 0;
         ChampionRecord rec;
