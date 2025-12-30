@@ -10,56 +10,17 @@
 #include "src-extends/championHistoryColManager.h"
 #include "src-extends/problemBankManager.h"
 #include "src-extends/markdownPrinter.h"
+#include "src-extends/screenManager.h"
+
 #ifdef _WIN32
     #define sleep(seconds) Sleep((seconds) * 1000)
 #endif
-extern void cleanBuffer(){
-    char c;
-    while((c = getchar()) != '\n' && c != EOF);
-}
-extern void cleanScreen(){
-    #ifdef _WIN32
-        system("cls");
-    #else
-        system("clear");
-    #endif
-}
-extern void pauseScreen(void) {
-	printf("=> 按 Enter 键继续...\n");
-	fflush(stdout);
-	cleanBuffer();
-	getchar();
-}
-void printSplashScreen(){
-    puts(  "==== 欢迎使用在线评测系统 ===="  );
-    puts(  "|----------------------------|");
-    puts(  "|         请选择操作         |" );
-    puts(  "|----------------------------|");
-    puts(  "|                            |");
-    puts(  "|   1.登录      2.注册       |" );
-    puts(  "|   3.修改密码  4.删除用户   |" );
-    puts(  "|                            |");
-    puts(  "|----------------------------|");
-    puts(  "|          0.退出            |");
-    puts(  "|----------------------------|");
-    printf("=> 请输入选项：[ ]\b\b"         );
-}
-void printMainScreen(const char * username){
-    cleanScreen();
-    printf("==== ACM 竞赛管理与训练系统 ====\n");
-    printf("用户：%s\n", username);
-    puts(  "|----------------------------|");
-    puts(  "|         请选择操作         |" );
-    puts(  "|----------------------------|");
-    puts(  "|                            |");
-    puts(  "|    1.ACM 竞赛简介          |" );
-    puts(  "|    2.ACM 题库              |" );
-    puts(  "|                            |");
-    puts(  "|----------------------------|");
-    puts(  "|          0.返回            |");
-    puts(  "|----------------------------|");
-    printf("=> 请输入选项：[ ]\b\b"         );
-}
+
+void cleanBuffer(void);
+void cleanScreen(void);
+void pauseScreen(void);
+
+
 void displayFileContent(const char* filepath){
     // FILE* file = fopen(filepath, "r");
     // if(file == NULL){
@@ -83,17 +44,7 @@ void displayFileContent(const char* filepath){
 void getInACMIntroduction(){
     while(true){
         cleanScreen();
-        puts("====== ACM 竞赛简介 ======");
-        puts("|----------------------------|");
-        puts("|         1.参赛规则         |");
-        puts("|         2.评分标准         |");
-        puts("|         3.赛事构成         |");
-        puts("|         4.赛事介绍         |");
-        puts("|         5.历届获奖         |");
-        puts("|----------------------------|");
-        puts("|         0.返回主菜单       |");
-        puts("|----------------------------|");
-        printf("=> 请输入选项：[ ]\b\b");
+        printACMDetailScreen();
         int choice;
         if(scanf("%d", &choice) != 1){
             cleanBuffer();

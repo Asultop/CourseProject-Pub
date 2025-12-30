@@ -2,6 +2,9 @@
 #ifndef DEF_H
 #define DEF_H
 
+
+// 屏幕尺寸定义
+#define SCREEN_CHAR_WIDTH 64
 // 数据量定义
 #define MAX_NAME_LEN 100
 #define MAX_PASSWORD_LEN 100

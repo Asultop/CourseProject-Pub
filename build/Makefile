@@ -201,6 +201,30 @@ src-extends/championHistoryColManager.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.s
 .PHONY : src-extends/championHistoryColManager.c.s
 
+src-extends/chineseSupport.o: src-extends/chineseSupport.c.o
+.PHONY : src-extends/chineseSupport.o
+
+# target to build an object file
+src-extends/chineseSupport.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/chineseSupport.c.o
+.PHONY : src-extends/chineseSupport.c.o
+
+src-extends/chineseSupport.i: src-extends/chineseSupport.c.i
+.PHONY : src-extends/chineseSupport.i
+
+# target to preprocess a source file
+src-extends/chineseSupport.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/chineseSupport.c.i
+.PHONY : src-extends/chineseSupport.c.i
+
+src-extends/chineseSupport.s: src-extends/chineseSupport.c.s
+.PHONY : src-extends/chineseSupport.s
+
+# target to generate assembly for a file
+src-extends/chineseSupport.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/chineseSupport.c.s
+.PHONY : src-extends/chineseSupport.c.s
+
 src-extends/fileHelper.o: src-extends/fileHelper.c.o
 .PHONY : src-extends/fileHelper.o
 
@@ -321,6 +345,30 @@ src-extends/problemBankManager.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/problemBankManager.c.s
 .PHONY : src-extends/problemBankManager.c.s
 
+src-extends/screenManager.o: src-extends/screenManager.c.o
+.PHONY : src-extends/screenManager.o
+
+# target to build an object file
+src-extends/screenManager.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/screenManager.c.o
+.PHONY : src-extends/screenManager.c.o
+
+src-extends/screenManager.i: src-extends/screenManager.c.i
+.PHONY : src-extends/screenManager.i
+
+# target to preprocess a source file
+src-extends/screenManager.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/screenManager.c.i
+.PHONY : src-extends/screenManager.c.i
+
+src-extends/screenManager.s: src-extends/screenManager.c.s
+.PHONY : src-extends/screenManager.s
+
+# target to generate assembly for a file
+src-extends/screenManager.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/screenManager.c.s
+.PHONY : src-extends/screenManager.c.s
+
 src-extends/stack.o: src-extends/stack.c.o
 .PHONY : src-extends/stack.o
 
@@ -387,6 +435,9 @@ help:
 	@echo "... src-extends/championHistoryColManager.o"
 	@echo "... src-extends/championHistoryColManager.i"
 	@echo "... src-extends/championHistoryColManager.s"
+	@echo "... src-extends/chineseSupport.o"
+	@echo "... src-extends/chineseSupport.i"
+	@echo "... src-extends/chineseSupport.s"
 	@echo "... src-extends/fileHelper.o"
 	@echo "... src-extends/fileHelper.i"
 	@echo "... src-extends/fileHelper.s"
@@ -402,6 +453,9 @@ help:
 	@echo "... src-extends/problemBankManager.o"
 	@echo "... src-extends/problemBankManager.i"
 	@echo "... src-extends/problemBankManager.s"
+	@echo "... src-extends/screenManager.o"
+	@echo "... src-extends/screenManager.i"
+	@echo "... src-extends/screenManager.s"
 	@echo "... src-extends/stack.o"
 	@echo "... src-extends/stack.i"
 	@echo "... src-extends/stack.s"

@@ -1,5 +1,5 @@
 echo "编译 CourseProject 主程序..."
-gcc -std=c11 main.c src-extends/stack.c src-extends/md5.c src-extends/usrManager.c src-extends/fileHelper.c src-extends/passwordInputSimulator.c src-extends/championHistoryColManager.c src-extends/problemBankManager.c src-extends/markdownPrinter.c src-extends/ACMLocalJudger.c -o CourseProject -lm
+gcc -std=c11 main.c src-extends/chineseSupport.c src-extends/screenManager.c src-extends/stack.c src-extends/md5.c src-extends/usrManager.c src-extends/fileHelper.c src-extends/passwordInputSimulator.c src-extends/championHistoryColManager.c src-extends/problemBankManager.c src-extends/markdownPrinter.c src-extends/ACMLocalJudger.c -o CourseProject -lm
 
 echo "编译测试程序..."
 echo "  编译 test_input_simulator..."
@@ -12,3 +12,5 @@ echo "  编译 test_printf..."
 gcc -std=c11 src-test/test_printf.c -o src-test/build/test_printf -lm 
 echo "  编译 test_stack..."
 gcc -std=c11 src-extends/stack.c src-test/test_stack.c -o src-test/build/test_stack -lm
+echo "  编译 test_screenManager..."
+gcc -std=c11 src-extends/chineseSupport.c src-extends/screenManager.c src-test/test_screenManager.c -o src-test/build/test_screenManager -lm

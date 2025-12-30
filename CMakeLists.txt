@@ -17,6 +17,8 @@ set(SOURCES
 	src-extends/stack.c
 	src-extends/markdownPrinter.c
 	src-extends/ACMLocalJudger.c
+	src-extends/screenManager.c
+	src-extends/chineseSupport.c
 )
 
 add_executable(course_project ${SOURCES})

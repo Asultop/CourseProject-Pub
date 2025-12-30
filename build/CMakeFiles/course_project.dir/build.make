@@ -209,6 +209,34 @@ CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.s"
 	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/src-extends/ACMLocalJudger.c -o CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.s
 
+CMakeFiles/course_project.dir/src-extends/screenManager.c.o: CMakeFiles/course_project.dir/flags.make
+CMakeFiles/course_project.dir/src-extends/screenManager.c.o: /home/asultop/CourseProject/src-extends/screenManager.c
+CMakeFiles/course_project.dir/src-extends/screenManager.c.o: CMakeFiles/course_project.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building C object CMakeFiles/course_project.dir/src-extends/screenManager.c.o"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/course_project.dir/src-extends/screenManager.c.o -MF CMakeFiles/course_project.dir/src-extends/screenManager.c.o.d -o CMakeFiles/course_project.dir/src-extends/screenManager.c.o -c /home/asultop/CourseProject/src-extends/screenManager.c
+
+CMakeFiles/course_project.dir/src-extends/screenManager.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/course_project.dir/src-extends/screenManager.c.i"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asultop/CourseProject/src-extends/screenManager.c > CMakeFiles/course_project.dir/src-extends/screenManager.c.i
+
+CMakeFiles/course_project.dir/src-extends/screenManager.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/src-extends/screenManager.c.s"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/src-extends/screenManager.c -o CMakeFiles/course_project.dir/src-extends/screenManager.c.s
+
+CMakeFiles/course_project.dir/src-extends/chineseSupport.c.o: CMakeFiles/course_project.dir/flags.make
+CMakeFiles/course_project.dir/src-extends/chineseSupport.c.o: /home/asultop/CourseProject/src-extends/chineseSupport.c
+CMakeFiles/course_project.dir/src-extends/chineseSupport.c.o: CMakeFiles/course_project.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building C object CMakeFiles/course_project.dir/src-extends/chineseSupport.c.o"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/course_project.dir/src-extends/chineseSupport.c.o -MF CMakeFiles/course_project.dir/src-extends/chineseSupport.c.o.d -o CMakeFiles/course_project.dir/src-extends/chineseSupport.c.o -c /home/asultop/CourseProject/src-extends/chineseSupport.c
+
+CMakeFiles/course_project.dir/src-extends/chineseSupport.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/course_project.dir/src-extends/chineseSupport.c.i"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asultop/CourseProject/src-extends/chineseSupport.c > CMakeFiles/course_project.dir/src-extends/chineseSupport.c.i
+
+CMakeFiles/course_project.dir/src-extends/chineseSupport.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/src-extends/chineseSupport.c.s"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/src-extends/chineseSupport.c -o CMakeFiles/course_project.dir/src-extends/chineseSupport.c.s
+
 # Object files for target course_project
 course_project_OBJECTS = \
 "CMakeFiles/course_project.dir/main.c.o" \
@@ -220,7 +248,9 @@ course_project_OBJECTS = \
 "CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o" \
 "CMakeFiles/course_project.dir/src-extends/stack.c.o" \
 "CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o" \
-"CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.o"
+"CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.o" \
+"CMakeFiles/course_project.dir/src-extends/screenManager.c.o" \
+"CMakeFiles/course_project.dir/src-extends/chineseSupport.c.o"
 
 # External object files for target course_project
 course_project_EXTERNAL_OBJECTS =
@@ -235,9 +265,11 @@ course_project: CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o
 course_project: CMakeFiles/course_project.dir/src-extends/stack.c.o
 course_project: CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o
 course_project: CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.o
+course_project: CMakeFiles/course_project.dir/src-extends/screenManager.c.o
+course_project: CMakeFiles/course_project.dir/src-extends/chineseSupport.c.o
 course_project: CMakeFiles/course_project.dir/build.make
 course_project: CMakeFiles/course_project.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking C executable course_project"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Linking C executable course_project"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/course_project.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

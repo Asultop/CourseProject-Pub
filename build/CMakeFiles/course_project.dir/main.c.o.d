@@ -90,4 +90,5 @@ CMakeFiles/course_project.dir/main.c.o: \
  /usr/include/errno.h /usr/include/x86_64-linux-gnu/bits/errno.h \
  /usr/include/linux/errno.h /usr/include/x86_64-linux-gnu/asm/errno.h \
  /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
- /usr/include/assert.h /home/asultop/CourseProject/src-extends/stack.h
+ /usr/include/assert.h /home/asultop/CourseProject/src-extends/stack.h \
+ /home/asultop/CourseProject/src-extends/screenManager.h

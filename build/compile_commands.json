@@ -58,5 +58,17 @@
   "command": "/usr/bin/gcc  -I/home/asultop/CourseProject -g -std=gnu99 -o CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.o -c /home/asultop/CourseProject/src-extends/ACMLocalJudger.c",
   "file": "/home/asultop/CourseProject/src-extends/ACMLocalJudger.c",
   "output": "CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.o"
+},
+{
+  "directory": "/home/asultop/CourseProject/build",
+  "command": "/usr/bin/gcc  -I/home/asultop/CourseProject -g -std=gnu99 -o CMakeFiles/course_project.dir/src-extends/screenManager.c.o -c /home/asultop/CourseProject/src-extends/screenManager.c",
+  "file": "/home/asultop/CourseProject/src-extends/screenManager.c",
+  "output": "CMakeFiles/course_project.dir/src-extends/screenManager.c.o"
+},
+{
+  "directory": "/home/asultop/CourseProject/build",
+  "command": "/usr/bin/gcc  -I/home/asultop/CourseProject -g -std=gnu99 -o CMakeFiles/course_project.dir/src-extends/chineseSupport.c.o -c /home/asultop/CourseProject/src-extends/chineseSupport.c",
+  "file": "/home/asultop/CourseProject/src-extends/chineseSupport.c",
+  "output": "CMakeFiles/course_project.dir/src-extends/chineseSupport.c.o"
 }
 ]

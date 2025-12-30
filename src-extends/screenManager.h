@@ -1,0 +1,15 @@
+#ifndef SCREEN_MANAGER_H
+#define SCREEN_MANAGER_H
+#include "Def.h"
+#include <stdio.h>
+
+void printSplashScreen();
+void printMainScreen(const char * username);
+void printACMDetailScreen();
+
+void printHeader();
+void printFooter();
+void printDivider();
+
+void printContent(const char * contentLine);
+#endif // SCREEN_MANAGER_H

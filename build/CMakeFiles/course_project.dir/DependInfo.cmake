@@ -11,11 +11,13 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/asultop/CourseProject/main.c" "CMakeFiles/course_project.dir/main.c.o" "gcc" "CMakeFiles/course_project.dir/main.c.o.d"
   "/home/asultop/CourseProject/src-extends/ACMLocalJudger.c" "CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.o" "gcc" "CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.o.d"
   "/home/asultop/CourseProject/src-extends/championHistoryColManager.c" "CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o" "gcc" "CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o.d"
+  "/home/asultop/CourseProject/src-extends/chineseSupport.c" "CMakeFiles/course_project.dir/src-extends/chineseSupport.c.o" "gcc" "CMakeFiles/course_project.dir/src-extends/chineseSupport.c.o.d"
   "/home/asultop/CourseProject/src-extends/fileHelper.c" "CMakeFiles/course_project.dir/src-extends/fileHelper.c.o" "gcc" "CMakeFiles/course_project.dir/src-extends/fileHelper.c.o.d"
   "/home/asultop/CourseProject/src-extends/markdownPrinter.c" "CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o" "gcc" "CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o.d"
   "/home/asultop/CourseProject/src-extends/md5.c" "CMakeFiles/course_project.dir/src-extends/md5.c.o" "gcc" "CMakeFiles/course_project.dir/src-extends/md5.c.o.d"
   "/home/asultop/CourseProject/src-extends/passwordInputSimulator.c" "CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.o" "gcc" "CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.o.d"
   "/home/asultop/CourseProject/src-extends/problemBankManager.c" "CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o" "gcc" "CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o.d"
+  "/home/asultop/CourseProject/src-extends/screenManager.c" "CMakeFiles/course_project.dir/src-extends/screenManager.c.o" "gcc" "CMakeFiles/course_project.dir/src-extends/screenManager.c.o.d"
   "/home/asultop/CourseProject/src-extends/stack.c" "CMakeFiles/course_project.dir/src-extends/stack.c.o" "gcc" "CMakeFiles/course_project.dir/src-extends/stack.c.o.d"
   "/home/asultop/CourseProject/src-extends/usrManager.c" "CMakeFiles/course_project.dir/src-extends/usrManager.c.o" "gcc" "CMakeFiles/course_project.dir/src-extends/usrManager.c.o.d"
   )
