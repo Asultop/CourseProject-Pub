@@ -626,7 +626,8 @@ void interactiveProblemBank(const char* problemsDir) {
 			char ans[8];
 			if(scanf("%s", ans) != 1) continue;
 			if(ans[0]=='y' || ans[0]=='Y') {
-				if(deleteProblemByID(problemsDir, idbuf)) printf("√> %s 已删除。\n", idbuf); else printf("x> 删除失败，可能不存在或无法删除。\n");
+				if(deleteProblemByID(problemsDir, idbuf)) printf("√> %s 已删除。\n", idbuf); 
+				else printf("x> 删除失败，可能不存在或无法删除。\n");
 			} else {
 				printf("?> 已取消删除。\n");
 			}
