@@ -1,4 +1,4 @@
-#define _XOPEN_SOURCE 700  // 启用POSIX扩展，兼容C11
+#define _XOPEN_SOURCE 700  // 启用POSIX扩展，兼容
 #include "codeRender.h"
 #include "chineseSupport.h"
 #include <libgen.h>
@@ -6,11 +6,11 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <stdalign.h>      // C11对齐头文件
-#include <stdnoreturn.h>   // C11 noreturn头文件
-#include <errno.h>         // C11错误码
+#include <stdalign.h>      // 对齐头文件
+#include <stdnoreturn.h>   //  noreturn头文件
+#include <errno.h>         // 错误码
 
-// ========== C/C++关键字列表（包含C11新增关键字） ==========
+// ========== C/C++关键字列表（包含新增关键字） ==========
 static const char* const cpp_keywords[] = {
     // C基础关键字
     "auto", "break", "case", "char", "const", "continue", "default", "do",
@@ -22,7 +22,7 @@ static const char* const cpp_keywords[] = {
     "false", "friend", "inline", "mutable", "namespace", "new", "operator", "private",
     "protected", "public", "reinterpret_cast", "static_cast", "template", "this",
     "throw", "true", "try", "typeid", "typename", "using", "virtual", "wchar_t",
-    // C11新增关键字
+    // 新增关键字
     "_Alignas", "_Alignof", "_Atomic", "_Bool", "_Complex", "_Generic",
     "_Imaginary", "_Noreturn", "alignas", "alignof", "atomic_bool",
     "atomic_char", "atomic_int", "constexpr", "decltype", "nullptr",
@@ -30,7 +30,7 @@ static const char* const cpp_keywords[] = {
     NULL
 };
 
-// ========== 内部工具函数声明（C11规范） ==========
+// ========== 内部工具函数声明（规范） ==========
 static int is_cpp_keyword(const char* restrict token);
 static int is_cpp_type(const char* restrict token);
 static int is_number(const char* restrict token);
@@ -330,13 +330,13 @@ static _Noreturn void print_error(const char* restrict msg);
 static _Noreturn void print_error(const char* restrict msg) {
     fprintf(stderr, "[CodeRender错误] %s\n", msg);
     fflush(stderr);
-    exit(EXIT_FAILURE);  // C11标准退出码
+    exit(EXIT_FAILURE);  // 标准退出码
 }
 
 static int is_cpp_keyword(const char* restrict token) {
     if (token == NULL || *token == '\0') return 0;
 
-    // C11：sizeof...计算数组长度，避免魔法数字
+    // sizeof...计算数组长度，避免魔法数字
     const size_t kw_count = (sizeof(cpp_keywords) / sizeof(cpp_keywords[0])) - 1;
     for (size_t i = 0; i < kw_count; ++i) {
         if (strcmp(token, cpp_keywords[i]) == 0) {
@@ -385,7 +385,7 @@ static int is_number(const char* restrict token) {
 
     // 检查数字有效性
     for (size_t i = start; i < end; ++i) {
-        const unsigned char uc = (unsigned char)token[i];  // C11：避免符号扩展
+        const unsigned char uc = (unsigned char)token[i];  // 避免符号扩展
         if (isdigit(uc) || (is_hex && isxdigit(uc))) {
             has_digit = 1;
             continue;
@@ -562,17 +562,17 @@ static void render_cpp_line(const char* restrict line, int* restrict in_multi_co
     freeProcessedChars(units);
 }
 
-// ========== 核心函数实现（C11标准） ==========
+// ========== 核心函数实现（标准） ==========
 int codeRender_worker(const char* restrict file) {
-    // C11：严格空指针检查
+    // 严格空指针检查
     if (file == NULL) {
         fprintf(stderr, "[CodeRender错误] 文件路径为NULL\n");
         return -1;
     }
 
-    // C11：安全打开文件（兼容MSVC fopen_s和GCC fopen）
+    // 安全打开文件（兼容MSVC fopen_s和GCC fopen）
     FILE* fp = NULL;
-#if defined(_MSC_VER)  // Windows MSVC编译器（C11 Annex K安全函数）
+#if defined(_MSC_VER)  // Windows MSVC编译器（ Annex K安全函数）
     const errno_t err = fopen_s(&fp, file, "r");
     if (err != 0) {
         fprintf(stderr, "[CodeRender错误] 无法打开文件 %s（错误码：%d）\n", file, err);
@@ -586,7 +586,7 @@ int codeRender_worker(const char* restrict file) {
     }
 #endif
 
-    // C11：静态断言验证缓冲区大小（取消注释启用）
+    // 静态断言验证缓冲区大小（取消注释启用）
     // static_assert(4096 >= 1024, "行缓冲区过小，无法处理长行");
     char line[4096];
     int in_multi_comment = 0;  // 跨行长注释状态
@@ -603,7 +603,7 @@ int codeRender_worker(const char* restrict file) {
         render_cpp_line(line, &in_multi_comment);
     }
 
-    // C11：检查文件读取错误
+    // 检查文件读取错误
     if (ferror(fp)) {
         fprintf(stderr, "[CodeRender错误] 读取文件 %s 时发生IO错误\n", file);
         fclose(fp);
@@ -615,12 +615,12 @@ int codeRender_worker(const char* restrict file) {
         printf("%s%s", COLOR_COMMENT, "/* 未闭合的多行注释 */" COLOR_DEFAULT);
     }
 
-    // C11：安全关闭文件，避免野指针
+    // 安全关闭文件，避免野指针
     if (fp != NULL) {
         fclose(fp);
         fp = NULL;
     }
 
-    fflush(stdout);  // C11：强制刷新输出缓冲区
+    fflush(stdout);  // 强制刷新输出缓冲区
     return 0;
 }
