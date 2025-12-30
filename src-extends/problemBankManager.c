@@ -1,6 +1,7 @@
 #include "problemBankManager.h"
 #include "Def.h"
 #include "fileHelper.h"
+#include "markdownPrinter.h"
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
@@ -11,6 +12,7 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include <sys/select.h>
+
 // 去除字符串末尾的换行符
 static void trim_newline(char* s) {
 	if(!s) return;
@@ -39,6 +41,9 @@ static char* readFileToString(const char* path) {
 	buf[read] = '\0';
 	fclose(f);
 	return buf;
+}
+static void printFileWithLatex(const char* src){
+	mdcat_worker(src);
 }
 // 打印面包屑头部
 static void print_breadcrumb(const char* sub) {
@@ -400,10 +405,12 @@ static void printProblemDetails(const ProblemEntry* e) {
 	printf("|  题目文件: %s\n", e->problemPath);
 	puts(  "|----------------------------|");
     if(fileExists(e->problemPath)) {
-        char* content = readFileToString(e->problemPath);
-        if(content) {
-            printf("====== 题目内容 ======\n%s\n====== 题目结束 ======\n", content);
-            free(content);
+        bool contentExist = fileExists(e->problemPath);
+        if(contentExist) {
+            puts("====== 题目内容 ======");
+			printFileWithLatex(e->problemPath);
+			puts("====== 题目结束 ======");
+
         } else {
             printf("x> 无法读取题目内容文件：%s\n", e->problemPath);
         }
@@ -428,8 +435,12 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 			char path[1200];
 			snprintf(path, sizeof(path), "%s/%s/analyzing.txt", problemsDir, e->folderName);
 			if(fileExists(path)) {
-				char* txt = readFileToString(path);
-				if(txt) { printf("====== 解析文件: %s ======\n%s\n====== 解析结束 ======\n", path, txt); free(txt); }
+				bool txt = fileExists(path);
+				if(txt) { 
+					puts("====== 解析文件 ======");
+					printFileWithLatex(path);
+					puts("====== 解析结束 ======"); 
+				}
 				else printf("x> 无法读取解析文件：%s\n", path);
 			} else {
 				printf("x> 解析文件不存在：%s\n", path);
