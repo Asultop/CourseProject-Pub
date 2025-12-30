@@ -467,24 +467,11 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 					if(cret != 0) {
 						printf("x> 编译失败 (返回 %d)\n", cret);
 					} else {
-						// 查找第一个 .in
-						char inDir[1200]; snprintf(inDir, sizeof(inDir), "%s/%s/in", problemsDir, e->folderName);
-						char inPath[1400] = "";
-						DIR* dd = opendir(inDir);
-						if(dd) {
-							struct dirent* de;
-							while((de = readdir(dd))!=NULL) {
-								if(de->d_name[0]=='.') continue;
-								size_t L = strlen(de->d_name);
-								if(L>3 && strcmp(de->d_name+L-3, ".in")==0) { snprintf(inPath, sizeof(inPath), "%s/%s", inDir, de->d_name); break; }
-							}
-							closedir(dd);
-						}
+						// 直接执行可执行文件（不自动查找或重定向 .in）
 						printf("===== %s 正确样例运行开始 =====\n", e->id);
 						fflush(stdout);
 						char runCmd[1600];
-						if(inPath[0]) snprintf(runCmd, sizeof(runCmd), "'%s' < '%s'", exePath, inPath);
-						else snprintf(runCmd, sizeof(runCmd), "'%s'", exePath);
+						snprintf(runCmd, sizeof(runCmd), "'%s'", exePath);
 						int rret = system(runCmd); (void)rret;
 						printf("===== %s 正确样例运行结束 =====\n", e->id);
 						remove(exePath);
