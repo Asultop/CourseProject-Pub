@@ -8,6 +8,9 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <signal.h>
+#include <errno.h>
+#include <time.h>
 
 static bool ends_with(const char *s, const char *suffix) {
     if (!s || !suffix) return false;
@@ -123,13 +126,84 @@ JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *e
             continue;
         }
 
-        // 运行可执行文件
+        // 运行可执行文件，使用 fork/exec 并支持超时
         char tmpOut[1400];
         snprintf(tmpOut, sizeof(tmpOut), "%s/out_%d.txt", tmpdir, idx);
-        char runCmd[2048];
-        snprintf(runCmd, sizeof(runCmd), "'%s' < '%s' > '%s' 2> '%s/run_err_%d.log'", exePath, inpath, tmpOut, tmpdir, idx);
-        int rret = system(runCmd);
-        if (rret != 0) {
+        char tmpErr[1400];
+        snprintf(tmpErr, sizeof(tmpErr), "%s/run_err_%d.log", tmpdir, idx);
+
+        pid_t pid = fork();
+        if (pid == -1) {
+            summary.infos[idx].result = JUDGE_RESULT_RUNTIME_ERROR;
+            strncpy(summary.infos[idx].message, "运行时错误", sizeof(summary.infos[idx].message)-1);
+            summary.infos[idx].message[sizeof(summary.infos[idx].message)-1] = '\0';
+            idx++;
+            continue;
+        }
+        if (pid == 0) {
+            // child: redirect stdin/stdout/stderr and exec
+            FILE *fin = fopen(inpath, "rb");
+            if (fin) { dup2(fileno(fin), STDIN_FILENO); fclose(fin); }
+            FILE *fout = fopen(tmpOut, "wb");
+            if (fout) { dup2(fileno(fout), STDOUT_FILENO); fclose(fout); }
+            FILE *ferr = fopen(tmpErr, "wb");
+            if (ferr) { dup2(fileno(ferr), STDERR_FILENO); fclose(ferr); }
+            // exec
+            execl(exePath, exePath, (char*)NULL);
+            _exit(127);
+        }
+
+        // parent: wait with timeout (milliseconds)
+        int status = 0;
+        int waited_ms = 0;
+        const int poll_ms = 10;
+        int finished = 0;
+        while (1) {
+            pid_t w = waitpid(pid, &status, WNOHANG);
+            if (w == -1) {
+                // error
+                break;
+            }
+            if (w == pid) { finished = 1; break; }
+            if (waited_ms >= MAX_JUDGES_TIMELIMIT_MSEC) {
+                // timeout: kill child
+                kill(pid, SIGKILL);
+                waitpid(pid, &status, 0);
+                summary.infos[idx].result = JUDGE_RESULT_TIME_LIMIT_EXCEEDED;
+                strncpy(summary.infos[idx].message, "答案有误，请检查你的代码", sizeof(summary.infos[idx].message)-1);
+                summary.infos[idx].message[sizeof(summary.infos[idx].message)-1] = '\0';
+                finished = 1;
+                break;
+            }
+            struct timespec ts; ts.tv_sec = 0; ts.tv_nsec = poll_ms * 1000000;
+            nanosleep(&ts, NULL);
+            waited_ms += poll_ms;
+        }
+
+        if (!finished) {
+            // some error occurred waiting
+            summary.infos[idx].result = JUDGE_RESULT_RUNTIME_ERROR;
+            strncpy(summary.infos[idx].message, "运行时错误", sizeof(summary.infos[idx].message)-1);
+            summary.infos[idx].message[sizeof(summary.infos[idx].message)-1] = '\0';
+            idx++;
+            continue;
+        }
+
+        // if timed out we already set result; skip to next
+        if (summary.infos[idx].result == JUDGE_RESULT_TIME_LIMIT_EXCEEDED) {
+            idx++;
+            continue;
+        }
+
+        // child finished, check exit status
+        if (WIFSIGNALED(status)) {
+            summary.infos[idx].result = JUDGE_RESULT_RUNTIME_ERROR;
+            strncpy(summary.infos[idx].message, "运行时错误", sizeof(summary.infos[idx].message)-1);
+            summary.infos[idx].message[sizeof(summary.infos[idx].message)-1] = '\0';
+            idx++;
+            continue;
+        }
+        if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
             summary.infos[idx].result = JUDGE_RESULT_RUNTIME_ERROR;
             strncpy(summary.infos[idx].message, "运行时错误", sizeof(summary.infos[idx].message)-1);
             summary.infos[idx].message[sizeof(summary.infos[idx].message)-1] = '\0';

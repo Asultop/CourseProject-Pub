@@ -465,10 +465,25 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 							printf("=> 判题结果 (%d 个用例):\n", js.count);
 							for (int i = 0; i < js.count; ++i) {
 								JudgeReturnInfo *ri = &js.infos[i];
-								if (ri->result == JUDGE_RESULT_ACCEPTED) {
-									printf(ANSI_BOLD_GREEN "[AC]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
-								} else {
-									printf(ANSI_BOLD_RED "[WA]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+								switch (ri->result) {
+									case JUDGE_RESULT_ACCEPTED:
+										printf(ANSI_BOLD_GREEN "[AC]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+										break;
+									case JUDGE_RESULT_WRONG_ANSWER:
+										printf(ANSI_BOLD_RED "[WA]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+										break;
+									case JUDGE_RESULT_RUNTIME_ERROR:
+										printf(ANSI_BOLD_MAGENTA "[RE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+										break;
+									case JUDGE_RESULT_COMPILE_ERROR:
+										printf(ANSI_BOLD_YELLOW "[CE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+										break;
+									case JUDGE_RESULT_TIME_LIMIT_EXCEEDED:
+										printf(ANSI_BOLD_WHITE "[TLE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+										break;
+									default:
+										printf("[?] 测试点 %d: %s\n", i+1, ri->message);
+										break;
 								}
 							}
 						}
