@@ -636,34 +636,72 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 				char *pdir = dirname(probcopy);
 				/* 调用本地判题器 */
 				JudgeSummary js = acm_local_judge(pstart, e);
+				printHeader();
+				printCenter("判题结果");
 				if (js.count == 0) {
-					printf("=> 未发现 in/ 测试用例 (目录: %s/in)\n", pdir);
+					// printf("=> 未发现 in/ 测试用例 (目录: %s/in)\n", pdir);
+					char buf[512];
+					snprintf(buf, sizeof(buf), "=> 未发现 in/ 测试用例 (目录: %s/in)", pdir);
+					printLeft(buf);
+					printFooter();
 					goto continueWithWait;
 				}
-				printf("=> 判题结果 (%d 个用例):\n", js.count);
+				printDivider();
 				for (int i = 0; i < js.count; ++i) {
 					JudgeReturnInfo *ri = &js.infos[i];
 					switch (ri->result) {
 						case JUDGE_RESULT_ACCEPTED:
-							printf(ANSI_BOLD_GREEN "[AC]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+							// printf(ANSI_BOLD_GREEN "[AC]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+							{
+								char buf[512];
+								snprintf(buf, sizeof(buf), ANSI_BOLD_GREEN "[AC]" ANSI_FRMT_RESET " 测试点 %d: %s", i+1, ri->message);
+								printLeft(buf);
+							}
 							break;
 						case JUDGE_RESULT_WRONG_ANSWER:
-							printf(ANSI_BOLD_RED "[WA]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+							// printf(ANSI_BOLD_RED "[WA]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+							{
+								char buf[512];
+								snprintf(buf, sizeof(buf), ANSI_BOLD_RED "[WA]" ANSI_FRMT_RESET " 测试点 %d: %s", i+1, ri->message);
+								printLeft(buf);
+							}
 							break;
 						case JUDGE_RESULT_RUNTIME_ERROR:
-							printf(ANSI_BOLD_MAGENTA "[RE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+							// printf(ANSI_BOLD_MAGENTA "[RE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+							{
+								char buf[512];
+								snprintf(buf, sizeof(buf), ANSI_BOLD_MAGENTA "[RE]" ANSI_FRMT_RESET " 测试点 %d: %s", i+1, ri->message);
+								printLeft(buf);
+							}	
 							break;
 						case JUDGE_RESULT_COMPILE_ERROR:
-							printf(ANSI_BOLD_YELLOW "[CE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+							// printf(ANSI_BOLD_YELLOW "[CE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+							{
+								char buf[512];
+								snprintf(buf, sizeof(buf), ANSI_BOLD_YELLOW "[CE]" ANSI_FRMT_RESET " 测试点 %d: %s", i+1, ri->message);
+								printLeft(buf);
+							}
 							break;
 						case JUDGE_RESULT_TIME_LIMIT_EXCEEDED:
-							printf(ANSI_BOLD_WHITE "[TLE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+							// printf(ANSI_BOLD_WHITE "[TLE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+							{
+								char buf[512];
+								snprintf(buf, sizeof(buf), ANSI_BOLD_WHITE "[TLE]" ANSI_FRMT_RESET " 测试点 %d: %s", i+1, ri->message);
+								printLeft(buf);
+							}
 							break;
 						default:
-							printf("[?] 测试点 %d: %s\n", i+1, ri->message);
+							// printf("[?] 测试点 %d: %s\n", i+1, ri->message);
+							{
+								char buf[512];
+								snprintf(buf, sizeof(buf), "[?] 测试点 %d: %s", i+1, ri->message);
+								printLeft(buf);
+							}
 							break;
 					}
+					if(i < js.count - 1) printDivider();
 				}
+				printFooter();
 				puts("=> 按 Enter 键继续...");
 				fflush(stdout);
 				cleanBuffer();
@@ -690,9 +728,13 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 			if(fileExists(path)) {
 				char* txt = readFileToString(path);
 				if(txt) { 
+					printHeader();
 					printCenter("题解文件");
+					printDivider();
 					printf("%s\n", txt);
+					printDivider();
 					printCenter("题解结束");
+					printFooter();
 					free(txt); 
 				}
 				else printf("x> 无法读取题解文件：%s\n", path);
@@ -757,7 +799,7 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 				snprintf(header, sizeof(header), " %s 正确样例运行结束 ", e->id);
 				printDivider();
 				printCenter(header);
-				printDivider();
+				printFooter();
 				remove(exePath);
 			}
 			free(exePath);
@@ -1016,25 +1058,31 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 			snprintf(header, sizeof(header), "%-8s %-25s %s", "ID", "标题", "难度");
 			printLeft(header);
 			for (int i=0;i<rcount;i++) {
-				// 将高亮标题写入缓冲并构造整行，由 printLeft 负责对齐/溢出处理
+				// 将高亮标题写入缓冲并构造整行，保证标题列使用固定可见宽度以对齐难度列
 				const char* title = results[i].title ? results[i].title : "";
 				const char* diff = results[i].difficulty ? results[i].difficulty : "";
-				size_t need = strlen(results[i].id) + 1 + strlen(title) * 4 + strlen(diff) + 128;
+				const int title_col_width = 25; // 与表头宽度保持一致
+				size_t need = strlen(results[i].id) + 1 + strlen(title) * 4 + strlen(diff) * 4 + 256;
 				char *line = (char*)malloc(need);
 				if(!line) {
-					// 回退到简单打印
+					// 回退到简单打印（无对齐）
 					printf("%-8s ", results[i].id);
 					print_highlight(title, titleFilter);
-					printf(" ");
+					// 根据可见标题长度填充空格
+					int vlen = (int)strlen(title);
+					if(vlen < title_col_width) {
+						for(int k=0;k < title_col_width - vlen; ++k) putchar(' ');
+					}
+					putchar(' ');
 					print_highlight(diff, diffFilter);
 					printf("\n");
 				} else {
 					// 先格式化 ID 和间隔
 					int off = snprintf(line, need, "%-8s ", results[i].id);
 					if(off < 0) off = 0;
-					size_t rem = (off >= 0) ? (size_t)off : 0;
+					size_t rem = (size_t)off;
 					// 高亮 title 到临时缓冲
-					size_t tbufsz = strlen(title) * 4 + 32;
+					size_t tbufsz = strlen(title) * 4 + 64;
 					if(tbufsz < 256) tbufsz = 256;
 					char *tbuf = malloc(tbufsz);
 					if(tbuf) {
@@ -1043,10 +1091,18 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 						if(rem + copy + 1 < need) memcpy(line + rem, tbuf, copy), rem += copy, line[rem] = '\0';
 						free(tbuf);
 					}
-					// 添加间隔和难度（难度也高亮）
-					int w = snprintf(line + rem, (rem < need) ? need - rem : 0, " %s", ""); (void)w; // ensure NUL
-					rem = strlen(line);
-					size_t dbufsz = strlen(diff) * 4 + 32;
+					// 根据原始（可见）标题长度填充空格以对齐列
+					int visible_len = (int)strlen(title);
+					int pad = 0;
+					if(visible_len < title_col_width) pad = title_col_width - visible_len;
+					// 至少保留一个空格间隔
+					if(rem + pad + 1 < need) {
+						memset(line + rem, ' ', pad + 1);
+						rem += pad + 1;
+						line[rem] = '\0';
+					}
+					// 添加难度（高亮）
+					size_t dbufsz = strlen(diff) * 4 + 64;
 					if(dbufsz < 128) dbufsz = 128;
 					char *dbuf = malloc(dbufsz);
 					if(dbuf) {

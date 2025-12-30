@@ -43,7 +43,7 @@ void printSplashScreen(){
     printDivider();
     printCenter("0. 退出");
     printFooter();
-    printf("⇒ 请输入选项：");
+    printf("=> 请输入选项：[ ]\b\b");
 }
 void printMainScreen(const char * username){
     
@@ -71,7 +71,7 @@ void printMainScreen(const char * username){
     printDivider();
     printCenter("0. 返回");
     printFooter();
-    printf("⇒ 请输入选项：");
+    printf("=> 请输入选项：[ ]\b\b");
 }
 void printACMDetailScreen(){
     // puts("╔════════════════════════════════════════╗");
@@ -97,7 +97,7 @@ void printACMDetailScreen(){
     printDivider();
     printCenter("0. 返回主菜单");
     printFooter();
-    printf("⇒ 请输入选项：");
+    printf("=> 请输入选项：[ ]\b\b");
 }
 void printACMProblemBankScreen(const char * currentUser){
     // puts("========= ACM 题库 =========");

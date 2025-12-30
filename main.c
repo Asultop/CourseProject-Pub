@@ -344,7 +344,7 @@ int main(int argc,char *argv[]){
         sleep(1);
     }
 
-    LINE_DIFF_25_splash: { // Splash 登录/注册界面
+    while(true){ // Splash 登录/注册界面
         cleanScreen();
         printSplashScreen();
         int choice;
@@ -352,22 +352,25 @@ int main(int argc,char *argv[]){
             cleanBuffer();
             printf("?> 无效的选择，请重新输入。\n");
             sleep(1);
-            goto LINE_DIFF_25_splash; // LINE DIFF_25 从定义处
+            continue;
         }
         switch (choice){
             case 1:
                 if(!login(&currentUser)){
                     printf("x> 登录失败\n");
                     sleep(1);
-                    exit(EXIT_FAILURE);
+                    // exit(EXIT_FAILURE);
+                    continue;
                 }
                 printf("√> 欢迎，%s！\n", currentUser.name);
+                goto loginSuccess;
                 break;
             case 2:
                 if(!registerUser(&currentUser)){
                     printf("x> 注册失败\n");
                     sleep(1);
-                    exit(EXIT_FAILURE);
+                    // exit(EXIT_FAILURE);
+                    continue;
                 }
                 break;
             case 3:
@@ -375,21 +378,24 @@ int main(int argc,char *argv[]){
                 if(!modifyAccount()){
                     printf("x> 修改密码失败\n");
                     sleep(1);
-                    exit(EXIT_FAILURE);
+                    continue;
                 }
                 printf("√> 请重新登录以使用新密码。\n");
-                exit(0);
+                // exit(0);
+                continue;
                 break;
             case 4:
                 //删除用户
                 if(!deleteUserFlow(globalUserGroup)){
                     printf("x> 删除用户失败\n");
                     sleep(1);
-                    exit(EXIT_FAILURE);
+                    // exit(EXIT_FAILURE);
+                    continue;
                 }
                 printf("√> 用户删除成功！请重新登录。\n");
                 sleep(1);
-                exit(0);
+                // exit(0);
+                continue;
                 break;
             case 0:
                 // 退出程序
@@ -399,11 +405,13 @@ int main(int argc,char *argv[]){
             default:
                 printf("?> 无效的选择，请重新输入。\n");
                 sleep(1);
-                goto LINE_DIFF_25_splash; // LINE DIFF_25 从定义处
+                // goto Splash; // LINE DIFF_25 从定义处
+                continue;
                 break;
         }
         
     }
+    loginSuccess:{}
     sleep(1);
     // 进入主界面
     while(true){
