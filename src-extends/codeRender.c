@@ -1,6 +1,7 @@
 #define _XOPEN_SOURCE 700  // 启用POSIX扩展，兼容
 #include "codeRender.h"
 #include "chineseSupport.h"
+#include "fileHelper.h"
 #include <libgen.h>
 #include <limits.h>
 #include <string.h>
@@ -38,8 +39,6 @@ static int is_preprocessor(const char* restrict line, int pos);
 static int is_operator(char c);
 static int is_variable(const char* restrict token);  // 新增：变量判断
 static void render_cpp_line(const char* restrict line, int* restrict in_multi_comment);
-static void join_basedir_and_rel(const char *basedir, const char *rel, char *out, size_t outsz);
-static char * read_file_to_str_alloc(const char *path);
 static char * find_top_level_semicolon(char *start);
 // 已知类型集合（从 include 文件中收集）
 static char ** known_types = NULL;
@@ -78,7 +77,7 @@ static int is_known_type(const char *name) {
 
 static void collect_types_from_file(const char *path) {
     if (!path) return;
-    char *content = read_file_to_str_alloc(path);
+    char *content = readFileToStr(path);
     if (!content) return;
 
     // 1) 找 typedef ... ; 并取分号前最后一个标识符
@@ -161,40 +160,31 @@ static void collect_types_from_includes_recursive(const char *file, char ***visi
     (*visited_files)[*visited_count] = strdup(file);
     (*visited_count)++;
 
-    FILE *f = fopen(file, "r");
-    if (!f) return;
-    char line[4096];
-    // 获取基目录
-    char *dup = strdup(file);
-    char *basedir = dirname(dup);
-    while (fgets(line, sizeof(line), f)) {
-        char *inc = strstr(line, "#include");
-        if (!inc) continue;
-        char *q = strchr(line, '"');
-        if (!q) continue;
-        char *r = strchr(q+1, '"');
-        if (!r) continue;
-        size_t plen = (size_t)(r - q - 1);
-        char incpath[PATH_MAX];
-        // 构造相对路径
-        // q+1 到 r-1 是相对路径
-        char rel[1024];
-        if (plen >= (int)sizeof(rel)) plen = (int)sizeof(rel) - 1;
-        memcpy(rel, q+1, (size_t)plen);
-        rel[plen] = '\0';
-        // 规范化路径
-        char normalized[PATH_MAX];
-        // join_basedir_and_rel 在下面定义
-        join_basedir_and_rel(basedir, rel, normalized, sizeof(normalized));
-        strncpy(incpath, normalized, sizeof(incpath)-1);
-        incpath[sizeof(incpath)-1] = '\0';
-        (void)0;
-        collect_types_from_file(incpath);
-        (void)0;
-        collect_types_from_includes_recursive(incpath, visited_files, visited_count, visited_cap);
-    }
-    free(dup);
-    fclose(f);
+        // 读取整个文件内容并在内存中查找 #include "..." 模式
+        char *content = readFileToStr(file);
+        if (!content) return;
+        char *dup = strdup(file);
+        char *basedir = dirname(dup);
+        char *p = content;
+        while ((p = strstr(p, "#include")) != NULL) {
+            char *q = strchr(p, '"');
+            if (!q) { p += 8; continue; }
+            char *r = strchr(q+1, '"');
+            if (!r) { p = q + 1; continue; }
+            size_t plen = (size_t)(r - q - 1);
+            char rel[1024];
+            if (plen >= sizeof(rel)) plen = sizeof(rel) - 1;
+            memcpy(rel, q+1, plen);
+            rel[plen] = '\0';
+            char normalized[4096];
+            joinBasedirAndRel(basedir, rel, normalized, sizeof(normalized));
+            char incpath[4096]; strncpy(incpath, normalized, sizeof(incpath)-1); incpath[sizeof(incpath)-1] = '\0';
+            collect_types_from_file(incpath);
+            collect_types_from_includes_recursive(incpath, visited_files, visited_count, visited_cap);
+            p = r + 1;
+        }
+        free(content);
+        free(dup);
 }
 
 static void collect_types_from_includes(const char *file) {
@@ -206,102 +196,9 @@ static void collect_types_from_includes(const char *file) {
     }
 }
 
-static void join_basedir_and_rel(const char *basedir, const char *rel, char *out, size_t outsz) {
-    if (!out || outsz == 0) return;
-    out[0] = '\0';
-    if (!rel || rel[0] == '\0') {
-        if (basedir) strncpy(out, basedir, outsz-1);
-        out[outsz-1] = '\0';
-        return;
-    }
-    (void)basedir; (void)rel;
-    // If rel is absolute, normalize rel alone
-    if (rel[0] == '/') {
-        // 规范化绝对路径 rel
-        char tmp[PATH_MAX]; strncpy(tmp, rel, sizeof(tmp)-1); tmp[sizeof(tmp)-1] = '\0';
-        // 继续使用 tmp 作为输入进行规范化
-        const char *src = tmp;
-        // 分割并规范化路径组件
-        char *stack[PATH_MAX]; size_t top = 0;
-        char buf[PATH_MAX]; strncpy(buf, src, sizeof(buf)-1); buf[sizeof(buf)-1] = '\0';
-        char *tok = strtok(buf, "/");
-        while (tok) {
-            if (strcmp(tok, ".") == 0) { tok = strtok(NULL, "/"); continue; }
-            if (strcmp(tok, "..") == 0) { if (top > 0) top--; tok = strtok(NULL, "/"); continue; }
-            stack[top++] = tok;
-            tok = strtok(NULL, "/");
-        }
-        // 重构路径
-        size_t pos = 0;
-        if (pos + 1 < outsz) out[pos++] = '/';
-        for (size_t i = 0; i < top; ++i) {
-            size_t len = strlen(stack[i]);
-            if (pos + len + 1 < outsz) {
-                memcpy(out + pos, stack[i], len); pos += len; out[pos++] = '/';
-            } else break;
-        }
-        if (pos > 0 && pos < outsz) out[pos-1] = '\0'; else if (pos < outsz) out[pos] = '\0';
-        return;
-    }
 
-    // 基于 basedir 和 rel 连接
-    char joined[PATH_MAX];
-    if (basedir && basedir[0] != '\0') snprintf(joined, sizeof(joined), "%s/%s", basedir, rel);
-    else snprintf(joined, sizeof(joined), "%s", rel);
-    (void)joined;
 
-    // 规范化 joined 路径
-    char buf[PATH_MAX]; strncpy(buf, joined, sizeof(buf)-1); buf[sizeof(buf)-1] = '\0';
-    // 使用 strtok 分割组件，保证每个组件以 '\0' 结尾
-    char *components[PATH_MAX]; size_t compc = 0;
-    char *tok = strtok(buf, "/");
-    while (tok) {
-        if (strcmp(tok, ".") == 0) { tok = strtok(NULL, "/"); continue; }
-        if (strcmp(tok, "..") == 0) { if (compc > 0) compc--; tok = strtok(NULL, "/"); continue; }
-        components[compc++] = tok;
-        tok = strtok(NULL, "/");
-    }
-    // 重构路径
-    size_t pos = 0;
-    (void)compc;
-    // 检查是否为绝对路径
-    if (joined[0] == '/') {
-        if (pos + 1 < outsz) out[pos++] = '/';
-    }
-    for (size_t i = 0; i < compc; ++i) {
-        size_t len = strlen(components[i]);
-        if (pos + len + 1 < outsz) {
-            memcpy(out + pos, components[i], len); pos += len; out[pos++] = '/';
-        } else break;
-    }
-    if (pos == 0) {
-        // empty -> current dir
-        if (pos + 1 < outsz) { out[pos++] = '.'; out[pos] = '\0'; }
-        else out[outsz-1] = '\0';
-    } else {
-        if (pos < outsz) out[pos-1] = '\0'; else out[outsz-1] = '\0';
-    }
-    (void)out;
-}
-
-// Read entire file into a malloc'd buffer, null-terminated. Caller must free.
-static char * read_file_to_str_alloc(const char *path) {
-    if (!path) return NULL;
-    FILE *f = fopen(path, "rb");
-    if (!f) return NULL;
-    if (fseek(f, 0, SEEK_END) != 0) { fclose(f); return NULL; }
-    long len = ftell(f);
-    if (len < 0) { fclose(f); return NULL; }
-    rewind(f);
-    char *buf = (char*)malloc((size_t)len + 1);
-    if (!buf) { fclose(f); return NULL; }
-    size_t r = fread(buf, 1, (size_t)len, f);
-    buf[r] = '\0';
-    fclose(f);
-    return buf;
-}
-
-// Find semicolon at top-level (not inside braces), skipping strings and comments.
+// 已迁移到 fileHelper 的 readFileToStr
 static char * find_top_level_semicolon(char *start) {
     char *i = start;
     int brace = 0;
@@ -579,7 +476,7 @@ int codeRender_worker(const char* restrict file) {
         return -1;
     }
 #else  // Linux/macOS GCC/Clang
-    fp = fopen(file, "r");
+        fp = openFile(file, "r");
     if (fp == NULL) {
         fprintf(stderr, "[CodeRender错误] 无法打开文件 %s：%s\n", file, strerror(errno));
         return -1;
@@ -617,7 +514,7 @@ int codeRender_worker(const char* restrict file) {
 
     // 安全关闭文件，避免野指针
     if (fp != NULL) {
-        fclose(fp);
+            closeFile(fp);
         fp = NULL;
     }
 

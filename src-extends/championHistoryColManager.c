@@ -1,6 +1,7 @@
 #include "championHistoryColManager.h"
 #include "screenManager.h"
 #include "markdownPrinter.h"
+#include "fileHelper.h"
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -23,7 +24,7 @@ static void tolower_copy(const char* src, char* dst, size_t maxlen){
 
 int loadChampionHistory(const char* filename, ChampionRecord records[], int maxRecords){
     if(!filename || !records) return 0;
-    FILE* f = fopen(filename, "r");
+    FILE* f = openFile(filename, "r");
     if(!f) return 0;
     char line[1024];
     int idx = 0;
@@ -58,7 +59,7 @@ int loadChampionHistory(const char* filename, ChampionRecord records[], int maxR
             records[idx++] = rec;
         }
     }
-    fclose(f);
+    closeFile(f);
     return idx;
 }
 

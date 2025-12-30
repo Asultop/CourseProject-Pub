@@ -2,6 +2,7 @@
 #include "Def.h"
 #include "md5.h"
 #include <stdio.h>
+#include "fileHelper.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -62,7 +63,7 @@ UsrActionReturnType addToGlobalUserGroup(UsrProfile globalUserGroup[], UsrProfil
 }
 
 UsrActionReturnInfo getAllUsrByReadDataFile(UsrProfile globalUserGroup[],const char* filename){
-    FILE* file = fopen(filename, "r");
+    FILE* file = openFile(filename, "r");
     if(file == NULL){
         return ERR;
     }
@@ -77,11 +78,11 @@ UsrActionReturnInfo getAllUsrByReadDataFile(UsrProfile globalUserGroup[],const c
             index++;
         }
     }
-    fclose(file);
+    closeFile(file);
     return SUCCESS;
 }
 UsrActionReturnInfo saveAllUsrToDataFile(UsrProfile globalUserGroup[],const char* filename){
-    FILE* file = fopen(filename, "w");
+    FILE* file = openFile(filename, "w");
     if(file == NULL){
         return ERR;
     }
@@ -90,7 +91,7 @@ UsrActionReturnInfo saveAllUsrToDataFile(UsrProfile globalUserGroup[],const char
             fprintf(file, "%s %s\n", globalUserGroup[i].name, globalUserGroup[i].password);
         }
     }
-    fclose(file);
+    closeFile(file);
     return SUCCESS;
 }
 bool loginUser(const char* name, const char* password){

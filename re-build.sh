@@ -1,5 +1,5 @@
 echo "编译 CourseProject 主程序..."
-gcc -std=c11 main.c src-extends/chineseSupport.c src-extends/screenManager.c src-extends/stack.c src-extends/md5.c src-extends/usrManager.c src-extends/fileHelper.c src-extends/passwordInputSimulator.c src-extends/championHistoryColManager.c src-extends/problemBankManager.c src-extends/markdownPrinter.c src-extends/ACMLocalJudger.c -o CourseProject -lm
+gcc -std=c11 main.c src-extends/codeRender.c src-extends/chineseSupport.c src-extends/screenManager.c src-extends/stack.c src-extends/md5.c src-extends/usrManager.c src-extends/fileHelper.c src-extends/passwordInputSimulator.c src-extends/championHistoryColManager.c src-extends/problemBankManager.c src-extends/markdownPrinter.c src-extends/ACMLocalJudger.c -o CourseProject -lm
 
 echo "编译测试程序..."
 mkdir -p src-test/build
@@ -18,4 +18,4 @@ gcc -std=c11 src-extends/chineseSupport.c src-extends/screenManager.c src-test/t
 echo "  编译 test_chineseSupport..."
 gcc -std=c11 src-extends/chineseSupport.c src-test/test_chineseSupport.c -o src-test/build/test_chineseSupport -lm
 echo "  编译 test_codeRender..."
-gcc -std=c11 src-extends/codeRender.c src-extends/chineseSupport.c src-test/test_codeRender.c -o src-test/build/test_codeRender -lm
+gcc -std=c11 src-extends/codeRender.c src-extends/fileHelper.c src-extends/chineseSupport.c src-test/test_codeRender.c -o src-test/build/test_codeRender -lm

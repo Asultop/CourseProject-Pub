@@ -2,6 +2,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
+#include "fileHelper.h"
 
 
 mdcat_t mdcat = { .fmt = DO_RESET };
@@ -576,7 +577,7 @@ int mdcat_worker(const char *file){
 			break;
 		}
 
-		fp = fopen(file, "r");
+		fp = openFile(file, "r");
 		if (fp == NULL) {
 			fprintf(stderr, "mdcat: cannot open '%s' (%s)\n", file, strerror(errno));
 			break;
@@ -593,7 +594,7 @@ int mdcat_worker(const char *file){
 
 		//display_stack(&stack);
 		free(linebuff);
-		fclose(fp);
+		closeFile(fp);
 	} while(0);
 
 	logit("retval: %d", retval);

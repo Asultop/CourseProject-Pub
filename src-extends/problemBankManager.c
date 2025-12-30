@@ -34,24 +34,7 @@ static void trim_newline(char* s) {
 }
 // 读取小文件到动态分配字符串
 static char* readFileToString(const char* path) {
-	FILE* f = fopen(path, "r");
-	if(!f) return NULL;
-	fseek(f, 0, SEEK_END);
-	long len = ftell(f);
-	fseek(f, 0, SEEK_SET);
-	if(len < 0) {
-		fclose(f);
-		return NULL;
-	}
-	char* buf = (char*)malloc((size_t)len + 1);
-	if(!buf) {
-		fclose(f);
-		return NULL;
-	}
-	size_t read = fread(buf, 1, (size_t)len, f);
-	buf[read] = '\0';
-	fclose(f);
-	return buf;
+	return readFileToStr(path);
 }
 static void printFileWithLatex(const char* src){
 	mdcat_worker(src);
@@ -215,14 +198,14 @@ int loadAllProblems(const char* problemsDir, ProblemEntry entries[], int maxEntr
 		// 读取 MetaData 文件
 		char metaPath[1200];
 		snprintf(metaPath, sizeof(metaPath), "%s/MetaData", subdir);
-		FILE* mf = fopen(metaPath, "r");
+		FILE* mf = openFile(metaPath, "r");
 		if(!mf) continue;
 		char line[1024];
 		if(fgets(line, sizeof(line), mf) == NULL) {
-			fclose(mf);
+			closeFile(mf);
 			continue;
 		}
-		fclose(mf);
+		closeFile(mf);
 		trim_newline(line);
 		// id|题干|难度|类型
 		char* tmp = (char*)malloc(strlen(line) + 1);
@@ -302,11 +285,11 @@ bool deleteProblemByID(const char* problemsDir, const char* id) {
 }
 // 简单文件复制
 static bool copy_file(const char* src, const char* dst) {
-	FILE* fsrc = fopen(src, "rb");
+	FILE* fsrc = openFile(src, "rb");
 	if(!fsrc) return false;
-	FILE* fdst = fopen(dst, "wb");
+	FILE* fdst = openFile(dst, "wb");
 	if(!fdst) {
-		fclose(fsrc);
+		closeFile(fsrc);
 		return false;
 	}
 	char buf[4096];
@@ -314,8 +297,8 @@ static bool copy_file(const char* src, const char* dst) {
 	while((n = fread(buf,1,sizeof(buf),fsrc))>0) {
 		fwrite(buf,1,n,fdst);
 	}
-	fclose(fsrc);
-	fclose(fdst);
+	closeFile(fsrc);
+	closeFile(fdst);
 	return true;
 }
 // 交互式添加题目
@@ -362,13 +345,13 @@ void addProblemInteractive(const char* problemsDir) {
 	// 写 MetaData
 	char metaPath[1200];
 	snprintf(metaPath, sizeof(metaPath), "%s/MetaData", newDir);
-	FILE* mf = fopen(metaPath, "w");
+	FILE* mf = openFile(metaPath, "w");
 	if(!mf) {
 		printf("x> 无法写入 MetaData\n");
 		return;
 	}
 	fprintf(mf, "%s|%s|%s|%s\n", id, title, diff, type);
-	fclose(mf);
+	closeFile(mf);
 	printf("=> 请逐行输入题目文件的路径（需要三个文件：analyzing.txt, %s.cpp, problem.txt）。\n", id);
 	printf("   粘贴路径时可带引号，程序会自动去掉引号；文件不存在时会继续提示，输入空行取消并删除已创建目录。\n");
 	char pathbuf[1024];

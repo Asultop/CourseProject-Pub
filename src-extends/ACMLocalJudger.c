@@ -1,4 +1,5 @@
 #include "ACMLocalJudger.h"
+#include "fileHelper.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,7 +23,7 @@ static bool ends_with(const char *s, const char *suffix) {
 // 规范化文件内容为仅包含空格分隔的标记字符串
 static size_t normalize_file_tokens(const char *path, char *outbuf, size_t outsz) {
     if (!path || !outbuf || outsz == 0) return 0;
-    FILE *f = fopen(path, "rb");
+    FILE *f = openFile(path, "rb");
     if (!f) return 0;
     size_t wrote = 0;
     char token[512];
@@ -48,7 +49,7 @@ static size_t normalize_file_tokens(const char *path, char *outbuf, size_t outsz
         }
     }
     outbuf[wrote] = '\0';
-    fclose(f);
+    closeFile(f);
     return wrote;
 }
 
@@ -143,12 +144,12 @@ JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *e
         }
         if (pid == 0) {
             // child: redirect stdin/stdout/stderr and exec
-            FILE *fin = fopen(inpath, "rb");
-            if (fin) { dup2(fileno(fin), STDIN_FILENO); fclose(fin); }
-            FILE *fout = fopen(tmpOut, "wb");
-            if (fout) { dup2(fileno(fout), STDOUT_FILENO); fclose(fout); }
-            FILE *ferr = fopen(tmpErr, "wb");
-            if (ferr) { dup2(fileno(ferr), STDERR_FILENO); fclose(ferr); }
+            FILE *fin = openFile(inpath, "rb");
+            if (fin) { dup2(fileno(fin), STDIN_FILENO); closeFile(fin); }
+            FILE *fout = openFile(tmpOut, "wb");
+            if (fout) { dup2(fileno(fout), STDOUT_FILENO); closeFile(fout); }
+            FILE *ferr = openFile(tmpErr, "wb");
+            if (ferr) { dup2(fileno(ferr), STDERR_FILENO); closeFile(ferr); }
             // exec
             execl(exePath, exePath, (char*)NULL);
             _exit(127);
@@ -213,8 +214,8 @@ JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *e
         }
 
         // 比较输出文件
-        FILE *f1 = fopen(tmpOut, "rb");
-        FILE *f2 = fopen(expectedOut, "rb");
+        FILE *f1 = openFile(tmpOut, "rb");
+        FILE *f2 = openFile(expectedOut, "rb");
         if (!f2) {
             // 缺少预期输出，视为答案错误
             summary.infos[idx].result = JUDGE_RESULT_WRONG_ANSWER;
@@ -230,8 +231,8 @@ JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *e
         normalize_file_tokens(tmpOut, norm1, sizeof(norm1));
         normalize_file_tokens(expectedOut, norm2, sizeof(norm2));
         bool same = (strcmp(norm1, norm2) == 0);
-        if (f1) fclose(f1);
-        if (f2) fclose(f2);
+        if (f1) closeFile(f1);
+        if (f2) closeFile(f2);
 
         if (same) {
             summary.infos[idx].result = JUDGE_RESULT_ACCEPTED;
@@ -242,11 +243,11 @@ JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *e
             /* 读取程序 stdout 内容并附加到 message，避免过长。若规范化输出非空则附加规范化结果以便查看数据。 */
             char outbuf[512]; outbuf[0] = '\0';
             char normout[1024]; normout[0] = '\0';
-            FILE *fout = fopen(tmpOut, "rb");
+            FILE *fout = openFile(tmpOut, "rb");
             if (fout) {
                 size_t r = fread(outbuf, 1, sizeof(outbuf)-1, fout);
                 outbuf[r] = '\0';
-                fclose(fout);
+                closeFile(fout);
                 while (r > 0 && (outbuf[r-1] == '\n' || outbuf[r-1] == '\r' || outbuf[r-1] == ' ' || outbuf[r-1] == '\t')) { outbuf[r-1] = '\0'; r--; }
             }
             normalize_file_tokens(tmpOut, normout, sizeof(normout));
