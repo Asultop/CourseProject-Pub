@@ -426,11 +426,15 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 	if(!e) return;
 	int sub = -1;
 	do {
+		sub = -1;
 		printProblemDetails(e);
 		printf("\n1. 提交结果\n2. 查看解析\n3. 查看题解\n4. 运行正确样例\n0. 返回\n=> 请选择：");
 		if(scanf("%d", &sub) != 1) {
-			int c; while((c=getchar())!='\n' && c!=EOF);
-			continue;
+			// 清理输入缓存
+			int c; 
+			while((c=getchar())!='\n' && c!=EOF);
+
+			goto continueWithWait;
 		}
 		if(sub == 1) {
 			/* 提交结果：提示用户输入源文件路径（支持带引号），并使用当前题目的 ProblemEntry 进行本地判题 */
@@ -442,51 +446,51 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 				while((c = getchar()) != '\n' && c != EOF);
 				if(!fgets(pathbuf, sizeof(pathbuf), stdin)) {
 					printf("x> 读取输入失败\n");
-				} else {
-					trim_newline(pathbuf);
+					goto continueWithWait;
+				}
+				trim_newline(pathbuf);
 					/* 去掉首尾引号 */
-					char *pstart = pathbuf;
-					while(*pstart == '"' || *pstart == '\'') pstart++;
-					char *pend = pstart + strlen(pstart) - 1;
-					while(pend > pstart && (*pend == '"' || *pend == '\'')) { *pend = '\0'; pend--; }
-					if(!fileExists(pstart)) {
-						printf("x> 源文件不存在：%s\n", pstart);
-					} else {
-						/* 计算题目目录 */
-						char probcopy[1024];
-						strncpy(probcopy, e->problemPath, sizeof(probcopy)-1);
-						probcopy[sizeof(probcopy)-1] = '\0';
-						char *pdir = dirname(probcopy);
-						/* 调用本地判题器 */
-						JudgeSummary js = acm_local_judge(pstart, e);
-						if (js.count == 0) {
-							printf("=> 未发现 in/ 测试用例 (目录: %s/in)\n", pdir);
-						} else {
-							printf("=> 判题结果 (%d 个用例):\n", js.count);
-							for (int i = 0; i < js.count; ++i) {
-								JudgeReturnInfo *ri = &js.infos[i];
-								switch (ri->result) {
-									case JUDGE_RESULT_ACCEPTED:
-										printf(ANSI_BOLD_GREEN "[AC]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
-										break;
-									case JUDGE_RESULT_WRONG_ANSWER:
-										printf(ANSI_BOLD_RED "[WA]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
-										break;
-									case JUDGE_RESULT_RUNTIME_ERROR:
-										printf(ANSI_BOLD_MAGENTA "[RE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
-										break;
-									case JUDGE_RESULT_COMPILE_ERROR:
-										printf(ANSI_BOLD_YELLOW "[CE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
-										break;
-									case JUDGE_RESULT_TIME_LIMIT_EXCEEDED:
-										printf(ANSI_BOLD_WHITE "[TLE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
-										break;
-									default:
-										printf("[?] 测试点 %d: %s\n", i+1, ri->message);
-										break;
-								}
-							}
-						}
+				char *pstart = pathbuf;
+				while(*pstart == '"' || *pstart == '\'') pstart++;
+				char *pend = pstart + strlen(pstart) - 1;
+				while(pend > pstart && (*pend == '"' || *pend == '\'')) { *pend = '\0'; pend--; }
+				if(!fileExists(pstart)) {
+					printf("x> 源文件不存在：%s\n", pstart);
+					goto continueWithWait;
+				}
+				/* 计算题目目录 */
+				char probcopy[1024];
+				strncpy(probcopy, e->problemPath, sizeof(probcopy)-1);
+				probcopy[sizeof(probcopy)-1] = '\0';
+				char *pdir = dirname(probcopy);
+				/* 调用本地判题器 */
+				JudgeSummary js = acm_local_judge(pstart, e);
+				if (js.count == 0) {
+					printf("=> 未发现 in/ 测试用例 (目录: %s/in)\n", pdir);
+					goto continueWithWait;
+				}
+				printf("=> 判题结果 (%d 个用例):\n", js.count);
+				for (int i = 0; i < js.count; ++i) {
+					JudgeReturnInfo *ri = &js.infos[i];
+					switch (ri->result) {
+						case JUDGE_RESULT_ACCEPTED:
+							printf(ANSI_BOLD_GREEN "[AC]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+							break;
+						case JUDGE_RESULT_WRONG_ANSWER:
+							printf(ANSI_BOLD_RED "[WA]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+							break;
+						case JUDGE_RESULT_RUNTIME_ERROR:
+							printf(ANSI_BOLD_MAGENTA "[RE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+							break;
+						case JUDGE_RESULT_COMPILE_ERROR:
+							printf(ANSI_BOLD_YELLOW "[CE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+							break;
+						case JUDGE_RESULT_TIME_LIMIT_EXCEEDED:
+							printf(ANSI_BOLD_WHITE "[TLE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+							break;
+						default:
+							printf("[?] 测试点 %d: %s\n", i+1, ri->message);
+							break;
 					}
 				}
 			}
@@ -522,43 +526,59 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 			if(!fileExists(src)) snprintf(src, sizeof(src), "%s/%s/general_solution.cpp", problemsDir, e->folderName);
 			if(!fileExists(src)) {
 				printf("x> 找不到可运行的源文件：%s.cpp 或 general_solution.cpp\n", e->id);
+				goto continueWithWait;
+			}
+			char tmpTemplate[] = "/tmp/progrunXXXXXX";
+			char* tmpdir = mkdtemp(tmpTemplate);
+			if(!tmpdir) {
+				printf("x> 无法创建临时目录\n");
+				goto continueWithWait;
+			}
+			char exePath[1400];
+			snprintf(exePath, sizeof(exePath), "%s/%s_exec", tmpdir, e->id);
+			char compileCmd[1800];
+			snprintf(compileCmd, sizeof(compileCmd), "g++ -std=c++17 -O2 -o '%s' '%s' 2>&1", exePath, src);
+			printf("=> 编译: %s\n", compileCmd);
+			int cret = system(compileCmd);
+			if(cret != 0) {
+				printf("x> 编译失败 (返回 %d)\n", cret);
 			} else {
-				char tmpTemplate[] = "/tmp/progrunXXXXXX";
-				char* tmpdir = mkdtemp(tmpTemplate);
-				if(!tmpdir) {
-					printf("x> 无法创建临时目录\n");
-				} else {
-					char exePath[1400];
-					snprintf(exePath, sizeof(exePath), "%s/%s_exec", tmpdir, e->id);
-					char compileCmd[1800];
-					snprintf(compileCmd, sizeof(compileCmd), "g++ -std=c++17 -O2 -o '%s' '%s' 2>&1", exePath, src);
-					printf("=> 编译: %s\n", compileCmd);
-					int cret = system(compileCmd);
-					if(cret != 0) {
-						printf("x> 编译失败 (返回 %d)\n", cret);
-					} else {
-						// 直接执行可执行文件（不自动查找或重定向 .in）
-						printf("===== %s 正确样例运行开始 =====\n", e->id);
-						fflush(stdout);
-						char runCmd[1600];
-						snprintf(runCmd, sizeof(runCmd), "'%s'", exePath);
-						int rret = system(runCmd); (void)rret;
-						printf("===== %s 正确样例运行结束 =====\n", e->id);
-						remove(exePath);
-					}
-					rmdir(tmpdir);
-				}
+				// 直接执行可执行文件（不自动查找或重定向 .in）
+				printf("===== %s 正确样例运行开始 =====\n", e->id);
+				fflush(stdout);
+				char runCmd[1600];
+				snprintf(runCmd, sizeof(runCmd), "'%s'", exePath);
+				int rret = system(runCmd); (void)rret;
+				printf("===== %s 正确样例运行结束 =====\n", e->id);
+				remove(exePath);
+			}
+			rmdir(tmpdir);
+		}
+		else {
+			puts("?> 无效选项，请重试。");
+		}
+
+		continueWithWait: {
+			if(sub != 0 ) {
+				pauseScreen();
+			}
+			if(sub == -1){
+				puts("?> 输入格式有误，请重试。");
+				pauseScreen();
 			}
 		}
-		if(sub != 0) pauseScreen();
 	} while(sub != 0);
 }
 void cleanScreen();
+
 void pauseScreen() {
 	printf("=> 按任意键继续...");
-	getchar();
-    getchar();
-	
+	int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+	int ch;
+    do {
+        ch = getchar();
+    } while (ch != '\n' && ch != EOF);
 	// 等待用户按键
 }
 // 交互式题库管理主界面
