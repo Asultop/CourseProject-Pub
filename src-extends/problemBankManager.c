@@ -525,6 +525,8 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 							break;
 					}
 				}
+				// cleanBuffer();
+				fflush(stdout);
 			}
 		} else if(sub == 2) {
 			char path[1200];
@@ -625,11 +627,7 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 }
 void cleanScreen(void);
 
-void pauseScreen(void) {
-	printf("=> 按任意键继续...");
-	int c;
-	while ((c = getchar()) != '\n' && c != EOF);
-}
+void pauseScreen(void);
 // 交互式题库管理主界面
 void interactiveProblemBank(const char* problemsDir) {
 	while(true) {
@@ -659,8 +657,7 @@ void interactiveProblemBank(const char* problemsDir) {
 			printf("=> 请输入要删除的题目 ID 或 文件夹名：");
 			char idbuf[128];
 			if(scanf("%s", idbuf) != 1) {
-				int cc;
-				while((cc=getchar())!='\n' && cc!=EOF);
+				cleanBuffer();
 				continue;
 			}
             

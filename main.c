@@ -9,12 +9,13 @@
 #include "src-extends/md5.h"
 #include "src-extends/championHistoryColManager.h"
 #include "src-extends/problemBankManager.h"
+#include "src-extends/markdownPrinter.h"
 #ifdef _WIN32
     #define sleep(seconds) Sleep((seconds) * 1000)
 #endif
 extern void cleanBuffer(){
-    // int c;
-    // while ((c = getchar()) != '\n' && c != EOF);
+    char c;
+    while((c = getchar()) != '\n' && c != EOF);
 }
 extern void cleanScreen(){
     #ifdef _WIN32
@@ -22,6 +23,12 @@ extern void cleanScreen(){
     #else
         system("clear");
     #endif
+}
+extern void pauseScreen(void) {
+	printf("=> 按任意键继续...\n");
+	fflush(stdout);
+	cleanBuffer();
+	getchar();
 }
 void printSplashScreen(){
     puts(  "==== 欢迎使用在线评测系统 ===="  );
@@ -54,22 +61,24 @@ void printMainScreen(const char * username){
     printf("=> 请输入选项：[ ]\b\b"         );
 }
 void displayFileContent(const char* filepath){
-    FILE* file = fopen(filepath, "r");
-    if(file == NULL){
-        printf("x> 无法打开文件：%s\n", filepath);
-        sleep(1);
-        return;
-    }
-    char line[MAX_MESSAGE_LEN];
-    printf("====== 文件内容：%s ======\n", filepath);
-    while(fgets(line, sizeof(line), file) != NULL){
-        printf("%s", line);
-    }
-    printf("\n====== 文件结束 ======\n");
-    fclose(file);
-    printf("=> 按任意键继续...");
-    getchar(); // 捕获换行符
-    getchar(); // 等待用户按键
+    // FILE* file = fopen(filepath, "r");
+    // if(file == NULL){
+    //     printf("x> 无法打开文件：%s\n", filepath);
+    //     sleep(1);
+    //     return;
+    // }
+    // char line[MAX_MESSAGE_LEN];
+    // printf("====== 文件内容：%s ======\n", filepath);
+    // while(fgets(line, sizeof(line), file) != NULL){
+    //     printf("%s", line);
+    // }
+    // printf("\n====== 文件结束 ======\n");
+    // fclose(file);
+    // printf("=> 按任意键继续...");
+    // getchar(); // 捕获换行符
+    // getchar(); // 等待用户按键
+    mdcat_worker(filepath);
+    pauseScreen();
 }
 void getInACMIntroduction(){
     while(true){
@@ -86,7 +95,6 @@ void getInACMIntroduction(){
         puts("|----------------------------|");
         printf("=> 请输入选项：[ ]\b\b");
         int choice;
-        cleanBuffer();
         scanf("%d", &choice);
         switch (choice){
             case 1:
@@ -102,7 +110,6 @@ void getInACMIntroduction(){
                 displayFileContent(INTRFILE);
                 break;
             case 5:
-                cleanBuffer();
                 interactiveChampionQuery(AWARFILE);
                 printf("√> 按下任意键继续...");
                 getchar();
@@ -147,7 +154,7 @@ bool checkCaptcha(int retryCount){
     char userInput[5];
     printf("=> 验证码：%4s\n", generatedCaptcha);
     printf("=> 请输入验证码：");
-    cleanBuffer();
+    
     scanf("%s", userInput);
     if(strcmp(generatedCaptcha, userInput) == 0){
         free(generatedCaptcha);
@@ -161,7 +168,7 @@ bool login(UsrProfile * prof){
     char name[MAX_NAME_LEN];
     char password[MAX_PASSWORD_LEN];
     printf("=> 请输入用户名：");
-    cleanBuffer();
+    
     scanf("%s", name);
 
     UsrActionReturnType result = queryUserByName(globalUserGroup, name);
@@ -215,7 +222,7 @@ bool registerUser(UsrProfile * prof){
     char name[MAX_NAME_LEN];
     char password[MAX_PASSWORD_LEN];
     printf("=> 请输入用户名：");
-    cleanBuffer();
+    
     scanf("%s", name);
     UsrActionReturnType queryResult = queryUserByName(globalUserGroup, name);
     if(queryResult.info == SUCCESS){
@@ -267,7 +274,6 @@ bool modifyAccount(){
     char oldPassword[MAX_PASSWORD_LEN];
     char newPassword[MAX_PASSWORD_LEN];
     printf("=> 请输入用户名：");
-    cleanBuffer();
     scanf("%s", name);
     if(!checkCaptcha(CAPTCHA_RETRY_LIMIT)){
         printf("x> 验证码错误，已取消修改！\n");
@@ -322,7 +328,6 @@ bool modifyAccount(){
 bool deleteUserFlow(UsrProfile globalUserGroup[]){
     char name[MAX_NAME_LEN];
     printf("=> 请输入要删除的用户名：");
-    cleanBuffer();
     scanf("%s", name);
     if(!checkCaptcha(CAPTCHA_RETRY_LIMIT)){
         printf("x> 验证码错误，已取消删除！\n");
@@ -386,7 +391,6 @@ int main(int argc,char *argv[]){
     LINE_DIFF_25_splash: { // Splash 登录/注册界面
         printSplashScreen();
         int choice;
-        cleanBuffer();
         scanf("%d", &choice);
         switch (choice){
             case 1:
@@ -441,7 +445,6 @@ int main(int argc,char *argv[]){
     while(true){
         printMainScreen(currentUser.name);
         int choice;
-        cleanBuffer();
         scanf("%d", &choice);
         if(choice == 0) break;
         switch (choice){
@@ -451,7 +454,6 @@ int main(int argc,char *argv[]){
                 break;
             case 2:
                 // ACM 题库
-                cleanBuffer();
                 interactiveProblemBank(PROBLEM_DIR);
                 break;
             case 0:
