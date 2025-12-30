@@ -31,9 +31,9 @@ int main(){
     printRight("右对齐测试行");
     printRight("混合对齐 Mix Alignment");
     printDivider();
-    printCenteredLine("Centered Line Test");
-    printCenteredLine("居中行测试");
-    printCenteredLine("混合居中 Mix Centeralization");
+    printCenter("Centered Line Test");
+    printCenter("居中行测试");
+    printCenter("混合居中 Mix Centeralization");
     printFooter();
 
     

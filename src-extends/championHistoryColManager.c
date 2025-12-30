@@ -1,4 +1,5 @@
 #include "championHistoryColManager.h"
+#include "screenManager.h"
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -96,7 +97,10 @@ static void print_field_highlight(const char* label, const char* value, const ch
     if(!label) label = "";
     if(!value) value = "";
     if(!filter || filter[0] == '\0'){
-        printf("%s: %s\n", label, value);
+        char buf[512];
+        snprintf(buf, sizeof(buf), "%s: %s", label, value);
+        printContent(buf);
+        // printf("%s: %s\n", label, value);
         return;
     }
     // 不区分大小写查找所有匹配片段并用红色包裹
@@ -111,34 +115,36 @@ static void print_field_highlight(const char* label, const char* value, const ch
     for(size_t i=0;i<flen;i++) lowFilter[i] = (char)tolower((unsigned char)filter[i]);
     lowFilter[flen] = '\0';
 
-    printf("%s: ", label);
+    // printf("%s: ", label);
+    char buffer[1280];
+    snprintf(buffer, sizeof(buffer), "%s: ", label);
     const char* cur = value;
     const char* lowCur = lowVal;
     while(true){
         char* found = strstr(lowCur, lowFilter);
         if(!found){
-            // 打印剩余
-            printf("%s\n", cur);
+            // 添加剩余部分到 buffer，循环结束后统一打印
+            snprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), "%s", cur);
             break;
         }
         // 计算偏移
         size_t prefixLen = (size_t)(found - lowCur);
-        // 打印前缀
+        // 添加前缀到 buffer
         if(prefixLen > 0){
-            fwrite(cur, 1, prefixLen, stdout);
+            snprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), "%.*s", (int)prefixLen, cur);
         }
-        // 打印高亮部分（使用原始大小写）
-        printf("%s", RED);
-        fwrite(cur + prefixLen, 1, flen, stdout);
-        printf("%s", RESET);
-        // 移动指针
+        // 添加高亮部分（使用原始大小写）到 buffer
+        snprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), "%s%.*s%s", RED, (int)flen, cur + prefixLen, RESET);
+        // 移动指针继续查找
         cur += prefixLen + flen;
         lowCur += prefixLen + flen;
         if(*cur == '\0'){
-            printf("\n");
             break;
         }
+        // 继续循环以拼接后续部分
     }
+    // 循环结束后一次性打印构造好的行，避免重复输出
+    printContent(buffer);
 }
 
 void printChampionRecord(const ChampionRecord* r,
@@ -146,7 +152,7 @@ void printChampionRecord(const ChampionRecord* r,
                          const char* universityFilter, const char* countryFilter,
                          const char* teamMembersFilter, const char* coachFilter){
     if(!r) return;
-    printf("------------------------------\n");
+    
     print_field_highlight("年份", r->year, yearFilter);
     print_field_highlight("决赛地点", r->location, locationFilter);
     print_field_highlight("冠军大学", r->university, universityFilter);
@@ -172,27 +178,27 @@ void interactiveChampionQuery(const char* filename){
 
     printf("=> 输入查询条件，留空表示通配（回车跳过）\n");
     fgets(buf, sizeof(buf), stdin); // 清除残留换行 BUG WORK
-    printf("年份：");
+    printf("=> 年份：");
     fgets(buf, sizeof(buf), stdin);
     trim_newline(buf);
     strncpy(year, buf, sizeof(year)-1);
-    printf("决赛地点：");
+    printf("=> 决赛地点：");
     fgets(buf, sizeof(buf), stdin);
     trim_newline(buf);
     strncpy(location, buf, sizeof(location)-1);
-    printf("冠军大学：");
+    printf("=> 冠军大学：");
     fgets(buf, sizeof(buf), stdin);
     trim_newline(buf);
     strncpy(university, buf, sizeof(university)-1);
-    printf("国家：");
+    printf("=> 国家：");
     fgets(buf, sizeof(buf), stdin);
     trim_newline(buf);
     strncpy(country, buf, sizeof(country)-1);
-    printf("队员（可输入名字片段）：");
+    printf("=> 队员（可输入名字片段）：");
     fgets(buf, sizeof(buf), stdin);
     trim_newline(buf);
     strncpy(teamMembers, buf, sizeof(teamMembers)-1);
-    printf("教练：");
+    printf("=> 教练：");
     fgets(buf, sizeof(buf), stdin);
     trim_newline(buf);
     strncpy(coach, buf, sizeof(coach)-1);
@@ -204,8 +210,15 @@ void interactiveChampionQuery(const char* filename){
         return;
     }
     printf("√> 找到 %d 条记录：\n", found);
+    printHeader();
+    printCenter("获奖记录详情");
+    printDivider();
     for(int i=0;i<found;i++){
         printChampionRecord(&results[i], year, location, university, country, teamMembers, coach);
+        if(i < found - 1){
+            printDivider();
+        }
     }
+    printFooter();
     
 }

@@ -191,6 +191,22 @@ unsigned long get_real_Length(const char * str, EncodingType *encoding) {
     // 3. 按编码精准计算实际长度
     if (enc == ENCODING_UTF8) {
         while (i < len) {
+            // 跳过 ANSI 转义序列（例如颜色码：\x1b[...m）不计入显示长度
+            if (u_str[i] == 0x1B && i + 1 < len && u_str[i+1] == '[') {
+                int j = i + 2;
+                // CSI 序列以 0x40('@') 到 0x7E('~') 的字节结束，常见为 'm'
+                while (j < len && !(u_str[j] >= 0x40 && u_str[j] <= 0x7E)) {
+                    j++;
+                }
+                if (j < len) {
+                    // 跳过整个转义序列
+                    i = j + 1;
+                    continue;
+                } else {
+                    // 不完整的转义序列，直接跳出以防越界
+                    break;
+                }
+            }
             if (u_str[i] < 0x80) {  // 半角ASCII（字母/数字/半角标点）：计1
                 real_len += 1;
                 i += 1;
@@ -213,6 +229,19 @@ unsigned long get_real_Length(const char * str, EncodingType *encoding) {
         }
     } else if (enc == ENCODING_GBK) {
         while (i < len) {
+            // 跳过 ANSI 转义序列（GBK 编码下也可能包含颜色码）
+            if (u_str[i] == 0x1B && i + 1 < len && u_str[i+1] == '[') {
+                int j = i + 2;
+                while (j < len && !(u_str[j] >= 0x40 && u_str[j] <= 0x7E)) {
+                    j++;
+                }
+                if (j < len) {
+                    i = j + 1;
+                    continue;
+                } else {
+                    break;
+                }
+            }
             if (u_str[i] < 0x80) {  // 半角ASCII：计1
                 real_len += 1;
                 i += 1;

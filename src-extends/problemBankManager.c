@@ -3,6 +3,7 @@
 #include "fileHelper.h"
 #include "markdownPrinter.h"
 #include "ACMLocalJudger.h"
+#include "screenManager.h"
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
@@ -52,11 +53,15 @@ static void printFileWithLatex(const char* src){
 // 打印面包屑头部
 static void print_breadcrumb(const char* sub) {
 	cleanScreen();
+	printHeader();
 	if(sub && sub[0]) {
-		printf("========= ACM 题库>>%s =========\n", sub);
+		char buf[128];
+		snprintf(buf, sizeof(buf), "ACM 题库 - %s", sub);
+		printCenter(buf);
 	} else {
-		printf("========= ACM 题库 =========\n");
+		printCenter("ACM 题库");
 	}
+	printFooter();
 }
 // 不区分大小写包含匹配
 static bool contains_case_insensitive(const char* text, const char* pat) {
@@ -469,19 +474,34 @@ void addProblemInteractive(const char* problemsDir) {
 // 打印题目详细信息及内容
 static void printProblemDetails(const ProblemEntry* e) {
 	if(!e) return;
-	puts(  "|----------------------------|");
-	printf("|  ID: %s\n", e->id);
-	printf("|  标题: %s\n", e->title);
-	printf("|  难度: %s\n", e->difficulty);
-	printf("|  类型: %s\n", e->type);
-	printf("|  题目文件: %s\n", e->problemPath);
-	puts(  "|----------------------------|");
+	// puts(  "|----------------------------|");
+	// printf("|  ID: %s\n", e->id);
+	// printf("|  标题: %s\n", e->title);
+	// printf("|  难度: %s\n", e->difficulty);
+	// printf("|  类型: %s\n", e->type);
+	// printf("|  题目文件: %s\n", e->problemPath);
+	// puts(  "|----------------------------|");
+	printDivider();
+	char IDline[128];
+	snprintf(IDline, sizeof(IDline), "ID: %s", e->id);
+	printLeft(IDline);
+	char titleline[512];
+	snprintf(titleline, sizeof(titleline), "标题: %s", e->title);
+	printLeft(titleline);
+	char difline[128];
+	snprintf(difline, sizeof(difline), "难度: %s", e->difficulty);
+	printLeft(difline);
+	char typeline[256];
+	snprintf(typeline, sizeof(typeline), "类型: %s", e->type);
+	printLeft(typeline);
+	printDivider();
+	// 读取题目内容文件
     if(fileExists(e->problemPath)) {
         bool contentExist = fileExists(e->problemPath);
         if(contentExist) {
-            puts("====== 题目内容 ======");
+            printCenter("题目开始");
 			printFileWithLatex(e->problemPath);
-			puts("====== 题目结束 ======");
+			printCenter("题目结束");
 
 
 
@@ -576,9 +596,9 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 			if(fileExists(path)) {
 				bool txt = fileExists(path);
 				if(txt) { 
-					puts("====== 解析文件 ======");
+					printCenter("解析文件");
 					printFileWithLatex(path);
-					puts("====== 解析结束 ======"); 
+					printCenter("解析结束"); 
 				}
 				else printf("x> 无法读取解析文件：%s\n", path);
 			} else {
@@ -590,7 +610,12 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 			if(!fileExists(path)) snprintf(path, sizeof(path), "%s/%s/general_solution.cpp", problemsDir, e->folderName);
 			if(fileExists(path)) {
 				char* txt = readFileToString(path);
-				if(txt) { printf("====== 题解文件: %s ======\n%s\n====== 题解结束 ======\n", path, txt); free(txt); }
+				if(txt) { 
+					printCenter("题解文件");
+					printf("%s\n", txt);
+					printCenter("题解结束");
+					free(txt); 
+				}
 				else printf("x> 无法读取题解文件：%s\n", path);
 			} else {
 				printf("x> 题解文件不存在：%s 或 %s.cpp\n", e->folderName, e->id);
@@ -634,7 +659,11 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 				printf("x> 编译失败 (返回 %d)\n", cret);
 			} else {
 				/* 直接执行可执行文件（不自动查找或重定向 .in） */
-				printf("===== %s 正确样例运行开始 =====\n", e->id);
+				char header[128];
+				snprintf(header, sizeof(header), " %s 正确样例运行开始 ", e->id);
+				printDivider();
+				printCenter(header);
+				printDivider();
 				fflush(stdout);
 				size_t run_need = 2 + strlen(exePath) + 1;
 				char *runCmd = malloc(run_need);
@@ -646,7 +675,10 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 					/* 退化：直接运行 exePath（不加引号） */
 					int rret = system(exePath); (void)rret;
 				}
-				printf("===== %s 正确样例运行结束 =====\n", e->id);
+				snprintf(header, sizeof(header), " %s 正确样例运行结束 ", e->id);
+				printDivider();
+				printCenter(header);
+				printDivider();
 				remove(exePath);
 			}
 			free(exePath);
@@ -674,16 +706,7 @@ void pauseScreen(void);
 void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 	while(true) {
 		cleanScreen();
-		puts("========= ACM 题库 =========");
-		printf("当前用户: %s\n", currentUser ? currentUser->name : "未登录");
-		puts("|----------------------------|");
-		puts("|      1. 显示所有题目       |");
-		puts("|      2. 搜索题目           |");
-		puts("|      3. 删除题目           |");
-		puts("|      4. 添加题目           |");
-		puts("|      0. 返回               |");
-		puts("|----------------------------|");
-		printf("=> 请输入选项：[ ]\b\b");
+		printACMProblemBankScreen(currentUser->name);
 		int choice = 0;
 		//CleanBuffer
 		if(scanf("%d", &choice) != 1) {
@@ -717,15 +740,38 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 				}
 			}
 			if(found != -1) {
-				printf("将要删除如下题目：\n");
-                puts(  "|----------------------------|");
-                printf("|  ID: %s\n", entries[found].id);
-                printf("|  标题: %s\n", entries[found].title);
-                printf("|  难度: %s\n", entries[found].difficulty);
-                printf("|  类型: %s\n", entries[found].type);
-                printf("|  题目文件: %s\n", entries[found].problemPath);
-                puts(  "|----------------------------|");
-				printf("确认删除以上题目吗？(y/n)：");
+				
+				printHeader();
+				printCenter("确认删除题目");
+				printDivider();
+				printCenter("将要删除如下题目: ");
+				{
+					char IDline[128];
+					snprintf(IDline, sizeof(IDline), "ID: %s", entries[found].id);
+					printLeft(IDline);
+					char titleline[512];
+					snprintf(titleline, sizeof(titleline), "标题: %s", entries[found].title);
+					printLeft(titleline);
+					char difline[128];
+					snprintf(difline, sizeof(difline), "难度: %s", entries[found].difficulty);
+					printLeft(difline);
+					char typeline[256];
+					snprintf(typeline, sizeof(typeline), "类型: %s", entries[found].type);
+					printLeft(typeline);
+					char probline[512];
+					snprintf(probline, sizeof(probline), "题目文件: %s", entries[found].problemPath);
+					printLeft(probline);
+				}
+
+				// printf("将要删除如下题目：\n");
+                // puts(  "|----------------------------|");
+                // printf("|  ID: %s\n", entries[found].id);
+                // printf("|  标题: %s\n", entries[found].title);
+                // printf("|  难度: %s\n", entries[found].difficulty);
+                // printf("|  类型: %s\n", entries[found].type);
+                // printf("|  题目文件: %s\n", entries[found].problemPath);
+                // puts(  "|----------------------------|");
+				printf("?> 确认删除以上题目吗？(y/n)：");
 			} else {
 				// 未找到题目，提示并返回菜单（不再询问确认删除）
 				printf("x> 未找到题目：%s\n", idbuf);
@@ -761,12 +807,25 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 				pauseScreen();
 				continue;
 			}
-			printf("-------- 题目列表 (%d) ---------\n", cnt);
-			printf("难度\t\tID\t\t标题\n");
-			for (int i=0;i<cnt;i++) {
-				printf("| %s\t\t%s\t\t%s\n", entries[i].difficulty, entries[i].id, entries[i].title);
+			// printf("-------- 题目列表 (%d) ---------\n", cnt);
+			// printf("难度\t\tID\t\t标题\n");
+			printHeader();
+			printCenter("题目列表");
+			printDivider();
+			{
+				char header[128];
+				snprintf(header, sizeof(header), "难度\t\tID\t\t标题");
+				printContent(header);
 			}
-			puts("|------------------------------");
+			for (int i=0;i<cnt;i++) {
+				// printf("| %s\t\t%s\t\t%s\n", entries[i].difficulty, entries[i].id, entries[i].title);
+				char line[1024];
+				snprintf(line, sizeof(line), "%s\t\t%s\t\t", entries[i].difficulty, entries[i].id);
+				// 高亮标题中的关键字（若有）
+				strcat(line, entries[i].title);
+				printContent(line);
+			}
+			printFooter();
 			printf("=> 输入题目 ID 打开详情，或 0 返回：");
 			char idBuf[128];
 			// 清除换行并读取字符串
@@ -798,22 +857,22 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 			// CleanBuffer
 			int c;
 			while((c=getchar())!='\n' && c!=EOF);
-			printf("输入标题关键字（留空通配）：");
+			printf("=> 输入标题关键字（留空通配）：");
 			fgets(buf, sizeof(buf), stdin);
 			trim_newline(buf);
 			char titleFilter[256];
 			strncpy(titleFilter, buf, sizeof(titleFilter)-1);
-			printf("输入题干关键字（留空通配）：");
+			printf("=> 输入题干关键字（留空通配）：");
 			fgets(buf, sizeof(buf), stdin);
 			trim_newline(buf);
 			char stmtFilter[256];
 			strncpy(stmtFilter, buf, sizeof(stmtFilter)-1);
-			printf("输入难度（留空通配）：");
+			printf("=> 输入难度（留空通配）：");
 			fgets(buf, sizeof(buf), stdin);
 			trim_newline(buf);
 			char diffFilter[64];
 			strncpy(diffFilter, buf, sizeof(diffFilter)-1);
-			printf("输入类型（留空通配）：");
+			printf("=> 输入类型（留空通配）：");
 			fgets(buf, sizeof(buf), stdin);
 			trim_newline(buf);
 			char typeFilter[128];
@@ -854,8 +913,16 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 				continue;
 			}
 			printf("√> 找到 %d 条题目：\n", rcount);
-			printf("|      -------- 题目列表 (%d) ---------       |\n", rcount);
-			printf("ID\t\t标题\t\t难度\n");
+			{
+				char buf[64];
+				snprintf(buf, sizeof(buf), "搜索结果 (%d)", rcount);
+				printContent(buf);
+			}
+			
+			printDivider();
+			char header[128];
+			snprintf(header, sizeof(header), "ID\t\t标题\t\t难度");
+			printContent(header);
 			for (int i=0;i<rcount;i++) {
 				// 输出 ID，不高亮
 				printf("%s\t\t", results[i].id);
@@ -866,7 +933,7 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 				print_highlight(results[i].difficulty, diffFilter);
 				printf("\n");
 			}
-			printf(".      -------------------------------       .\n");
+			printDivider();
             printf("=> 输入题目 ID 打开详情，或 0 返回：");
 			char idBuf[128];
 			if(scanf("%s", idBuf) != 1) 

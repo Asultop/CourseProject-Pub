@@ -226,6 +226,7 @@ CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.o: /home/asultop/Cour
 CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o: /home/asultop/CourseProject/src-extends/championHistoryColManager.c \
   /home/asultop/CourseProject/src-extends/Def.h \
   /home/asultop/CourseProject/src-extends/championHistoryColManager.h \
+  /home/asultop/CourseProject/src-extends/screenManager.h \
   /usr/include/alloca.h \
   /usr/include/ctype.h \
   /usr/include/endian.h \
@@ -613,6 +614,7 @@ CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o: /home/asultop/
   /home/asultop/CourseProject/src-extends/fileHelper.h \
   /home/asultop/CourseProject/src-extends/markdownPrinter.h \
   /home/asultop/CourseProject/src-extends/problemBankManager.h \
+  /home/asultop/CourseProject/src-extends/screenManager.h \
   /home/asultop/CourseProject/src-extends/stack.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/errno-base.h \

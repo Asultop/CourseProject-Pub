@@ -7,6 +7,8 @@ int main(){
     printf("|      -------- 题目列表 (%d) ---------       |\n", rcount);
     printf("|ID\t\t标题\t\t难度\t|\n");
     char anoymous[]="中";
-    printf("%ld",strlen(anoymous));
+    printf("strlen = %ld\n",strlen(anoymous));
 
+    const char* RED = "\x1b[31m";
+    printf("strlen(RED) = %ld\n",strlen(RED));
 }

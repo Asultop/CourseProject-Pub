@@ -70,6 +70,7 @@ CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o: \
  /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
  /home/asultop/CourseProject/src-extends/stack.h \
  /home/asultop/CourseProject/src-extends/ACMLocalJudger.h \
+ /home/asultop/CourseProject/src-extends/screenManager.h \
  /usr/include/libgen.h /usr/include/dirent.h \
  /usr/include/x86_64-linux-gnu/bits/dirent.h \
  /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \

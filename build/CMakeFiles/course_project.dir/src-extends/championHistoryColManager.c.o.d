@@ -27,7 +27,9 @@ CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o: \
  /usr/include/x86_64-linux-gnu/bits/floatn.h \
  /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h \
- /home/asultop/CourseProject/src-extends/Def.h /usr/include/string.h \
+ /home/asultop/CourseProject/src-extends/Def.h \
+ /home/asultop/CourseProject/src-extends/screenManager.h \
+ /usr/include/string.h \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
  /usr/include/strings.h /usr/include/stdlib.h \

@@ -92,11 +92,38 @@ void printACMDetailScreen(){
     printLeft("2. 评分标准");
     printLeft("3. 赛事构成");
     printLeft("4. 赛事介绍");
-    printRight("5. 历届获奖");
+    printDivider();
+    printLeft("5. 历届获奖");
     printDivider();
     printCenter("0. 返回主菜单");
     printFooter();
     printf("⇒ 请输入选项：");
+}
+void printACMProblemBankScreen(const char * currentUser){
+    // puts("========= ACM 题库 =========");
+    // printf("当前用户: %s\n", currentUser);
+    // puts("|----------------------------|");
+    // puts("|      1. 显示所有题目       |");
+    // puts("|      2. 搜索题目           |");
+    // puts("|      3. 删除题目           |");
+    // puts("|      4. 添加题目           |");
+    // puts("|      0. 返回               |");
+    // puts("|----------------------------|");
+    printHeader();
+    printCenter("ACM 题库");
+    printDivider();
+    char userLine[SCREEN_CHAR_WIDTH];
+    snprintf(userLine, sizeof(userLine), "当前用户: %s", currentUser);
+    printLeft(userLine);
+    printDivider();
+    printLeft("1. 显示所有题目");
+    printLeft("2. 搜索题目");
+    printLeft("3. 删除题目");
+    printLeft("4. 添加题目");
+    printDivider();
+    printCenter("0. 返回");
+    printFooter();
+    printf("=> 请输入选项：[ ]\b\b");
 }
 void printHeader(){
     printf("╔");
@@ -145,30 +172,36 @@ void printCenter(const char* content){
     printf("║\n");
 }
 void printLeft(const char* content){
-    if(get_real_Length(content, NULL) > SCREEN_CHAR_WIDTH - 2){
-        printContent(content);
-        return;
-    }
     if(content == NULL){
         printf("║ %-*s ║\n", SCREEN_CHAR_WIDTH - 4, "");
         return;
     }
-    int count=count_chinese(content, NULL);
-    int actualWidth=SCREEN_CHAR_WIDTH - 4 + count;
-    printf("║ %-*s ║\n", actualWidth, content);
+    int visible = (int)get_real_Length(content, NULL);
+    if(visible > SCREEN_CHAR_WIDTH - 2){
+        printContent(content);
+        return;
+    }
+    int rightPadding = SCREEN_CHAR_WIDTH - 2 - visible;
+    printf("║");
+    printf("%s", content);
+    for(int i = 0; i < rightPadding; i++) putchar(' ');
+    printf("║\n");
 }
 void printRight(const char* content){
-    if(get_real_Length(content, NULL) > SCREEN_CHAR_WIDTH - 2){
-        printContent(content);
-        return;
-    }
     if(content == NULL){
         printf("║ %-*s ║\n", SCREEN_CHAR_WIDTH - 4, "");
         return;
     }
-    int count=count_chinese(content, NULL);
-    int actualWidth=SCREEN_CHAR_WIDTH - 4 + count;
-    printf("║ %*s ║\n", actualWidth, content);
+    int visible = (int)get_real_Length(content, NULL);
+    if(visible > SCREEN_CHAR_WIDTH - 2){
+        printContent(content);
+        return;
+    }
+    int leftPadding = SCREEN_CHAR_WIDTH - 2 - visible;
+    printf("║");
+    for(int i = 0; i < leftPadding; i++) putchar(' ');
+    printf("%s", content);
+    printf("║\n");
 }
 void printContent(const char* content){
     // 存在中文
@@ -176,12 +209,14 @@ void printContent(const char* content){
         printf("║ %-*s ║\n", SCREEN_CHAR_WIDTH - 4, "");
         return;
     }
-    if(get_real_Length(content, NULL) > SCREEN_CHAR_WIDTH - 2){
+    int visible = (int)get_real_Length(content, NULL);
+    if(visible > SCREEN_CHAR_WIDTH - 2){
         printf("- %s -", content);
         return;
     }
-    int count=count_chinese(content, NULL);
-    // 计算实际宽度
-    int actualWidth=SCREEN_CHAR_WIDTH - 4 + count;
-    printf("║ %-*s ║\n", actualWidth, content);
+    int rightPadding = SCREEN_CHAR_WIDTH - 2 - visible;
+    printf("║");
+    printf("%s", content);
+    for(int i = 0; i < rightPadding; i++) putchar(' ');
+    printf("║\n");
 }

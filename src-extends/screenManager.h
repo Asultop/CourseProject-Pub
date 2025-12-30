@@ -6,6 +6,7 @@
 void printSplashScreen();
 void printMainScreen(const char * username);
 void printACMDetailScreen();
+void printACMProblemBankScreen(const char * currentUser);
 
 void printHeader();
 void printFooter();
