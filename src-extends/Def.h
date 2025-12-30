@@ -4,7 +4,7 @@
 
 
 // 屏幕尺寸定义
-#define SCREEN_CHAR_WIDTH 64
+#define SCREEN_CHAR_WIDTH 50
 // 数据量定义
 #define MAX_NAME_LEN 100
 #define MAX_PASSWORD_LEN 100
@@ -64,6 +64,12 @@ typedef enum{
     JUDGE_RESULT_RUNTIME_ERROR=4,
     JUDGE_RESULT_COMPILE_ERROR=5
 } JudgeResult;
+// 编码类型枚举
+typedef enum {
+    ENCODING_UTF8,
+    ENCODING_GBK,
+    ENCODING_UNKNOWN
+} EncodingType;
 
 // 返回信息定义
 typedef enum {

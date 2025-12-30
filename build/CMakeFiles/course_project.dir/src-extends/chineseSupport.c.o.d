@@ -1,8 +1,8 @@
-CMakeFiles/course_project.dir/src-extends/screenManager.c.o: \
- /home/asultop/CourseProject/src-extends/screenManager.c \
+CMakeFiles/course_project.dir/src-extends/chineseSupport.c.o: \
+ /home/asultop/CourseProject/src-extends/chineseSupport.c \
  /usr/include/stdc-predef.h \
- /home/asultop/CourseProject/src-extends/screenManager.h \
- /home/asultop/CourseProject/src-extends/Def.h /usr/include/stdio.h \
+ /home/asultop/CourseProject/src-extends/chineseSupport.h \
+ /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
@@ -25,9 +25,7 @@ CMakeFiles/course_project.dir/src-extends/screenManager.c.o: \
  /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h \
  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
  /usr/include/x86_64-linux-gnu/bits/floatn.h \
- /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
- /home/asultop/CourseProject/src-extends/chineseSupport.h \
- /usr/include/string.h \
+ /usr/include/x86_64-linux-gnu/bits/floatn-common.h /usr/include/string.h \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
  /usr/include/strings.h /usr/include/stdlib.h \
@@ -55,4 +53,5 @@ CMakeFiles/course_project.dir/src-extends/screenManager.c.o: \
  /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h \
  /usr/include/x86_64-linux-gnu/bits/struct_mutex.h \
  /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h /usr/include/alloca.h \
- /usr/include/x86_64-linux-gnu/bits/stdlib-float.h
+ /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
+ /home/asultop/CourseProject/src-extends/Def.h

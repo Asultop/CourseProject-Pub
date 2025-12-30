@@ -407,6 +407,7 @@ int main(int argc,char *argv[]){
     sleep(1);
     // 进入主界面
     while(true){
+        cleanScreen();
         printMainScreen(currentUser.name);
         int choice;
         if(scanf("%d", &choice) != 1){
