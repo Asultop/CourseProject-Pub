@@ -627,7 +627,10 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 				while(pend > pstart && (*pend == '"' || *pend == '\'')) { *pend = '\0'; pend--; }
 				if(!fileExists(pstart)) {
 					printf("x> 源文件不存在：%s\n", pstart);
-					pauseScreen();
+					// pauseScreen();
+					puts("=> 按 Enter 键继续..."); // 特殊处理，cleanBuffer 不适用
+					fflush(stdout);
+					cleanBuffer();
 					continue;
 				}
 				/* 计算题目目录 */
@@ -1042,12 +1045,17 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 				if(ok) {
 					results[rcount++] = entries[i];
 					if(rcount >= MAX_PROBLEMS) 
-					                        break;
+					    break;
 				}
 			}
 			if(rcount == 0) {
 				printf("?> 未找到匹配题目。\n");
-				pauseScreen();
+				puts("=> 按 Enter 键继续..."); //  特殊处理， cleanBuffer 在这里不适用
+				fflush(stdout); 
+				cleanBuffer();
+				
+				// pauseScreen();
+
 				continue;
 			}
 			printf("√> 找到 %d 条题目：\n", rcount);
@@ -1121,24 +1129,43 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 				}
 			}
 			printFooter();
-            printf("=> 输入题目 ID 打开详情，或 0 返回：");
-			char idBuf[128];
-			if(scanf("%s", idBuf) != 1) 
-			                continue;
-			if(strcmp(idBuf, "0")==0) 
-			                continue;
-			int found = -1;
-			for (int i=0;i<rcount;i++) 
-			                if(strcmp(results[i].id, idBuf) == 0 || strcmp(results[i].folderName, idBuf) == 0) {
-				found = i;
-				break;
+			// 交互式循环：输入错误或未找到 ID 时返回到此搜索结果列表
+			{
+				// int c;
+				// while ((c = getchar()) != '\n' && c != EOF) ; // 清理残余输入
+				// 我c了， 这个 CLeanBuffer 怎么这么坏啊
+				char idBuf[128];
+				while (1) {
+					printf("=> 输入题目 ID 打开详情，或 0 返回：");
+					if(!fgets(idBuf, sizeof(idBuf), stdin)) break;
+					trim_newline(idBuf);
+					if(idBuf[0] == '\0') {
+						printf("?> 无效输入。\n");
+						pauseScreen();
+						continue; // 重新提示，保持在搜索结果
+					}
+					if(strcmp(idBuf, "0") == 0) break; // 返回到上级（搜索列表外）
+					int found = -1;
+					for (int j = 0; j < rcount; j++) {
+						if(strcmp(results[j].id, idBuf) == 0 || strcmp(results[j].folderName, idBuf) == 0) {
+							found = j;
+							break;
+						}
+					}
+					if(found == -1) {
+						printf("?> 未找到 ID: %s", idBuf);
+						sleep(1);
+						printf("\r                                                     \r");
+						printf("\033[1A"); // 光标上移一行
+						printf("\r                                                     \r");
+						
+						// pauseScreen();
+						continue; // 保持在搜索结果，重新提示
+					}
+					problemDetailMenu(problemsDir, &results[found]);
+					break; // 打开详情后返回到上一级
+				}
 			}
-			if(found == -1) {
-				printf("?> 未找到 ID: %s\n", idBuf);
-				pauseScreen();
-				continue;
-			}
-			problemDetailMenu(problemsDir, &results[found]);
 			continue;
 		} else {
 			printf("?> 无效选项。\n");

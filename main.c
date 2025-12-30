@@ -341,7 +341,10 @@ int main(int argc,char *argv[]){
         createUser(globalUserGroup, &adminUser, "admin", "admin123");
         saveAllUsrToDataFile(globalUserGroup, USERDATA_DIR "/userData.txt");
         printf("√> 已创建默认管理员账号：admin，密码：admin123\n");
-        sleep(5); // 特调 5 秒以便用户查看
+        sleep(3); // 特调 5 秒以便用户查看
+        puts("⎵> 按 Enter 键继续...");
+        getchar();
+        // pauseScreen();
     }
 
     while(true){ // Splash 登录/注册界面
