@@ -9,6 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/asultop/CourseProject/main.c" "CMakeFiles/course_project.dir/main.c.o" "gcc" "CMakeFiles/course_project.dir/main.c.o.d"
+  "/home/asultop/CourseProject/src-extends/ACMLocalJudger.c" "CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.o" "gcc" "CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.o.d"
   "/home/asultop/CourseProject/src-extends/championHistoryColManager.c" "CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o" "gcc" "CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o.d"
   "/home/asultop/CourseProject/src-extends/fileHelper.c" "CMakeFiles/course_project.dir/src-extends/fileHelper.c.o" "gcc" "CMakeFiles/course_project.dir/src-extends/fileHelper.c.o.d"
   "/home/asultop/CourseProject/src-extends/markdownPrinter.c" "CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o" "gcc" "CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o.d"

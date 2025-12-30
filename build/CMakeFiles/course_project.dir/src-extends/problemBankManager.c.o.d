@@ -68,8 +68,10 @@ CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o: \
  /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
  /usr/include/x86_64-linux-gnu/bits/getopt_core.h \
  /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
- /home/asultop/CourseProject/src-extends/stack.h /usr/include/libgen.h \
- /usr/include/dirent.h /usr/include/x86_64-linux-gnu/bits/dirent.h \
+ /home/asultop/CourseProject/src-extends/stack.h \
+ /home/asultop/CourseProject/src-extends/ACMLocalJudger.h \
+ /usr/include/libgen.h /usr/include/dirent.h \
+ /usr/include/x86_64-linux-gnu/bits/dirent.h \
  /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
  /usr/include/x86_64-linux-gnu/bits/local_lim.h \
  /usr/include/linux/limits.h \

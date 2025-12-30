@@ -153,6 +153,30 @@ main.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/main.c.s
 .PHONY : main.c.s
 
+src-extends/ACMLocalJudger.o: src-extends/ACMLocalJudger.c.o
+.PHONY : src-extends/ACMLocalJudger.o
+
+# target to build an object file
+src-extends/ACMLocalJudger.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.o
+.PHONY : src-extends/ACMLocalJudger.c.o
+
+src-extends/ACMLocalJudger.i: src-extends/ACMLocalJudger.c.i
+.PHONY : src-extends/ACMLocalJudger.i
+
+# target to preprocess a source file
+src-extends/ACMLocalJudger.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.i
+.PHONY : src-extends/ACMLocalJudger.c.i
+
+src-extends/ACMLocalJudger.s: src-extends/ACMLocalJudger.c.s
+.PHONY : src-extends/ACMLocalJudger.s
+
+# target to generate assembly for a file
+src-extends/ACMLocalJudger.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.s
+.PHONY : src-extends/ACMLocalJudger.c.s
+
 src-extends/championHistoryColManager.o: src-extends/championHistoryColManager.c.o
 .PHONY : src-extends/championHistoryColManager.o
 
@@ -357,6 +381,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... src-extends/ACMLocalJudger.o"
+	@echo "... src-extends/ACMLocalJudger.i"
+	@echo "... src-extends/ACMLocalJudger.s"
 	@echo "... src-extends/championHistoryColManager.o"
 	@echo "... src-extends/championHistoryColManager.i"
 	@echo "... src-extends/championHistoryColManager.s"

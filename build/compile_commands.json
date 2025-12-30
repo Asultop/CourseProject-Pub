@@ -52,5 +52,11 @@
   "command": "/usr/bin/gcc  -I/home/asultop/CourseProject -g -std=gnu99 -o CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o -c /home/asultop/CourseProject/src-extends/markdownPrinter.c",
   "file": "/home/asultop/CourseProject/src-extends/markdownPrinter.c",
   "output": "CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o"
+},
+{
+  "directory": "/home/asultop/CourseProject/build",
+  "command": "/usr/bin/gcc  -I/home/asultop/CourseProject -g -std=gnu99 -o CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.o -c /home/asultop/CourseProject/src-extends/ACMLocalJudger.c",
+  "file": "/home/asultop/CourseProject/src-extends/ACMLocalJudger.c",
+  "output": "CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.o"
 }
 ]

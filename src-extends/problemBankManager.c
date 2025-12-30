@@ -2,6 +2,7 @@
 #include "Def.h"
 #include "fileHelper.h"
 #include "markdownPrinter.h"
+#include "ACMLocalJudger.h"
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
@@ -411,6 +412,8 @@ static void printProblemDetails(const ProblemEntry* e) {
 			printFileWithLatex(e->problemPath);
 			puts("====== 题目结束 ======");
 
+
+
         } else {
             printf("x> 无法读取题目内容文件：%s\n", e->problemPath);
         }
@@ -430,7 +433,48 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 			continue;
 		}
 		if(sub == 1) {
-			printf("提交功能暂未实现。\n");
+			/* 提交结果：提示用户输入源文件路径（支持带引号），并使用当前题目的 ProblemEntry 进行本地判题 */
+			printf("=> 请输入要提交的源文件路径（支持带引号）：");
+			{
+				char pathbuf[1200];
+				int c;
+				/* 清除 scanf 后残留的换行 */
+				while((c = getchar()) != '\n' && c != EOF);
+				if(!fgets(pathbuf, sizeof(pathbuf), stdin)) {
+					printf("x> 读取输入失败\n");
+				} else {
+					trim_newline(pathbuf);
+					/* 去掉首尾引号 */
+					char *pstart = pathbuf;
+					while(*pstart == '"' || *pstart == '\'') pstart++;
+					char *pend = pstart + strlen(pstart) - 1;
+					while(pend > pstart && (*pend == '"' || *pend == '\'')) { *pend = '\0'; pend--; }
+					if(!fileExists(pstart)) {
+						printf("x> 源文件不存在：%s\n", pstart);
+					} else {
+						/* 计算题目目录 */
+						char probcopy[1024];
+						strncpy(probcopy, e->problemPath, sizeof(probcopy)-1);
+						probcopy[sizeof(probcopy)-1] = '\0';
+						char *pdir = dirname(probcopy);
+						/* 调用本地判题器 */
+						JudgeSummary js = acm_local_judge(pstart, e);
+						if (js.count == 0) {
+							printf("=> 未发现 in/ 测试用例 (目录: %s/in)\n", pdir);
+						} else {
+							printf("=> 判题结果 (%d 个用例):\n", js.count);
+							for (int i = 0; i < js.count; ++i) {
+								JudgeReturnInfo *ri = &js.infos[i];
+								if (ri->result == JUDGE_RESULT_ACCEPTED) {
+									printf(ANSI_BOLD_GREEN "[AC]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+								} else {
+									printf(ANSI_BOLD_RED "[WA]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+								}
+							}
+						}
+					}
+				}
+			}
 		} else if(sub == 2) {
 			char path[1200];
 			snprintf(path, sizeof(path), "%s/%s/analyzing.txt", problemsDir, e->folderName);

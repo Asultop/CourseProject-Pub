@@ -8,6 +8,8 @@
 #define MAX_USER_COUNT 1000
 #define MAX_MESSAGE_LEN 256
 #define MAX_PROBLEMS 2048
+#define MAX_JUDGES_PER_PROBLEM 100
+#define MAX_JUDGES_TIMELIMIT_MSEC 512 // 0.512 s
 
 #define RETRY_DELAY_SECONDS 30
 #define SLOW_TRY_LIMIT 5
@@ -51,6 +53,14 @@ typedef struct {
     char folderName[128];
     char problemPath[512];
 } ProblemEntry;
+// 判题结果返回
+typedef enum{
+    JUDGE_RESULT_ACCEPTED=1,
+    JUDGE_RESULT_WRONG_ANSWER=2,
+    JUDGE_RESULT_TIME_LIMIT_EXCEEDED=3,
+    JUDGE_RESULT_RUNTIME_ERROR=4,
+    JUDGE_RESULT_COMPILE_ERROR=5
+} JudgeResult;
 
 // 返回信息定义
 typedef enum {
@@ -62,4 +72,14 @@ typedef struct {
     char message[MAX_MESSAGE_LEN];
     UsrProfile* user;
 } UsrActionReturnType;
+
+typedef struct{
+    JudgeResult result;
+    char message[256];
+} JudgeReturnInfo;
+typedef struct{
+    int count;
+    JudgeReturnInfo infos[MAX_JUDGES_PER_PROBLEM];
+} JudgeSummary;
+
 #endif // DEF_H

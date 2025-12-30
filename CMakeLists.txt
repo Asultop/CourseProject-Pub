@@ -16,6 +16,7 @@ set(SOURCES
 	src-extends/problemBankManager.c
 	src-extends/stack.c
 	src-extends/markdownPrinter.c
+	src-extends/ACMLocalJudger.c
 )
 
 add_executable(course_project ${SOURCES})

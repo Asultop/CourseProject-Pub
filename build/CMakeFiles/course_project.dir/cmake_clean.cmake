@@ -1,6 +1,8 @@
 file(REMOVE_RECURSE
   "CMakeFiles/course_project.dir/main.c.o"
   "CMakeFiles/course_project.dir/main.c.o.d"
+  "CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.o"
+  "CMakeFiles/course_project.dir/src-extends/ACMLocalJudger.c.o.d"
   "CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o"
   "CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o.d"
   "CMakeFiles/course_project.dir/src-extends/fileHelper.c.o"
