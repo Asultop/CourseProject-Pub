@@ -16,9 +16,7 @@ static bool ends_with(const char *s, const char *suffix) {
     return strcmp(s + ls - lx, suffix) == 0;
 }
 
-/* Read file and normalize by extracting whitespace-separated tokens and
- * concatenating them with a single space. Returns number of bytes written.
- */
+// 规范化文件内容为仅包含空格分隔的标记字符串
 static size_t normalize_file_tokens(const char *path, char *outbuf, size_t outsz) {
     if (!path || !outbuf || outsz == 0) return 0;
     FILE *f = fopen(path, "rb");
