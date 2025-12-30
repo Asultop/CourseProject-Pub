@@ -291,12 +291,12 @@ void addProblemInteractive(const char* problemsDir) {
 			for(int i=0;i<inCnt;i++) {
 				char dst[1400];
 				snprintf(dst, sizeof(dst), "%s/%s", indir, inFiles[i].name);
-				if(copy_file(inFiles[i].src, dst)) printf("√ 已拷贝输入文件 %s 到 in/\n", inFiles[i].name); else printf("x> 拷贝失败：%s\n", inFiles[i].src);
+				if(copy_file(inFiles[i].src, dst)) printf("√> 已拷贝输入文件 %s 到 in/\n", inFiles[i].name); else printf("x> 拷贝失败：%s\n", inFiles[i].src);
 			}
 			for(int i=0;i<outCnt;i++) {
 				char dst[1400];
 				snprintf(dst, sizeof(dst), "%s/%s", outdir, outFiles[i].name);
-				if(copy_file(outFiles[i].src, dst)) printf("√ 已拷贝输出文件 %s 到 out/\n", outFiles[i].name); else printf("x> 拷贝失败：%s\n", outFiles[i].src);
+				if(copy_file(outFiles[i].src, dst)) printf("√> 已拷贝输出文件 %s 到 out/\n", outFiles[i].name); else printf("x> 拷贝失败：%s\n", outFiles[i].src);
 			}
 			printf("√> 必需文件已全部提供，且 .in/.out 配对通过。\n");
 			break;

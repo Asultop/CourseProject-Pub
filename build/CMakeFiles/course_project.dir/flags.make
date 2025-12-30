@@ -6,5 +6,5 @@ C_DEFINES =
 
 C_INCLUDES = -I/home/asultop/CourseProject
 
-C_FLAGS = -g -std=gnu99
+C_FLAGS = -std=gnu99
 
