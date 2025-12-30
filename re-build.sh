@@ -17,3 +17,5 @@ echo "  编译 test_screenManager..."
 gcc -std=c11 src-extends/chineseSupport.c src-extends/screenManager.c src-test/test_screenManager.c -o src-test/build/test_screenManager -lm
 echo "  编译 test_chineseSupport..."
 gcc -std=c11 src-extends/chineseSupport.c src-test/test_chineseSupport.c -o src-test/build/test_chineseSupport -lm
+echo "  编译 test_codeRender..."
+gcc -std=c11 src-extends/codeRender.c src-test/test_codeRender.c -o src-test/build/test_codeRender -lm

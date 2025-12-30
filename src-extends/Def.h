@@ -6,24 +6,68 @@
 #define _POSIX_C_SOURCE 200809L
 #endif
 // 囚服 Warning
-//颜色&格式定义
-#define ANSI_FRMT_RESET     "\e[0m"
-#define ANSI_FRMT_BOLD      "\e[1m"
-#define ANSI_FRMT_ITALICS   "\e[3m"
-#define ANSI_FRMT_UNDERLINE "\e[4m"
-#define ANSI_COLOR_RED      "\e[31m"
-#define ANSI_COLOR_GREEN    "\e[32m"
-#define ANSI_COLOR_YELLOW   "\e[33m"
-#define ANSI_COLOR_BLUE     "\e[34m"
-#define ANSI_COLOR_MAGENTA  "\e[35m"
-#define ANSI_COLOR_CYAN     "\e[36m"
-#define ANSI_BOLD_RED       "\e[31;1;1m"
-#define ANSI_BOLD_GREEN     "\e[32;1;1m"
-#define ANSI_BOLD_YELLOW    "\e[33;1;1m"
-#define ANSI_BOLD_BLUE      "\e[34;1;1m"
-#define ANSI_BOLD_MAGENTA   "\e[35;1;1m"
-#define ANSI_BOLD_CYAN      "\e[36;1;1m"
-#define ANSI_BOLD_WHITE     "\e[37;1;1m"
+// ========== 基础ANSI格式宏（原有+扩展） ==========
+#define ANSI_FRMT_RESET         "\e[0m"          // 重置所有格式
+#define ANSI_FRMT_BOLD          "\e[1m"          // 加粗
+#define ANSI_FRMT_ITALICS       "\e[3m"          // 斜体
+#define ANSI_FRMT_UNDERLINE     "\e[4m"          // 下划线
+#define ANSI_FRMT_BLINK         "\e[5m"          // 闪烁（部分终端支持）
+#define ANSI_FRMT_REVERSE       "\e[7m"          // 反色
+#define ANSI_FRMT_STRIKETHROUGH "\e[9m"          // 删除线
+
+// ========== 基础8色（前景色） ==========
+#define ANSI_COLOR_BLACK        "\e[30m"         // 黑色
+#define ANSI_COLOR_RED          "\e[31m"         // 红色
+#define ANSI_COLOR_GREEN        "\e[32m"         // 绿色
+#define ANSI_COLOR_YELLOW       "\e[33m"         // 黄色
+#define ANSI_COLOR_BLUE         "\e[34m"         // 蓝色
+#define ANSI_COLOR_MAGENTA      "\e[35m"         // 品红
+#define ANSI_COLOR_CYAN         "\e[36m"         // 青色
+#define ANSI_COLOR_WHITE        "\e[37m"         // 白色
+
+// ========== 基础8色（背景色） ==========
+#define ANSI_BG_BLACK           "\e[40m"         // 背景黑
+#define ANSI_BG_RED             "\e[41m"         // 背景红
+#define ANSI_BG_GREEN           "\e[42m"         // 背景绿
+#define ANSI_BG_YELLOW          "\e[43m"         // 背景黄
+#define ANSI_BG_BLUE            "\e[44m"         // 背景蓝
+#define ANSI_BG_MAGENTA         "\e[45m"         // 背景品红
+#define ANSI_BG_CYAN            "\e[46m"         // 背景青
+#define ANSI_BG_WHITE           "\e[47m"         // 背景白
+
+// ========== 高亮8色（前景色，加粗+高亮） ==========
+#define ANSI_BOLD_BLACK         "\e[30;1m"       // 粗黑
+#define ANSI_BOLD_RED           "\e[31;1m"       // 粗红（修正原冗余1；1）
+#define ANSI_BOLD_GREEN         "\e[32;1m"       // 粗绿
+#define ANSI_BOLD_YELLOW        "\e[33;1m"       // 粗黄
+#define ANSI_BOLD_BLUE          "\e[34;1m"       // 粗蓝
+#define ANSI_BOLD_MAGENTA       "\e[35;1m"       // 粗品红
+#define ANSI_BOLD_CYAN          "\e[36;1m"       // 粗青
+#define ANSI_BOLD_WHITE         "\e[37;1m"       // 粗白
+
+// ========== 256色扩展（前景色，兼容大部分终端） ==========
+#define ANSI_COLOR_256_GRAY     "\e[38;5;240m"   // 灰色（注释友好）
+#define ANSI_COLOR_256_ORANGE    "\e[38;5;208m"   // 橙色（预处理指令）
+#define ANSI_COLOR_256_PURPLE   "\e[38;5;129m"   // 紫色（运算符）
+#define ANSI_COLOR_256_LIGHT_BLUE "\e[38;5;117m" // 浅蓝（关键字）
+#define ANSI_COLOR_256_LIGHT_GREEN "\e[38;5;118m" // 浅绿（类型）
+#define ANSI_COLOR_256_LIGHT_YELLOW "\e[38;5;226m" // 亮黄（数字）
+#define ANSI_COLOR_256_PINK     "\e[38;5;206m"   // 粉色（字符串）
+#define ANSI_COLOR_256_TEAL     "\e[38;5;38m"    // 蓝绿色（变量）
+
+// ========== 真彩色扩展（RGB，现代终端支持） ==========
+#define ANSI_COLOR_RGB(key, r, g, b) "\e[38;2;" #r ";" #g ";" #b "m"
+#define ANSI_BG_RGB(key, r, g, b)    "\e[48;2;" #r ";" #g ";" #b "m"
+
+// 预定义真彩色（可自定义RGB值）
+#define ANSI_COLOR_RGB_KEYWORD  ANSI_COLOR_RGB(79, 140, 201) // 关键字：淡蓝
+#define ANSI_COLOR_RGB_TYPE     ANSI_COLOR_RGB(100, 189, 99)  // 类型：淡绿
+#define ANSI_COLOR_RGB_VARIABLE ANSI_COLOR_RGB(210, 180, 210) // 变量：淡紫
+#define ANSI_COLOR_RGB_NUMBER   ANSI_COLOR_RGB(247, 220, 111) // 数字：淡黄
+#define ANSI_COLOR_RGB_STRING   ANSI_COLOR_RGB(231, 107, 107) // 字符串：淡红
+#define ANSI_COLOR_RGB_COMMENT  ANSI_COLOR_RGB(100, 150, 100) // 注释：暗绿
+#define ANSI_COLOR_RGB_PREPROC  ANSI_COLOR_RGB(242, 148, 60)  // 预处理：橙
+#define ANSI_COLOR_RGB_OPERATOR ANSI_COLOR_RGB(170, 130, 200) // 运算符：紫
 
 
 // 屏幕尺寸定义
