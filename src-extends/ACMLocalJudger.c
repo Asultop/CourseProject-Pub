@@ -16,6 +16,41 @@ static bool ends_with(const char *s, const char *suffix) {
     return strcmp(s + ls - lx, suffix) == 0;
 }
 
+/* Read file and normalize by extracting whitespace-separated tokens and
+ * concatenating them with a single space. Returns number of bytes written.
+ */
+static size_t normalize_file_tokens(const char *path, char *outbuf, size_t outsz) {
+    if (!path || !outbuf || outsz == 0) return 0;
+    FILE *f = fopen(path, "rb");
+    if (!f) return 0;
+    size_t wrote = 0;
+    char token[512];
+    bool first = true;
+    while (fscanf(f, "%511s", token) == 1) {
+        size_t tlen = strlen(token);
+        if (!first) {
+            if (wrote + 1 < outsz) outbuf[wrote++] = ' ';
+            else break;
+        }
+        first = false;
+        if (wrote + tlen < outsz) {
+            memcpy(outbuf + wrote, token, tlen);
+            wrote += tlen;
+        } else {
+            /* truncated */
+            size_t can = outsz - wrote - 1;
+            if (can > 0) {
+                memcpy(outbuf + wrote, token, can);
+                wrote += can;
+            }
+            break;
+        }
+    }
+    outbuf[wrote] = '\0';
+    fclose(f);
+    return wrote;
+}
+
 JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *entry) {
     JudgeSummary summary;
     summary.count = 0;
@@ -117,20 +152,13 @@ JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *e
             continue;
         }
 
-        bool same = true;
-        if (!f1) {
-            same = false;
-        } else {
-            int c1, c2;
-            do {
-                c1 = fgetc(f1);
-                c2 = fgetc(f2);
-                if (c1 != c2) { same = false; break; }
-            } while (c1 != EOF && c2 != EOF);
-            if (c1 != c2) same = false;
-            fclose(f1);
-            fclose(f2);
-        }
+        /* 比较时忽略格式（空白差异），只按 token 比较数据 */
+        char norm1[4096]; char norm2[4096];
+        normalize_file_tokens(tmpOut, norm1, sizeof(norm1));
+        normalize_file_tokens(expectedOut, norm2, sizeof(norm2));
+        bool same = (strcmp(norm1, norm2) == 0);
+        if (f1) fclose(f1);
+        if (f2) fclose(f2);
 
         if (same) {
             summary.infos[idx].result = JUDGE_RESULT_ACCEPTED;
@@ -138,8 +166,25 @@ JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *e
             summary.infos[idx].message[sizeof(summary.infos[idx].message)-1] = '\0';
         } else {
             summary.infos[idx].result = JUDGE_RESULT_WRONG_ANSWER;
-            strncpy(summary.infos[idx].message, "答案有误，请检查你的代码", sizeof(summary.infos[idx].message)-1);
-            summary.infos[idx].message[sizeof(summary.infos[idx].message)-1] = '\0';
+            /* 读取程序 stdout 内容并附加到 message，避免过长。若规范化输出非空则附加规范化结果以便查看数据。 */
+            char outbuf[512]; outbuf[0] = '\0';
+            char normout[1024]; normout[0] = '\0';
+            FILE *fout = fopen(tmpOut, "rb");
+            if (fout) {
+                size_t r = fread(outbuf, 1, sizeof(outbuf)-1, fout);
+                outbuf[r] = '\0';
+                fclose(fout);
+                while (r > 0 && (outbuf[r-1] == '\n' || outbuf[r-1] == '\r' || outbuf[r-1] == ' ' || outbuf[r-1] == '\t')) { outbuf[r-1] = '\0'; r--; }
+            }
+            normalize_file_tokens(tmpOut, normout, sizeof(normout));
+            if (normout[0] != '\0') {
+                snprintf(summary.infos[idx].message, sizeof(summary.infos[idx].message), "答案有误，请检查你的代码; stdout: %.200s", normout);
+            } else if (outbuf[0] != '\0') {
+                snprintf(summary.infos[idx].message, sizeof(summary.infos[idx].message), "答案有误，请检查你的代码; stdout: %.200s", outbuf);
+            } else {
+                strncpy(summary.infos[idx].message, "答案有误，请检查你的代码", sizeof(summary.infos[idx].message)-1);
+                summary.infos[idx].message[sizeof(summary.infos[idx].message)-1] = '\0';
+            }
         }
 
         idx++;
