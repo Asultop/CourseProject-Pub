@@ -1,5 +1,6 @@
 #include "championHistoryColManager.h"
 #include "screenManager.h"
+#include "markdownPrinter.h"
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -92,8 +93,9 @@ int queryChampionByCriteria(ChampionRecord records[], int count, ChampionRecord 
 
 // 打印字段并对匹配子串高亮（红色）
 static void print_field_highlight(const char* label, const char* value, const char* filter){
-    const char* RED = "\x1b[31m"; //红色 ANSI 转义码
-    const char* RESET = "\x1b[0m";
+    // const char* COLOR = "\x1b[31m"; //红色 ANSI 转义码
+    const char* COLOR = HIGHLIGHT_COLOR;
+    const char* RESET = ANSI_FRMT_RESET;
     if(!label) label = "";
     if(!value) value = "";
     if(!filter || filter[0] == '\0'){
@@ -134,7 +136,7 @@ static void print_field_highlight(const char* label, const char* value, const ch
             snprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), "%.*s", (int)prefixLen, cur);
         }
         // 添加高亮部分（使用原始大小写）到 buffer
-        snprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), "%s%.*s%s", RED, (int)flen, cur + prefixLen, RESET);
+        snprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), "%s%.*s%s", COLOR, (int)flen, cur + prefixLen, RESET);
         // 移动指针继续查找
         cur += prefixLen + flen;
         lowCur += prefixLen + flen;

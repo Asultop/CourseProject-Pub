@@ -363,6 +363,7 @@ int main(int argc,char *argv[]){
                     continue;
                 }
                 printf("√> 欢迎，%s！\n", currentUser.name);
+                sleep(1);
                 goto loginSuccess;
                 break;
             case 2:
@@ -372,6 +373,8 @@ int main(int argc,char *argv[]){
                     // exit(EXIT_FAILURE);
                     continue;
                 }
+                puts("√> 注册成功！请登录以继续。");
+                sleep(1);
                 break;
             case 3:
                 //修改密码
@@ -381,6 +384,7 @@ int main(int argc,char *argv[]){
                     continue;
                 }
                 printf("√> 请重新登录以使用新密码。\n");
+                sleep(1);
                 // exit(0);
                 continue;
                 break;
@@ -412,7 +416,6 @@ int main(int argc,char *argv[]){
         
     }
     loginSuccess:{}
-    sleep(1);
     // 进入主界面
     while(true){
         cleanScreen();

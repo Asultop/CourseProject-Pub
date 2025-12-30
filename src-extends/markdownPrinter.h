@@ -12,25 +12,9 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+#include "Def.h"
 #include "stack.h"
 
-#define ANSI_FRMT_RESET     "\e[0m"
-#define ANSI_FRMT_BOLD      "\e[1m"
-#define ANSI_FRMT_ITALICS   "\e[3m"
-#define ANSI_FRMT_UNDERLINE "\e[4m"
-#define ANSI_COLOR_RED      "\e[31m"
-#define ANSI_COLOR_GREEN    "\e[32m"
-#define ANSI_COLOR_YELLOW   "\e[33m"
-#define ANSI_COLOR_BLUE     "\e[34m"
-#define ANSI_COLOR_MAGENTA  "\e[35m"
-#define ANSI_COLOR_CYAN     "\e[36m"
-#define ANSI_BOLD_RED       "\e[31;1;1m"
-#define ANSI_BOLD_GREEN     "\e[32;1;1m"
-#define ANSI_BOLD_YELLOW    "\e[33;1;1m"
-#define ANSI_BOLD_BLUE      "\e[34;1;1m"
-#define ANSI_BOLD_MAGENTA   "\e[35;1;1m"
-#define ANSI_BOLD_CYAN      "\e[36;1;1m"
-#define ANSI_BOLD_WHITE     "\e[37;1;1m"
 
 #ifndef DEBUG
 #define logit(fmt, ...) ((void) 0)

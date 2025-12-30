@@ -1,6 +1,24 @@
 
 #ifndef DEF_H
 #define DEF_H
+//颜色&格式定义
+#define ANSI_FRMT_RESET     "\e[0m"
+#define ANSI_FRMT_BOLD      "\e[1m"
+#define ANSI_FRMT_ITALICS   "\e[3m"
+#define ANSI_FRMT_UNDERLINE "\e[4m"
+#define ANSI_COLOR_RED      "\e[31m"
+#define ANSI_COLOR_GREEN    "\e[32m"
+#define ANSI_COLOR_YELLOW   "\e[33m"
+#define ANSI_COLOR_BLUE     "\e[34m"
+#define ANSI_COLOR_MAGENTA  "\e[35m"
+#define ANSI_COLOR_CYAN     "\e[36m"
+#define ANSI_BOLD_RED       "\e[31;1;1m"
+#define ANSI_BOLD_GREEN     "\e[32;1;1m"
+#define ANSI_BOLD_YELLOW    "\e[33;1;1m"
+#define ANSI_BOLD_BLUE      "\e[34;1;1m"
+#define ANSI_BOLD_MAGENTA   "\e[35;1;1m"
+#define ANSI_BOLD_CYAN      "\e[36;1;1m"
+#define ANSI_BOLD_WHITE     "\e[37;1;1m"
 
 
 // 屏幕尺寸定义
@@ -8,6 +26,10 @@
 // 左右Margin
 #define SCREEN_MARGIN_LEFT 2
 #define SCREEN_MARGIN_RIGHT 2
+// 高亮颜色定义
+
+#define HIGHLIGHT_COLOR ANSI_COLOR_YELLOW
+
 // 数据量定义
 #define MAX_NAME_LEN 100
 #define MAX_PASSWORD_LEN 100

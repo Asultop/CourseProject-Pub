@@ -4,6 +4,7 @@
 #include "markdownPrinter.h"
 #include "ACMLocalJudger.h"
 #include "screenManager.h"
+#include "chineseSupport.h"
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
@@ -84,8 +85,8 @@ static bool contains_case_insensitive(const char* text, const char* pat) {
 
 // 在输出中将匹配的子串以红色高亮（不改变原始大小写）
 static void print_highlight(const char* value, const char* filter) {
-	const char* RED = "\x1b[31m";
-	const char* RESET = "\x1b[0m";
+	const char* COLOR = HIGHLIGHT_COLOR;
+	const char* RESET = ANSI_FRMT_RESET;
 	if(!value) value = "";
 	if(!filter || filter[0] == '\0') {
 		// printf("%s", value);
@@ -121,10 +122,10 @@ static void print_highlight(const char* value, const char* filter) {
 			// fwrite(cur, 1, prefixLen, stdout);
 			snprintf(buffer, sizeof(buffer), "%.*s", (int)prefixLen, cur);
 		}
-		// printf("%s", RED);
+		// printf("%s", COLOR);
 		// fwrite(cur + prefixLen, 1, flen, stdout);
 		// printf("%s", RESET);
-		snprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), "%s%.*s%s", RED, (int)flen, cur + prefixLen, RESET);
+		snprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), "%s%.*s%s", COLOR, (int)flen, cur + prefixLen, RESET);
 		cur += prefixLen + flen;
 		lowCur += prefixLen + flen;
 		if(*cur == '\0') break;
@@ -134,8 +135,8 @@ static void print_highlight(const char* value, const char* filter) {
 
 // 将高亮文本写入目标字符串（与 print_highlight 行为一致，但不直接写入 stdout）
 static void highlight_to_str(const char* value, const char* filter, char* dst, size_t dstsz) {
-	const char* RED = "\x1b[31m";
-	const char* RESET = "\x1b[0m";
+	const char* COLOR = HIGHLIGHT_COLOR;
+	const char* RESET = ANSI_FRMT_RESET;
 	if(!dst || dstsz == 0) return;
 	dst[0] = '\0';
 	if(!value) value = "";
@@ -172,9 +173,9 @@ static void highlight_to_str(const char* value, const char* filter, char* dst, s
 			if(used + tocopy + 1 > dstsz) tocopy = (dstsz > used) ? dstsz - used - 1 : 0;
 			if(tocopy > 0) memcpy(dst + used, cur, tocopy), used += tocopy;
 		}
-		// 添加 RED
-		size_t rlen = strlen(RED);
-		if(used + rlen + 1 <= dstsz) memcpy(dst + used, RED, rlen), used += rlen;
+		// 添加 COLOR
+		size_t rlen = strlen(COLOR);
+		if(used + rlen + 1 <= dstsz) memcpy(dst + used, COLOR, rlen), used += rlen;
 		// 添加匹配的片段
 		size_t mlen = flen;
 		if(used + mlen + 1 <= dstsz) memcpy(dst + used, cur + prefixLen, mlen), used += mlen;
@@ -659,7 +660,7 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 							}
 							break;
 						case JUDGE_RESULT_WRONG_ANSWER:
-							// printf(ANSI_BOLD_RED "[WA]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
+							// printf(ANSI_BOLD_COLOR "[WA]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
 							{
 								char buf[512];
 								snprintf(buf, sizeof(buf), ANSI_BOLD_RED "[WA]" ANSI_FRMT_RESET " 测试点 %d: %s", i+1, ri->message);
@@ -713,9 +714,13 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 			if(fileExists(path)) {
 				bool txt = fileExists(path);
 				if(txt) { 
+					printHeader();
 					printCenter("解析文件");
+					printDivider();
 					printFileWithLatex(path);
+					printDivider();
 					printCenter("解析结束"); 
+					printFooter();
 				}
 				else printf("x> 无法读取解析文件：%s\n", path);
 			} else {
@@ -1069,7 +1074,7 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 					printf("%-8s ", results[i].id);
 					print_highlight(title, titleFilter);
 					// 根据可见标题长度填充空格
-					int vlen = (int)strlen(title);
+					int vlen = (int)get_real_Length(title, NULL);
 					if(vlen < title_col_width) {
 						for(int k=0;k < title_col_width - vlen; ++k) putchar(' ');
 					}
@@ -1092,7 +1097,7 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 						free(tbuf);
 					}
 					// 根据原始（可见）标题长度填充空格以对齐列
-					int visible_len = (int)strlen(title);
+					int visible_len = (int)get_real_Length(title, NULL);
 					int pad = 0;
 					if(visible_len < title_col_width) pad = title_col_width - visible_len;
 					// 至少保留一个空格间隔
