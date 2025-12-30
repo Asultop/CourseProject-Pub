@@ -14,6 +14,9 @@
 #include <ctype.h>
 #include <sys/select.h>
 
+void cleanScreen(void);
+void cleanBuffer(void);
+void pauseScreen(void);
 // 去除字符串末尾的换行符
 static void trim_newline(char* s) {
 	if(!s) return;
@@ -121,7 +124,12 @@ int loadAllProblems(const char* problemsDir, ProblemEntry entries[], int maxEntr
 		strncpy(e.difficulty, diff, sizeof(e.difficulty)-1);
 		strncpy(e.type, type, sizeof(e.type)-1);
 		strncpy(e.folderName, de->d_name, sizeof(e.folderName)-1);
-		snprintf(e.problemPath, sizeof(e.problemPath), "%s/problem.txt", subdir);
+		{
+			// 构造 problem.txt 路径
+			const char *suffix = "/problem.txt";
+			size_t max_prefix = sizeof(e.problemPath) - strlen(suffix) - 1;
+			snprintf(e.problemPath, sizeof(e.problemPath), "%.*s%s", (int)max_prefix, subdir, suffix);
+		}
 		entries[idx++] = e;
 	}
 	closedir(d);
@@ -295,14 +303,32 @@ void addProblemInteractive(const char* problemsDir) {
 				mkdir(outdir, 0755);
 			}
 			for(int i=0;i<inCnt;i++) {
-				char dst[1400];
-				snprintf(dst, sizeof(dst), "%s/%s", indir, inFiles[i].name);
-				if(copy_file(inFiles[i].src, dst)) printf("√> 已拷贝输入文件 %s 到 in/\n", inFiles[i].name); else printf("x> 拷贝失败：%s\n", inFiles[i].src);
+				size_t need_len_in = strlen(indir) + 1 + strlen(inFiles[i].name) + 1; /* dir + '/' + name + NUL */
+				char *dst = malloc(need_len_in);
+				if(!dst) {
+					printf("x> 内存不足，无法拷贝输入文件：%s\n", inFiles[i].name);
+					continue;
+				}
+				snprintf(dst, need_len_in, "%s/%s", indir, inFiles[i].name);
+				if(copy_file(inFiles[i].src, dst))
+					printf("√> 已拷贝输入文件 %s 到 in/\n", inFiles[i].name);
+				else
+					printf("x> 拷贝失败：%s\n", inFiles[i].src);
+				free(dst);
 			}
 			for(int i=0;i<outCnt;i++) {
-				char dst[1400];
-				snprintf(dst, sizeof(dst), "%s/%s", outdir, outFiles[i].name);
-				if(copy_file(outFiles[i].src, dst)) printf("√> 已拷贝输出文件 %s 到 out/\n", outFiles[i].name); else printf("x> 拷贝失败：%s\n", outFiles[i].src);
+				size_t need_len_out = strlen(outdir) + 1 + strlen(outFiles[i].name) + 1; /* dir + '/' + name + NUL */
+				char *dst = malloc(need_len_out);
+				if(!dst) {
+					printf("x> 内存不足，无法拷贝输出文件：%s\n", outFiles[i].name);
+					continue;
+				}
+				snprintf(dst, need_len_out, "%s/%s", outdir, outFiles[i].name);
+				if(copy_file(outFiles[i].src, dst))
+					printf("√> 已拷贝输出文件 %s 到 out/\n", outFiles[i].name);
+				else
+					printf("x> 拷贝失败：%s\n", outFiles[i].src);
+				free(dst);
 			}
 			printf("√> 必需文件已全部提供，且 .in/.out 配对通过。\n");
 			break;
@@ -382,11 +408,17 @@ void addProblemInteractive(const char* problemsDir) {
 				} else printf("x> .out 文件过多，无法收集：%s\n", b);
 			}
 		} else {
-			// 复制到原名，但不会计入必须三项
-			snprintf(dst, sizeof(dst), "%s/%s", newDir, b);
-			if(copy_file(pstart, dst)) {
-				printf("√ 已拷贝附加文件 %s\n", b);
-			} else printf("x> 拷贝失败：%s\n", pstart);
+			/* 复制到原名，但不会计入必须三项 */
+			size_t need_len = strlen(newDir) + 1 + strlen(b) + 1;
+			char *dst2 = malloc(need_len);
+			if(!dst2) {
+				printf("x> 内存不足，无法拷贝 %s\n", b);
+			} else {
+				snprintf(dst2, need_len, "%s/%s", newDir, b);
+				if(copy_file(pstart, dst2)) printf("√ 已拷贝附加文件 %s\n", b);
+				else printf("x> 拷贝失败：%s\n", pstart);
+				free(dst2);
+			}
 		}
 		// 如果三项都已满足，提示并继续收集以便可能的 .in/.out
 		if(gotAnalyzing && gotSolution && gotProblem) {
@@ -534,24 +566,46 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 				printf("x> 无法创建临时目录\n");
 				goto continueWithWait;
 			}
-			char exePath[1400];
-			snprintf(exePath, sizeof(exePath), "%s/%s_exec", tmpdir, e->id);
-			char compileCmd[1800];
-			snprintf(compileCmd, sizeof(compileCmd), "g++ -std=c++17 -O2 -o '%s' '%s' 2>&1", exePath, src);
+			size_t exePath_len = strlen(tmpdir) + 1 + strlen(e->id) + strlen("_exec") + 1;
+			char *exePath = malloc(exePath_len);
+			if(!exePath) {
+				printf("x> 内存不足，无法准备可执行文件路径\n");
+				rmdir(tmpdir);
+				goto continueWithWait;
+			}
+			snprintf(exePath, exePath_len, "%s/%s_exec", tmpdir, e->id);
+			size_t compile_need = strlen("g++ -std=c++17 -O2 -o '' '' 2>&1") + strlen(exePath) + strlen(src) + 1;
+			char *compileCmd = malloc(compile_need);
+			if(!compileCmd) {
+				printf("x> 内存不足，无法构造编译命令\n");
+				free(exePath);
+				rmdir(tmpdir);
+				goto continueWithWait;
+			}
+			snprintf(compileCmd, compile_need, "g++ -std=c++17 -O2 -o '%s' '%s' 2>&1", exePath, src);
 			printf("=> 编译: %s\n", compileCmd);
 			int cret = system(compileCmd);
+			free(compileCmd);
 			if(cret != 0) {
 				printf("x> 编译失败 (返回 %d)\n", cret);
 			} else {
-				// 直接执行可执行文件（不自动查找或重定向 .in）
+				/* 直接执行可执行文件（不自动查找或重定向 .in） */
 				printf("===== %s 正确样例运行开始 =====\n", e->id);
 				fflush(stdout);
-				char runCmd[1600];
-				snprintf(runCmd, sizeof(runCmd), "'%s'", exePath);
-				int rret = system(runCmd); (void)rret;
+				size_t run_need = 2 + strlen(exePath) + 1;
+				char *runCmd = malloc(run_need);
+				if(runCmd) {
+					snprintf(runCmd, run_need, "'%s'", exePath);
+					int rret = system(runCmd); (void)rret;
+					free(runCmd);
+				} else {
+					/* 退化：直接运行 exePath（不加引号） */
+					int rret = system(exePath); (void)rret;
+				}
 				printf("===== %s 正确样例运行结束 =====\n", e->id);
 				remove(exePath);
 			}
+			free(exePath);
 			rmdir(tmpdir);
 		}
 		else {
@@ -569,17 +623,12 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 		}
 	} while(sub != 0);
 }
-void cleanScreen();
+void cleanScreen(void);
 
-void pauseScreen() {
+void pauseScreen(void) {
 	printf("=> 按任意键继续...");
 	int c;
-    while ((c = getchar()) != '\n' && c != EOF);
-	int ch;
-    do {
-        ch = getchar();
-    } while (ch != '\n' && ch != EOF);
-	// 等待用户按键
+	while ((c = getchar()) != '\n' && c != EOF);
 }
 // 交互式题库管理主界面
 void interactiveProblemBank(const char* problemsDir) {

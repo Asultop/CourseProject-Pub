@@ -12,11 +12,11 @@
 #ifdef _WIN32
     #define sleep(seconds) Sleep((seconds) * 1000)
 #endif
-void cleanBuffer(){
+extern void cleanBuffer(){
     // int c;
     // while ((c = getchar()) != '\n' && c != EOF);
 }
-void cleanScreen(){
+extern void cleanScreen(){
     #ifdef _WIN32
         system("cls");
     #else
