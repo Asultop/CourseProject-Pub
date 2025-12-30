@@ -5,7 +5,7 @@
 #ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200809L
 #endif
-// 囚服 Warning
+// 修复 Warning
 // ========== 基础ANSI格式宏（原有+扩展） ==========
 #define ANSI_FRMT_RESET         "\e[0m"          // 重置所有格式
 #define ANSI_FRMT_BOLD          "\e[1m"          // 加粗
