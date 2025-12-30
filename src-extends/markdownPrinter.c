@@ -1,4 +1,7 @@
 #include "markdownPrinter.h"
+#include <ctype.h>
+#include <string.h>
+#include <stdbool.h>
 
 /* Define globals declared extern in header */
 mdcat_t mdcat = { .fmt = DO_RESET };
@@ -12,107 +15,60 @@ static void append_str(char **dstline, int *dstindx, const char *s) {
 	(*dstline)[*dstindx] = '\0';
 }
 
-/* Render simple math between $ ... $ supporting A_i -> A_i (use Unicode subscript digits when possible) */
-char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
-	int i = *ip; /* points at the opening $ */
-	int start = ++i;
-	char buf[256];
-	int bi = 0;
+/* Append a Unicode codepoint as UTF-8 to a byte buffer */
+static bool append_codepoint_utf8(char *buf, int *bi, unsigned int code, int bufsize) {
+	if (*bi >= bufsize - 1) return false;
+	if (code <= 0x7F) {
+		if (*bi + 1 >= bufsize) return false;
+		buf[(*bi)++] = (char)code;
+	} else if (code <= 0x7FF) {
+		if (*bi + 2 >= bufsize) return false;
+		buf[(*bi)++] = (char)(0xC0 | ((code >> 6) & 0x1F));
+		buf[(*bi)++] = (char)(0x80 | (code & 0x3F));
+	} else if (code <= 0xFFFF) {
+		if (*bi + 3 >= bufsize) return false;
+		buf[(*bi)++] = (char)(0xE0 | ((code >> 12) & 0x0F));
+		buf[(*bi)++] = (char)(0x80 | ((code >> 6) & 0x3F));
+		buf[(*bi)++] = (char)(0x80 | (code & 0x3F));
+	} else {
+		if (*bi + 4 >= bufsize) return false;
+		buf[(*bi)++] = (char)(0xF0 | ((code >> 18) & 0x07));
+		buf[(*bi)++] = (char)(0x80 | ((code >> 12) & 0x3F));
+		buf[(*bi)++] = (char)(0x80 | ((code >> 6) & 0x3F));
+		buf[(*bi)++] = (char)(0x80 | (code & 0x3F));
+	}
+	return true;
+}
 
-	/* find closing $ */
-	while (lineptr[i] != '\0' && lineptr[i] != '$' && bi < (int)sizeof(buf)-1) {
-		/* handle \dots */
-		if (lineptr[i] == '\\' && strncmp(&lineptr[i], "\\dots", 5) == 0) {
-			buf[bi++] = '\xE2'; /* … (UTF-8) 0xE2 0x80 0xA6 */
-			buf[bi++] = '\x80';
-			buf[bi++] = '\xA6';
-			i += 5;
-			continue;
+/* Map common LaTeX commands (after '\\') to Unicode codepoints. Returns true if mapped and sets consumed length and code. */
+static bool map_latex_cmd(const char *s, int *consumed, unsigned int *out_code) {
+	/* s points at first char after backslash */
+	struct { const char *name; unsigned int code; } table[] = {
+		{"alpha", 0x03B1}, {"beta", 0x03B2}, {"gamma", 0x03B3}, {"delta", 0x03B4},
+		{"epsilon", 0x03B5}, {"zeta", 0x03B6}, {"eta", 0x03B7}, {"theta", 0x03B8},
+		{"iota", 0x03B9}, {"kappa", 0x03BA}, {"lambda", 0x03BB}, {"mu", 0x03BC},
+		{"nu", 0x03BD}, {"xi", 0x03BE}, {"omicron", 0x03BF}, {"pi", 0x03C0},
+		{"rho", 0x03C1}, {"sigma", 0x03C3}, {"tau", 0x03C4}, {"upsilon", 0x03C5},
+		{"phi", 0x03C6}, {"chi", 0x03C7}, {"psi", 0x03C8}, {"omega", 0x03C9},
+		{"Gamma", 0x0393}, {"Delta", 0x0394}, {"Theta", 0x0398}, {"Lambda", 0x039B},
+		{"Xi", 0x039E}, {"Pi", 0x03A0}, {"Sigma", 0x03A3}, {"Phi", 0x03A6},
+		{"Omega", 0x03A9}, {NULL, 0}
+	};
+
+	for (int i = 0; table[i].name != NULL; i++) {
+		int ln = (int)strlen(table[i].name);
+		if (strncmp(s, table[i].name, ln) == 0) {
+			*consumed = ln;
+			*out_code = table[i].code;
+			return true;
 		}
-
-		/* handle underscore for simple subscript like A_i or x_12 */
-		if (lineptr[i] == '_' && lineptr[i + 1] != '\0') {
-			i++;
-			/* collect subscript token */
-			int j = i;
-			char sub[64]; int sj = 0;
-			if (lineptr[j] == '{') {
-				j++;
-				while (lineptr[j] != '\0' && lineptr[j] != '}' && sj < (int)sizeof(sub)-1) {
-					sub[sj++] = lineptr[j++];
-				}
-				if (lineptr[j] == '}') j++;
-			} else {
-				while ((lineptr[j] >= '0' && lineptr[j] <= '9') || (lineptr[j] >= 'a' && lineptr[j] <= 'z') || (lineptr[j] >= 'A' && lineptr[j] <= 'Z') ) {
-					sub[sj++] = lineptr[j++];
-				}
-			}
-			sub[sj] = '\0';
-
-			/* convert digits to Unicode subscript digits when possible */
-			/* convert digits and common letters to Unicode subscript when possible */
-			/* mapping for letters that have dedicated subscript codepoints */
-			for (int k = 0; k < sj; k++) {
-				char c = sub[k];
-				if (c >= '0' && c <= '9') {
-					/* map 0-9 to U+2080..U+2089 */
-					unsigned int code = 0x2080 + (c - '0');
-					buf[bi++] = (char)(0xE0 | ((code >> 12) & 0x0F));
-					buf[bi++] = (char)(0x80 | ((code >> 6) & 0x3F));
-					buf[bi++] = (char)(0x80 | (code & 0x3F));
-				} else {
-					/* try map common letters to subscript codepoints */
-					unsigned int code = 0;
-					switch (c) {
-						case 'a': code = 0x2090; break; /* ₐ */
-						case 'e': code = 0x2091; break; /* ₑ */
-						case 'o': code = 0x2092; break; /* ₒ */
-						case 'x': code = 0x2093; break; /* ₓ */
-						case 'h': code = 0x2095; break; /* ₕ */
-						case 'k': code = 0x2096; break; /* ₖ */
-						case 'l': code = 0x2097; break; /* ₗ */
-						case 'm': code = 0x2098; break; /* ₘ */
-						case 'n': code = 0x2099; break; /* ₙ */
-						case 'p': code = 0x209A; break; /* ₚ */
-						case 's': code = 0x209B; break; /* ₛ */
-						case 't': code = 0x209C; break; /* ₜ */
-						case 'i': code = 0x1D62; break; /* ᵢ */
-						default: code = 0; break;
-					}
-					if (code != 0) {
-						/* encode UTF-8 for codepoint */
-						if (code <= 0x7F) {
-							buf[bi++] = (char)code;
-						} else if (code <= 0x7FF) {
-							buf[bi++] = (char)(0xC0 | ((code >> 6) & 0x1F));
-							buf[bi++] = (char)(0x80 | (code & 0x3F));
-						} else if (code <= 0xFFFF) {
-							buf[bi++] = (char)(0xE0 | ((code >> 12) & 0x0F));
-							buf[bi++] = (char)(0x80 | ((code >> 6) & 0x3F));
-							buf[bi++] = (char)(0x80 | (code & 0x3F));
-						} else {
-							/* unlikely, but handle 4-byte */
-							buf[bi++] = (char)(0xF0 | ((code >> 18) & 0x07));
-							buf[bi++] = (char)(0x80 | ((code >> 12) & 0x3F));
-							buf[bi++] = (char)(0x80 | ((code >> 6) & 0x3F));
-							buf[bi++] = (char)(0x80 | (code & 0x3F));
-						}
-					} else {
-						/* fallback: output underscore + the letters if not mappable */
-						buf[bi++] = '_';
-						for (int kk = k; kk < sj && bi < (int)sizeof(buf)-1; kk++) buf[bi++] = sub[kk];
-						k = sj; /* consume rest */
-					}
-				}
-			}
-			i = j;
-			continue;
-		}
-
-		buf[bi++] = lineptr[i++];
 	}
 
-	buf[bi] = '\0';
+	return false;
+}
+
+/* Render simple math between $ ... $ supporting A_i -> A_i (use Unicode subscript digits when possible) */
+char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 	int i = *ip; /* points at the opening $ */
 	i++; /* move past opening $ */
 	int start = i;
@@ -125,12 +81,28 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 
 	/* iterate tokens until closing $ */
 	while (lineptr[i] != '\0' && lineptr[i] != '$' && bi < (int)sizeof(buf)-1) {
-		/* handle \dots */
-		if (lineptr[i] == '\\' && strncmp(&lineptr[i], "\\dots", 5) == 0) {
-			if (bi + 3 < (int)sizeof(buf)-1) {
-				buf[bi++] = (char)0xE2; buf[bi++] = (char)0x80; buf[bi++] = (char)0xA6;
+		/* handle backslash escapes: \dots or LaTeX commands like \alpha */
+		if (lineptr[i] == '\\') {
+			/* \dots special-case kept for compatibility */
+			if (strncmp(&lineptr[i], "\\dots", 5) == 0) {
+				if (bi + 3 < (int)sizeof(buf)-1) {
+					buf[bi++] = (char)0xE2; buf[bi++] = (char)0x80; buf[bi++] = (char)0xA6;
+				}
+				i += 5;
+				continue;
 			}
-			i += 5;
+
+			/* Map common LaTeX commands (e.g. \alpha) */
+			int consumed = 0;
+			unsigned int code = 0;
+			if (map_latex_cmd(&lineptr[i+1], &consumed, &code)) {
+				/* append mapped codepoint */
+				append_codepoint_utf8(buf, &bi, code, (int)sizeof(buf));
+				i += 1 + consumed;
+				continue;
+			}
+			/* unknown escape: copy backslash as-is */
+			buf[bi++] = lineptr[i++];
 			continue;
 		}
 
@@ -146,68 +118,83 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 			int bstart = i;
 			while ((lineptr[i] >= 'A' && lineptr[i] <= 'Z') || (lineptr[i] >= 'a' && lineptr[i] <= 'z') || (lineptr[i] >= '0' && lineptr[i] <= '9')) i++;
 			int bend = i;
-			/* check for subscript */
-			if (lineptr[i] == '_' && lineptr[i+1] != '\0') {
+			/* check for subscript or superscript */
+			if ((lineptr[i] == '_' || lineptr[i] == '^') && lineptr[i+1] != '\0') {
+				char sym = lineptr[i]; /* '_' or '^' */
 				/* capture subscript raw */
 				int j = i+1;
 				bool has_brace = false;
 				if (lineptr[j] == '{') { has_brace = true; j++; }
 				int sj = 0;
 				char sub[128];
-				while (lineptr[j] != '\0' && ((has_brace && lineptr[j] != '}') || (!has_brace && ((lineptr[j] >= '0' && lineptr[j] <= '9') || (lineptr[j] >= 'a' && lineptr[j] <= 'z') || (lineptr[j] >= 'A' && lineptr[j] <= 'Z')))) && sj < (int)sizeof(sub)-1) {
+				while (lineptr[j] != '\0' && ((has_brace && lineptr[j] != '}') || (!has_brace && ((lineptr[j] >= '0' && lineptr[j] <= '9') || (lineptr[j] >= 'a' && lineptr[j] <= 'z') || (lineptr[j] >= 'A' && lineptr[j] <= 'Z') || (lineptr[j] == '+' || lineptr[j] == '-' || lineptr[j] == '=' || lineptr[j] == '(' || lineptr[j] == ')')))) && sj < (int)sizeof(sub)-1) {
 					sub[sj++] = lineptr[j++];
 				}
 				sub[sj] = '\0';
 				if (has_brace && lineptr[j] == '}') j++;
 
-				/* try map every char in sub to subscript codepoint */
+				/* try map every char in sub to sub/superscript codepoints */
 				bool all_mapped = true;
 				char tmp[256]; int tbi = 0;
 				for (int k = 0; k < sj; k++) {
 					char c = sub[k];
-					if (c >= '0' && c <= '9') {
-						unsigned int code = 0x2080 + (c - '0');
-						if (tbi + 3 < (int)sizeof(tmp)-1) {
-							tmp[tbi++] = (char)(0xE0 | ((code >> 12) & 0x0F));
-							tmp[tbi++] = (char)(0x80 | ((code >> 6) & 0x3F));
-							tmp[tbi++] = (char)(0x80 | (code & 0x3F));
-						} else { all_mapped = false; break; }
-					} else {
-						unsigned int code = 0;
-						switch (c) {
-							case 'a': code = 0x2090; break; case 'e': code = 0x2091; break; case 'o': code = 0x2092; break; case 'x': code = 0x2093; break;
-							case 'h': code = 0x2095; break; case 'k': code = 0x2096; break; case 'l': code = 0x2097; break; case 'm': code = 0x2098; break;
-							case 'n': code = 0x2099; break; case 'p': code = 0x209A; break; case 's': code = 0x209B; break; case 't': code = 0x209C; break;
-							case 'i': code = 0x1D62; break; case 'r': code = 0; break; default: code = 0; break;
+					if (sym == '_') {
+						/* subscript mapping */
+						if (c >= '0' && c <= '9') {
+							unsigned int code = 0x2080 + (c - '0');
+							/* 0x2080..209F are multi-byte in UTF-8 */
+							append_codepoint_utf8(tmp, &tbi, code, (int)sizeof(tmp));
+						} else {
+							unsigned int code = 0;
+							switch (c) {
+								case 'a': code = 0x2090; break; case 'e': code = 0x2091; break; case 'o': code = 0x2092; break; case 'x': code = 0x2093; break;
+								case 'h': code = 0x2095; break; case 'k': code = 0x2096; break; case 'l': code = 0x2097; break; case 'm': code = 0x2098; break;
+								case 'n': code = 0x2099; break; case 'p': code = 0x209A; break; case 's': code = 0x209B; break; case 't': code = 0x209C; break;
+								case 'i': code = 0x1D62; break; default: code = 0; break;
+							}
+							if (code != 0) append_codepoint_utf8(tmp, &tbi, code, (int)sizeof(tmp)); else { all_mapped = false; break; }
 						}
-						if (code != 0) {
-							if (code <= 0x7F) { tmp[tbi++] = (char)code; }
-							else if (code <= 0x7FF) { tmp[tbi++] = (char)(0xC0 | ((code >> 6) & 0x1F)); tmp[tbi++] = (char)(0x80 | (code & 0x3F)); }
-							else if (code <= 0xFFFF) { tmp[tbi++] = (char)(0xE0 | ((code >> 12) & 0x0F)); tmp[tbi++] = (char)(0x80 | ((code >> 6) & 0x3F)); tmp[tbi++] = (char)(0x80 | (code & 0x3F)); }
-							else { tmp[tbi++] = (char)(0xF0 | ((code >> 18) & 0x07)); tmp[tbi++] = (char)(0x80 | ((code >> 12) & 0x3F)); tmp[tbi++] = (char)(0x80 | ((code >> 6) & 0x3F)); tmp[tbi++] = (char)(0x80 | (code & 0x3F)); }
-						} else { all_mapped = false; break; }
+					} else {
+						/* superscript mapping */
+						if (c >= '0' && c <= '9') {
+							unsigned int code;
+							switch (c) {
+								case '0': code = 0x2070; break; case '1': code = 0x00B9; break; case '2': code = 0x00B2; break; case '3': code = 0x00B3; break;
+								case '4': code = 0x2074; break; case '5': code = 0x2075; break; case '6': code = 0x2076; break; case '7': code = 0x2077; break;
+								case '8': code = 0x2078; break; case '9': code = 0x2079; break; default: code = 0; break;
+							}
+							append_codepoint_utf8(tmp, &tbi, code, (int)sizeof(tmp));
+						} else {
+							unsigned int code = 0;
+							switch (c) {
+								case '+': code = 0x207A; break; case '-': code = 0x207B; break; case '=': code = 0x207C; break;
+								case '(' : code = 0x207D; break; case ')' : code = 0x207E; break; case 'n': code = 0x207F; break;
+								default: code = 0; break;
+							}
+							if (code != 0) append_codepoint_utf8(tmp, &tbi, code, (int)sizeof(tmp)); else { all_mapped = false; break; }
+						}
 					}
 				}
 
 				if (all_mapped) {
 					/* append base */
 					for (int p = bstart; p < bend && bi < (int)sizeof(buf)-1; p++) buf[bi++] = lineptr[p];
-					/* append mapped subscript */
+					/* append mapped sub/superscript */
 					for (int p = 0; p < tbi && bi < (int)sizeof(buf)-1; p++) buf[bi++] = tmp[p];
 				} else {
-					/* fallback: output original text including underscore/braces */
+					/* fallback: output original text including underscore/caret/braces */
 					for (int p = bstart; p < bend && bi < (int)sizeof(buf)-1; p++) buf[bi++] = lineptr[p];
-					/* append underscore and raw sub */
-					if (bi < (int)sizeof(buf)-1) buf[bi++] = '_';
+					/* append marker and raw sub */
+					if (bi < (int)sizeof(buf)-1) buf[bi++] = sym;
 					if (has_brace && bi < (int)sizeof(buf)-1) buf[bi++] = '{';
 					for (int p = 0; p < sj && bi < (int)sizeof(buf)-1; p++) buf[bi++] = sub[p];
 					if (has_brace && bi < (int)sizeof(buf)-1) buf[bi++] = '}';
 				}
 
-				i = j; /* advance past subscript */
+				i = j; /* advance past subscript/superscript */
 				continue;
 			} else {
-				/* no subscript - append base */
+				/* no sub/sup - append base */
 				for (int p = bstart; p < bend && bi < (int)sizeof(buf)-1; p++) buf[bi++] = lineptr[p];
 				continue;
 			}
@@ -334,28 +321,56 @@ char *mdcat_render_list(char *dstline, char *str){
 			break;
 		}
 
-		while (str[i] == ' ' || str[i] == '\t') {
-			i++;
-		}
+		/* skip leading whitespace */
+		while (str[i] == ' ' || str[i] == '\t') i++;
 
-		if (((str[i] == '-') && (str[i + 1] == ' ')) ||
-		    ((str[i] == '*') && (str[i + 1] == ' '))) {
-			applied = false;
-			for (i = 0, dstindx = 0; str[i] != '\0'; i++, dstindx++) {
-				if ((applied != true) && ((str[i] == '-') || (str[i] == '*'))) {
-					i++;
-					strcat(dstline, bullet);
-					dstindx += blen;
-					applied = true;
+		/* detect list marker */
+		if (((str[i] == '-') && (str[i + 1] == ' ')) || ((str[i] == '*') && (str[i + 1] == ' '))) {
+			/* place bullet followed by a space for readability */
+			strcat(dstline, bullet);
+			dstindx = blen;
+			dstline[dstindx++] = ' ';
+			dstline[dstindx] = '\0';
+			/* advance past marker and following space */
+			i += 2;
+
+			/* now process remaining content but allow inline math and \dots */
+			for (; str[i] != '\0' && dstindx < (int)strlen(dstline) + 1024; ) {
+				/* handle math $...$ */
+				if (str[i] == '$') {
+					mdcat_render_math(&dstline, &dstindx, (char *)str, &i);
+					if (str[i] == '$') i++; /* skip closing $ if present */
+					continue;
 				}
-				dstline[dstindx] = str[i];
+
+				/* handle \dots */
+				if (str[i] == '\\' && strncmp(&str[i], "\\dots", 5) == 0) {
+					char ellutf[4] = { (char)0xE2, (char)0x80, (char)0xA6, '\0' };
+					append_str(&dstline, &dstindx, ellutf);
+					i += 5;
+					continue;
+				}
+
+					/* beautify commas inside list: if comma not followed by space, insert one */
+					if (str[i] == ',') {
+						dstline[dstindx++] = ',';
+						if (str[i+1] != ' ') {
+							dstline[dstindx++] = ' ';
+						}
+						i++;
+						dstline[dstindx] = '\0';
+						continue;
+					}
+
+				dstline[dstindx++] = str[i++];
+				dstline[dstindx] = '\0';
 			}
+
+			retval = dstline;
 		} else {
 			retval = NULL;
 			break;
 		}
-
-		retval = dstline;
 	} while(0);
 
 	return retval;

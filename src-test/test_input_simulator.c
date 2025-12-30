@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "passwordInputSimulator.h"
+#include "../src-extends/passwordInputSimulator.h"
 int main() {
     char pwd[PWDLEN + 1];
 

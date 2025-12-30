@@ -1,4 +1,4 @@
-#include "stack.h"
+#include "../src-extends/stack.h"
 #include <stdio.h>
 int main(){
     stack_t myStack;

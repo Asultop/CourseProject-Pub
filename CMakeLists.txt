@@ -8,12 +8,14 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 set(SOURCES
 	main.c
-	md5.c
-	usrManager.c
-    fileHelper.c
-    passwordInputSimulator.c
-	championHistoryColManager.c
-	problemBankManager.c
+	src-extends/md5.c
+	src-extends/usrManager.c
+    src-extends/fileHelper.c
+    src-extends/passwordInputSimulator.c
+	src-extends/championHistoryColManager.c
+	src-extends/problemBankManager.c
+	src-extends/stack.c
+	src-extends/markdownPrinter.c
 )
 
 add_executable(course_project ${SOURCES})

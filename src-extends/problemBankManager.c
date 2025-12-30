@@ -246,8 +246,8 @@ void addProblemInteractive(const char* problemsDir) {
 		// 去掉开头和结尾的引号
 		if(pathbuf[0] == '"' || pathbuf[0] == '\'') {
 			size_t L = strlen(pathbuf);
+			// 移除两侧引号
 			if(L>0 && (pathbuf[L-1] == '"' || pathbuf[L-1] == '\'')) {
-				// 移除两侧引号
 				memmove(pathbuf, pathbuf+1, L-2);
 				pathbuf[L-2] = '\0';
 			}
@@ -488,6 +488,7 @@ void pauseScreen() {
 	printf("=> 按任意键继续...");
 	getchar();
     getchar();
+	
 	// 等待用户按键
 }
 // 交互式题库管理主界面

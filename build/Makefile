@@ -129,54 +129,6 @@ course_project/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/build
 .PHONY : course_project/fast
 
-championHistoryColManager.o: championHistoryColManager.c.o
-.PHONY : championHistoryColManager.o
-
-# target to build an object file
-championHistoryColManager.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/championHistoryColManager.c.o
-.PHONY : championHistoryColManager.c.o
-
-championHistoryColManager.i: championHistoryColManager.c.i
-.PHONY : championHistoryColManager.i
-
-# target to preprocess a source file
-championHistoryColManager.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/championHistoryColManager.c.i
-.PHONY : championHistoryColManager.c.i
-
-championHistoryColManager.s: championHistoryColManager.c.s
-.PHONY : championHistoryColManager.s
-
-# target to generate assembly for a file
-championHistoryColManager.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/championHistoryColManager.c.s
-.PHONY : championHistoryColManager.c.s
-
-fileHelper.o: fileHelper.c.o
-.PHONY : fileHelper.o
-
-# target to build an object file
-fileHelper.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/fileHelper.c.o
-.PHONY : fileHelper.c.o
-
-fileHelper.i: fileHelper.c.i
-.PHONY : fileHelper.i
-
-# target to preprocess a source file
-fileHelper.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/fileHelper.c.i
-.PHONY : fileHelper.c.i
-
-fileHelper.s: fileHelper.c.s
-.PHONY : fileHelper.s
-
-# target to generate assembly for a file
-fileHelper.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/fileHelper.c.s
-.PHONY : fileHelper.c.s
-
 main.o: main.c.o
 .PHONY : main.o
 
@@ -201,101 +153,197 @@ main.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/main.c.s
 .PHONY : main.c.s
 
-md5.o: md5.c.o
-.PHONY : md5.o
+src-extends/championHistoryColManager.o: src-extends/championHistoryColManager.c.o
+.PHONY : src-extends/championHistoryColManager.o
 
 # target to build an object file
-md5.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/md5.c.o
-.PHONY : md5.c.o
+src-extends/championHistoryColManager.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o
+.PHONY : src-extends/championHistoryColManager.c.o
 
-md5.i: md5.c.i
-.PHONY : md5.i
+src-extends/championHistoryColManager.i: src-extends/championHistoryColManager.c.i
+.PHONY : src-extends/championHistoryColManager.i
 
 # target to preprocess a source file
-md5.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/md5.c.i
-.PHONY : md5.c.i
+src-extends/championHistoryColManager.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.i
+.PHONY : src-extends/championHistoryColManager.c.i
 
-md5.s: md5.c.s
-.PHONY : md5.s
+src-extends/championHistoryColManager.s: src-extends/championHistoryColManager.c.s
+.PHONY : src-extends/championHistoryColManager.s
 
 # target to generate assembly for a file
-md5.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/md5.c.s
-.PHONY : md5.c.s
+src-extends/championHistoryColManager.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.s
+.PHONY : src-extends/championHistoryColManager.c.s
 
-passwordInputSimulator.o: passwordInputSimulator.c.o
-.PHONY : passwordInputSimulator.o
+src-extends/fileHelper.o: src-extends/fileHelper.c.o
+.PHONY : src-extends/fileHelper.o
 
 # target to build an object file
-passwordInputSimulator.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/passwordInputSimulator.c.o
-.PHONY : passwordInputSimulator.c.o
+src-extends/fileHelper.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/fileHelper.c.o
+.PHONY : src-extends/fileHelper.c.o
 
-passwordInputSimulator.i: passwordInputSimulator.c.i
-.PHONY : passwordInputSimulator.i
+src-extends/fileHelper.i: src-extends/fileHelper.c.i
+.PHONY : src-extends/fileHelper.i
 
 # target to preprocess a source file
-passwordInputSimulator.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/passwordInputSimulator.c.i
-.PHONY : passwordInputSimulator.c.i
+src-extends/fileHelper.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/fileHelper.c.i
+.PHONY : src-extends/fileHelper.c.i
 
-passwordInputSimulator.s: passwordInputSimulator.c.s
-.PHONY : passwordInputSimulator.s
+src-extends/fileHelper.s: src-extends/fileHelper.c.s
+.PHONY : src-extends/fileHelper.s
 
 # target to generate assembly for a file
-passwordInputSimulator.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/passwordInputSimulator.c.s
-.PHONY : passwordInputSimulator.c.s
+src-extends/fileHelper.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/fileHelper.c.s
+.PHONY : src-extends/fileHelper.c.s
 
-problemBankManager.o: problemBankManager.c.o
-.PHONY : problemBankManager.o
+src-extends/markdownPrinter.o: src-extends/markdownPrinter.c.o
+.PHONY : src-extends/markdownPrinter.o
 
 # target to build an object file
-problemBankManager.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/problemBankManager.c.o
-.PHONY : problemBankManager.c.o
+src-extends/markdownPrinter.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o
+.PHONY : src-extends/markdownPrinter.c.o
 
-problemBankManager.i: problemBankManager.c.i
-.PHONY : problemBankManager.i
+src-extends/markdownPrinter.i: src-extends/markdownPrinter.c.i
+.PHONY : src-extends/markdownPrinter.i
 
 # target to preprocess a source file
-problemBankManager.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/problemBankManager.c.i
-.PHONY : problemBankManager.c.i
+src-extends/markdownPrinter.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.i
+.PHONY : src-extends/markdownPrinter.c.i
 
-problemBankManager.s: problemBankManager.c.s
-.PHONY : problemBankManager.s
+src-extends/markdownPrinter.s: src-extends/markdownPrinter.c.s
+.PHONY : src-extends/markdownPrinter.s
 
 # target to generate assembly for a file
-problemBankManager.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/problemBankManager.c.s
-.PHONY : problemBankManager.c.s
+src-extends/markdownPrinter.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.s
+.PHONY : src-extends/markdownPrinter.c.s
 
-usrManager.o: usrManager.c.o
-.PHONY : usrManager.o
+src-extends/md5.o: src-extends/md5.c.o
+.PHONY : src-extends/md5.o
 
 # target to build an object file
-usrManager.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/usrManager.c.o
-.PHONY : usrManager.c.o
+src-extends/md5.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/md5.c.o
+.PHONY : src-extends/md5.c.o
 
-usrManager.i: usrManager.c.i
-.PHONY : usrManager.i
+src-extends/md5.i: src-extends/md5.c.i
+.PHONY : src-extends/md5.i
 
 # target to preprocess a source file
-usrManager.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/usrManager.c.i
-.PHONY : usrManager.c.i
+src-extends/md5.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/md5.c.i
+.PHONY : src-extends/md5.c.i
 
-usrManager.s: usrManager.c.s
-.PHONY : usrManager.s
+src-extends/md5.s: src-extends/md5.c.s
+.PHONY : src-extends/md5.s
 
 # target to generate assembly for a file
-usrManager.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/usrManager.c.s
-.PHONY : usrManager.c.s
+src-extends/md5.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/md5.c.s
+.PHONY : src-extends/md5.c.s
+
+src-extends/passwordInputSimulator.o: src-extends/passwordInputSimulator.c.o
+.PHONY : src-extends/passwordInputSimulator.o
+
+# target to build an object file
+src-extends/passwordInputSimulator.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.o
+.PHONY : src-extends/passwordInputSimulator.c.o
+
+src-extends/passwordInputSimulator.i: src-extends/passwordInputSimulator.c.i
+.PHONY : src-extends/passwordInputSimulator.i
+
+# target to preprocess a source file
+src-extends/passwordInputSimulator.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.i
+.PHONY : src-extends/passwordInputSimulator.c.i
+
+src-extends/passwordInputSimulator.s: src-extends/passwordInputSimulator.c.s
+.PHONY : src-extends/passwordInputSimulator.s
+
+# target to generate assembly for a file
+src-extends/passwordInputSimulator.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.s
+.PHONY : src-extends/passwordInputSimulator.c.s
+
+src-extends/problemBankManager.o: src-extends/problemBankManager.c.o
+.PHONY : src-extends/problemBankManager.o
+
+# target to build an object file
+src-extends/problemBankManager.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o
+.PHONY : src-extends/problemBankManager.c.o
+
+src-extends/problemBankManager.i: src-extends/problemBankManager.c.i
+.PHONY : src-extends/problemBankManager.i
+
+# target to preprocess a source file
+src-extends/problemBankManager.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/problemBankManager.c.i
+.PHONY : src-extends/problemBankManager.c.i
+
+src-extends/problemBankManager.s: src-extends/problemBankManager.c.s
+.PHONY : src-extends/problemBankManager.s
+
+# target to generate assembly for a file
+src-extends/problemBankManager.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/problemBankManager.c.s
+.PHONY : src-extends/problemBankManager.c.s
+
+src-extends/stack.o: src-extends/stack.c.o
+.PHONY : src-extends/stack.o
+
+# target to build an object file
+src-extends/stack.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/stack.c.o
+.PHONY : src-extends/stack.c.o
+
+src-extends/stack.i: src-extends/stack.c.i
+.PHONY : src-extends/stack.i
+
+# target to preprocess a source file
+src-extends/stack.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/stack.c.i
+.PHONY : src-extends/stack.c.i
+
+src-extends/stack.s: src-extends/stack.c.s
+.PHONY : src-extends/stack.s
+
+# target to generate assembly for a file
+src-extends/stack.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/stack.c.s
+.PHONY : src-extends/stack.c.s
+
+src-extends/usrManager.o: src-extends/usrManager.c.o
+.PHONY : src-extends/usrManager.o
+
+# target to build an object file
+src-extends/usrManager.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/usrManager.c.o
+.PHONY : src-extends/usrManager.c.o
+
+src-extends/usrManager.i: src-extends/usrManager.c.i
+.PHONY : src-extends/usrManager.i
+
+# target to preprocess a source file
+src-extends/usrManager.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/usrManager.c.i
+.PHONY : src-extends/usrManager.c.i
+
+src-extends/usrManager.s: src-extends/usrManager.c.s
+.PHONY : src-extends/usrManager.s
+
+# target to generate assembly for a file
+src-extends/usrManager.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/course_project.dir/build.make CMakeFiles/course_project.dir/src-extends/usrManager.c.s
+.PHONY : src-extends/usrManager.c.s
 
 # Help Target
 help:
@@ -306,27 +354,33 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... course_project"
-	@echo "... championHistoryColManager.o"
-	@echo "... championHistoryColManager.i"
-	@echo "... championHistoryColManager.s"
-	@echo "... fileHelper.o"
-	@echo "... fileHelper.i"
-	@echo "... fileHelper.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... md5.o"
-	@echo "... md5.i"
-	@echo "... md5.s"
-	@echo "... passwordInputSimulator.o"
-	@echo "... passwordInputSimulator.i"
-	@echo "... passwordInputSimulator.s"
-	@echo "... problemBankManager.o"
-	@echo "... problemBankManager.i"
-	@echo "... problemBankManager.s"
-	@echo "... usrManager.o"
-	@echo "... usrManager.i"
-	@echo "... usrManager.s"
+	@echo "... src-extends/championHistoryColManager.o"
+	@echo "... src-extends/championHistoryColManager.i"
+	@echo "... src-extends/championHistoryColManager.s"
+	@echo "... src-extends/fileHelper.o"
+	@echo "... src-extends/fileHelper.i"
+	@echo "... src-extends/fileHelper.s"
+	@echo "... src-extends/markdownPrinter.o"
+	@echo "... src-extends/markdownPrinter.i"
+	@echo "... src-extends/markdownPrinter.s"
+	@echo "... src-extends/md5.o"
+	@echo "... src-extends/md5.i"
+	@echo "... src-extends/md5.s"
+	@echo "... src-extends/passwordInputSimulator.o"
+	@echo "... src-extends/passwordInputSimulator.i"
+	@echo "... src-extends/passwordInputSimulator.s"
+	@echo "... src-extends/problemBankManager.o"
+	@echo "... src-extends/problemBankManager.i"
+	@echo "... src-extends/problemBankManager.s"
+	@echo "... src-extends/stack.o"
+	@echo "... src-extends/stack.i"
+	@echo "... src-extends/stack.s"
+	@echo "... src-extends/usrManager.o"
+	@echo "... src-extends/usrManager.i"
+	@echo "... src-extends/usrManager.s"
 .PHONY : help
 
 

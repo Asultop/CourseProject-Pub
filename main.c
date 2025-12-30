@@ -2,13 +2,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#include "Def.h"
-#include "usrManager.h"
-#include "fileHelper.h"
-#include "passwordInputSimulator.h"
-#include "md5.h"
-#include "championHistoryColManager.h"
-#include "problemBankManager.h"
+#include "src-extends/Def.h"
+#include "src-extends/usrManager.h"
+#include "src-extends/fileHelper.h"
+#include "src-extends/passwordInputSimulator.h"
+#include "src-extends/md5.h"
+#include "src-extends/championHistoryColManager.h"
+#include "src-extends/problemBankManager.h"
 #ifdef _WIN32
     #define sleep(seconds) Sleep((seconds) * 1000)
 #endif

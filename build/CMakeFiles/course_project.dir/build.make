@@ -83,113 +83,145 @@ CMakeFiles/course_project.dir/main.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/main.c.s"
 	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/main.c -o CMakeFiles/course_project.dir/main.c.s
 
-CMakeFiles/course_project.dir/md5.c.o: CMakeFiles/course_project.dir/flags.make
-CMakeFiles/course_project.dir/md5.c.o: /home/asultop/CourseProject/md5.c
-CMakeFiles/course_project.dir/md5.c.o: CMakeFiles/course_project.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/course_project.dir/md5.c.o"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/course_project.dir/md5.c.o -MF CMakeFiles/course_project.dir/md5.c.o.d -o CMakeFiles/course_project.dir/md5.c.o -c /home/asultop/CourseProject/md5.c
+CMakeFiles/course_project.dir/src-extends/md5.c.o: CMakeFiles/course_project.dir/flags.make
+CMakeFiles/course_project.dir/src-extends/md5.c.o: /home/asultop/CourseProject/src-extends/md5.c
+CMakeFiles/course_project.dir/src-extends/md5.c.o: CMakeFiles/course_project.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/course_project.dir/src-extends/md5.c.o"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/course_project.dir/src-extends/md5.c.o -MF CMakeFiles/course_project.dir/src-extends/md5.c.o.d -o CMakeFiles/course_project.dir/src-extends/md5.c.o -c /home/asultop/CourseProject/src-extends/md5.c
 
-CMakeFiles/course_project.dir/md5.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/course_project.dir/md5.c.i"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asultop/CourseProject/md5.c > CMakeFiles/course_project.dir/md5.c.i
+CMakeFiles/course_project.dir/src-extends/md5.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/course_project.dir/src-extends/md5.c.i"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asultop/CourseProject/src-extends/md5.c > CMakeFiles/course_project.dir/src-extends/md5.c.i
 
-CMakeFiles/course_project.dir/md5.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/md5.c.s"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/md5.c -o CMakeFiles/course_project.dir/md5.c.s
+CMakeFiles/course_project.dir/src-extends/md5.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/src-extends/md5.c.s"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/src-extends/md5.c -o CMakeFiles/course_project.dir/src-extends/md5.c.s
 
-CMakeFiles/course_project.dir/usrManager.c.o: CMakeFiles/course_project.dir/flags.make
-CMakeFiles/course_project.dir/usrManager.c.o: /home/asultop/CourseProject/usrManager.c
-CMakeFiles/course_project.dir/usrManager.c.o: CMakeFiles/course_project.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/course_project.dir/usrManager.c.o"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/course_project.dir/usrManager.c.o -MF CMakeFiles/course_project.dir/usrManager.c.o.d -o CMakeFiles/course_project.dir/usrManager.c.o -c /home/asultop/CourseProject/usrManager.c
+CMakeFiles/course_project.dir/src-extends/usrManager.c.o: CMakeFiles/course_project.dir/flags.make
+CMakeFiles/course_project.dir/src-extends/usrManager.c.o: /home/asultop/CourseProject/src-extends/usrManager.c
+CMakeFiles/course_project.dir/src-extends/usrManager.c.o: CMakeFiles/course_project.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/course_project.dir/src-extends/usrManager.c.o"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/course_project.dir/src-extends/usrManager.c.o -MF CMakeFiles/course_project.dir/src-extends/usrManager.c.o.d -o CMakeFiles/course_project.dir/src-extends/usrManager.c.o -c /home/asultop/CourseProject/src-extends/usrManager.c
 
-CMakeFiles/course_project.dir/usrManager.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/course_project.dir/usrManager.c.i"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asultop/CourseProject/usrManager.c > CMakeFiles/course_project.dir/usrManager.c.i
+CMakeFiles/course_project.dir/src-extends/usrManager.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/course_project.dir/src-extends/usrManager.c.i"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asultop/CourseProject/src-extends/usrManager.c > CMakeFiles/course_project.dir/src-extends/usrManager.c.i
 
-CMakeFiles/course_project.dir/usrManager.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/usrManager.c.s"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/usrManager.c -o CMakeFiles/course_project.dir/usrManager.c.s
+CMakeFiles/course_project.dir/src-extends/usrManager.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/src-extends/usrManager.c.s"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/src-extends/usrManager.c -o CMakeFiles/course_project.dir/src-extends/usrManager.c.s
 
-CMakeFiles/course_project.dir/fileHelper.c.o: CMakeFiles/course_project.dir/flags.make
-CMakeFiles/course_project.dir/fileHelper.c.o: /home/asultop/CourseProject/fileHelper.c
-CMakeFiles/course_project.dir/fileHelper.c.o: CMakeFiles/course_project.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object CMakeFiles/course_project.dir/fileHelper.c.o"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/course_project.dir/fileHelper.c.o -MF CMakeFiles/course_project.dir/fileHelper.c.o.d -o CMakeFiles/course_project.dir/fileHelper.c.o -c /home/asultop/CourseProject/fileHelper.c
+CMakeFiles/course_project.dir/src-extends/fileHelper.c.o: CMakeFiles/course_project.dir/flags.make
+CMakeFiles/course_project.dir/src-extends/fileHelper.c.o: /home/asultop/CourseProject/src-extends/fileHelper.c
+CMakeFiles/course_project.dir/src-extends/fileHelper.c.o: CMakeFiles/course_project.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object CMakeFiles/course_project.dir/src-extends/fileHelper.c.o"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/course_project.dir/src-extends/fileHelper.c.o -MF CMakeFiles/course_project.dir/src-extends/fileHelper.c.o.d -o CMakeFiles/course_project.dir/src-extends/fileHelper.c.o -c /home/asultop/CourseProject/src-extends/fileHelper.c
 
-CMakeFiles/course_project.dir/fileHelper.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/course_project.dir/fileHelper.c.i"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asultop/CourseProject/fileHelper.c > CMakeFiles/course_project.dir/fileHelper.c.i
+CMakeFiles/course_project.dir/src-extends/fileHelper.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/course_project.dir/src-extends/fileHelper.c.i"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asultop/CourseProject/src-extends/fileHelper.c > CMakeFiles/course_project.dir/src-extends/fileHelper.c.i
 
-CMakeFiles/course_project.dir/fileHelper.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/fileHelper.c.s"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/fileHelper.c -o CMakeFiles/course_project.dir/fileHelper.c.s
+CMakeFiles/course_project.dir/src-extends/fileHelper.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/src-extends/fileHelper.c.s"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/src-extends/fileHelper.c -o CMakeFiles/course_project.dir/src-extends/fileHelper.c.s
 
-CMakeFiles/course_project.dir/passwordInputSimulator.c.o: CMakeFiles/course_project.dir/flags.make
-CMakeFiles/course_project.dir/passwordInputSimulator.c.o: /home/asultop/CourseProject/passwordInputSimulator.c
-CMakeFiles/course_project.dir/passwordInputSimulator.c.o: CMakeFiles/course_project.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/course_project.dir/passwordInputSimulator.c.o"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/course_project.dir/passwordInputSimulator.c.o -MF CMakeFiles/course_project.dir/passwordInputSimulator.c.o.d -o CMakeFiles/course_project.dir/passwordInputSimulator.c.o -c /home/asultop/CourseProject/passwordInputSimulator.c
+CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.o: CMakeFiles/course_project.dir/flags.make
+CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.o: /home/asultop/CourseProject/src-extends/passwordInputSimulator.c
+CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.o: CMakeFiles/course_project.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.o"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.o -MF CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.o.d -o CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.o -c /home/asultop/CourseProject/src-extends/passwordInputSimulator.c
 
-CMakeFiles/course_project.dir/passwordInputSimulator.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/course_project.dir/passwordInputSimulator.c.i"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asultop/CourseProject/passwordInputSimulator.c > CMakeFiles/course_project.dir/passwordInputSimulator.c.i
+CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.i"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asultop/CourseProject/src-extends/passwordInputSimulator.c > CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.i
 
-CMakeFiles/course_project.dir/passwordInputSimulator.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/passwordInputSimulator.c.s"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/passwordInputSimulator.c -o CMakeFiles/course_project.dir/passwordInputSimulator.c.s
+CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.s"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/src-extends/passwordInputSimulator.c -o CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.s
 
-CMakeFiles/course_project.dir/championHistoryColManager.c.o: CMakeFiles/course_project.dir/flags.make
-CMakeFiles/course_project.dir/championHistoryColManager.c.o: /home/asultop/CourseProject/championHistoryColManager.c
-CMakeFiles/course_project.dir/championHistoryColManager.c.o: CMakeFiles/course_project.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building C object CMakeFiles/course_project.dir/championHistoryColManager.c.o"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/course_project.dir/championHistoryColManager.c.o -MF CMakeFiles/course_project.dir/championHistoryColManager.c.o.d -o CMakeFiles/course_project.dir/championHistoryColManager.c.o -c /home/asultop/CourseProject/championHistoryColManager.c
+CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o: CMakeFiles/course_project.dir/flags.make
+CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o: /home/asultop/CourseProject/src-extends/championHistoryColManager.c
+CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o: CMakeFiles/course_project.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building C object CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o -MF CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o.d -o CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o -c /home/asultop/CourseProject/src-extends/championHistoryColManager.c
 
-CMakeFiles/course_project.dir/championHistoryColManager.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/course_project.dir/championHistoryColManager.c.i"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asultop/CourseProject/championHistoryColManager.c > CMakeFiles/course_project.dir/championHistoryColManager.c.i
+CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.i"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asultop/CourseProject/src-extends/championHistoryColManager.c > CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.i
 
-CMakeFiles/course_project.dir/championHistoryColManager.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/championHistoryColManager.c.s"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/championHistoryColManager.c -o CMakeFiles/course_project.dir/championHistoryColManager.c.s
+CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.s"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/src-extends/championHistoryColManager.c -o CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.s
 
-CMakeFiles/course_project.dir/problemBankManager.c.o: CMakeFiles/course_project.dir/flags.make
-CMakeFiles/course_project.dir/problemBankManager.c.o: /home/asultop/CourseProject/problemBankManager.c
-CMakeFiles/course_project.dir/problemBankManager.c.o: CMakeFiles/course_project.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/course_project.dir/problemBankManager.c.o"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/course_project.dir/problemBankManager.c.o -MF CMakeFiles/course_project.dir/problemBankManager.c.o.d -o CMakeFiles/course_project.dir/problemBankManager.c.o -c /home/asultop/CourseProject/problemBankManager.c
+CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o: CMakeFiles/course_project.dir/flags.make
+CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o: /home/asultop/CourseProject/src-extends/problemBankManager.c
+CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o: CMakeFiles/course_project.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o -MF CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o.d -o CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o -c /home/asultop/CourseProject/src-extends/problemBankManager.c
 
-CMakeFiles/course_project.dir/problemBankManager.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/course_project.dir/problemBankManager.c.i"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asultop/CourseProject/problemBankManager.c > CMakeFiles/course_project.dir/problemBankManager.c.i
+CMakeFiles/course_project.dir/src-extends/problemBankManager.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/course_project.dir/src-extends/problemBankManager.c.i"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asultop/CourseProject/src-extends/problemBankManager.c > CMakeFiles/course_project.dir/src-extends/problemBankManager.c.i
 
-CMakeFiles/course_project.dir/problemBankManager.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/problemBankManager.c.s"
-	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/problemBankManager.c -o CMakeFiles/course_project.dir/problemBankManager.c.s
+CMakeFiles/course_project.dir/src-extends/problemBankManager.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/src-extends/problemBankManager.c.s"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/src-extends/problemBankManager.c -o CMakeFiles/course_project.dir/src-extends/problemBankManager.c.s
+
+CMakeFiles/course_project.dir/src-extends/stack.c.o: CMakeFiles/course_project.dir/flags.make
+CMakeFiles/course_project.dir/src-extends/stack.c.o: /home/asultop/CourseProject/src-extends/stack.c
+CMakeFiles/course_project.dir/src-extends/stack.c.o: CMakeFiles/course_project.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object CMakeFiles/course_project.dir/src-extends/stack.c.o"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/course_project.dir/src-extends/stack.c.o -MF CMakeFiles/course_project.dir/src-extends/stack.c.o.d -o CMakeFiles/course_project.dir/src-extends/stack.c.o -c /home/asultop/CourseProject/src-extends/stack.c
+
+CMakeFiles/course_project.dir/src-extends/stack.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/course_project.dir/src-extends/stack.c.i"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asultop/CourseProject/src-extends/stack.c > CMakeFiles/course_project.dir/src-extends/stack.c.i
+
+CMakeFiles/course_project.dir/src-extends/stack.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/src-extends/stack.c.s"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/src-extends/stack.c -o CMakeFiles/course_project.dir/src-extends/stack.c.s
+
+CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o: CMakeFiles/course_project.dir/flags.make
+CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o: /home/asultop/CourseProject/src-extends/markdownPrinter.c
+CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o: CMakeFiles/course_project.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o -MF CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o.d -o CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o -c /home/asultop/CourseProject/src-extends/markdownPrinter.c
+
+CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.i"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/asultop/CourseProject/src-extends/markdownPrinter.c > CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.i
+
+CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.s"
+	/usr/bin/gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/asultop/CourseProject/src-extends/markdownPrinter.c -o CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.s
 
 # Object files for target course_project
 course_project_OBJECTS = \
 "CMakeFiles/course_project.dir/main.c.o" \
-"CMakeFiles/course_project.dir/md5.c.o" \
-"CMakeFiles/course_project.dir/usrManager.c.o" \
-"CMakeFiles/course_project.dir/fileHelper.c.o" \
-"CMakeFiles/course_project.dir/passwordInputSimulator.c.o" \
-"CMakeFiles/course_project.dir/championHistoryColManager.c.o" \
-"CMakeFiles/course_project.dir/problemBankManager.c.o"
+"CMakeFiles/course_project.dir/src-extends/md5.c.o" \
+"CMakeFiles/course_project.dir/src-extends/usrManager.c.o" \
+"CMakeFiles/course_project.dir/src-extends/fileHelper.c.o" \
+"CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.o" \
+"CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o" \
+"CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o" \
+"CMakeFiles/course_project.dir/src-extends/stack.c.o" \
+"CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o"
 
 # External object files for target course_project
 course_project_EXTERNAL_OBJECTS =
 
 course_project: CMakeFiles/course_project.dir/main.c.o
-course_project: CMakeFiles/course_project.dir/md5.c.o
-course_project: CMakeFiles/course_project.dir/usrManager.c.o
-course_project: CMakeFiles/course_project.dir/fileHelper.c.o
-course_project: CMakeFiles/course_project.dir/passwordInputSimulator.c.o
-course_project: CMakeFiles/course_project.dir/championHistoryColManager.c.o
-course_project: CMakeFiles/course_project.dir/problemBankManager.c.o
+course_project: CMakeFiles/course_project.dir/src-extends/md5.c.o
+course_project: CMakeFiles/course_project.dir/src-extends/usrManager.c.o
+course_project: CMakeFiles/course_project.dir/src-extends/fileHelper.c.o
+course_project: CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.o
+course_project: CMakeFiles/course_project.dir/src-extends/championHistoryColManager.c.o
+course_project: CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o
+course_project: CMakeFiles/course_project.dir/src-extends/stack.c.o
+course_project: CMakeFiles/course_project.dir/src-extends/markdownPrinter.c.o
 course_project: CMakeFiles/course_project.dir/build.make
 course_project: CMakeFiles/course_project.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking C executable course_project"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/asultop/CourseProject/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking C executable course_project"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/course_project.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
