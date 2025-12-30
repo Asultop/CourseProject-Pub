@@ -9,6 +9,7 @@
 #include "ACMLocalJudger.h"
 #include "screenManager.h"
 #include "chineseSupport.h"
+#include "codeRender.h"
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
@@ -743,16 +744,16 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 			snprintf(path, sizeof(path), "%s/%s/%s.cpp", problemsDir, e->folderName, e->id);
 			if(!fileExists(path)) snprintf(path, sizeof(path), "%s/%s/general_solution.cpp", problemsDir, e->folderName);
 			if(fileExists(path)) {
-				char* txt = readFileToString(path);
-				if(txt) { 
+				bool srcExist = fileExists(path);
+				if(srcExist) { 
 					printHeader();
 					printCenter("题解文件");
 					printDivider();
-					printf("%s\n", txt);
+					codeRender_worker(path);
+					puts("");
 					printDivider();
 					printCenter("题解结束");
 					printFooter();
-					free(txt); 
 				}
 				else printf("x> 无法读取题解文件：%s\n", path);
 			} else {

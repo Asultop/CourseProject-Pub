@@ -19,6 +19,7 @@ set(SOURCES
 	src-extends/ACMLocalJudger.c
 	src-extends/screenManager.c
 	src-extends/chineseSupport.c
+	src-extends/codeRender.c
 )
 
 add_executable(course_project ${SOURCES})
