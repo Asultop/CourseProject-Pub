@@ -9,7 +9,7 @@
 int loadAllProblems(const char* problemsDir, ProblemEntry entries[], int maxEntries);
 
 // 交互式界面：显示问题库子菜单并处理用户操作
-void interactiveProblemBank(const char* problemsDir);
+void interactiveProblemBank(const char* problemsDir,UsrProfile * currentUser);
 
 // 删除题目（按 ID 或文件夹名），返回 true 表示删除成功
 bool deleteProblemByID(const char* problemsDir, const char* id);

@@ -262,15 +262,14 @@ char *mdcat_render_header(char **dstline, char *str){
 		assert(dstline != NULL);
 		assert(*dstline != NULL);
 
+		/* Only detect header level and return pointer to header body.
+		   Actual rendering (with inline code handling) is done in mdcat_render_line. */
 		if ((str[0] == '#') && (str[1] == ' '))  {
 			lineptr = &str[2];
-			sprintf(*dstline, ANSI_BOLD_BLUE "%s" ANSI_FRMT_RESET, lineptr);
 		} else if ((str[0] == '#') && (str[1] == '#') && (str[2] == ' ')) {
 			lineptr = &str[3];
-			sprintf(*dstline, ANSI_BOLD_YELLOW "%s" ANSI_FRMT_RESET, lineptr);
 		} else if ((str[0] == '#') && (str[1] == '#') && (str[2] == '#') && (str[3] == ' ')) {
 			lineptr = &str[4];
-			sprintf(*dstline, ANSI_BOLD_MAGENTA "%s" ANSI_FRMT_RESET, lineptr);
 		} else {
 			lineptr = NULL;
 		}
@@ -334,8 +333,32 @@ char *mdcat_render_list(char *dstline, char *str){
 			/* advance past marker and following space */
 			i += 2;
 
-			/* now process remaining content but allow inline math and \dots */
+			/* now process remaining content but allow inline math, code spans and \dots */
 			for (; str[i] != '\0' && dstindx < (int)strlen(dstline) + 1024; ) {
+				/* If currently inside inline code block, copy verbatim until closing backticks */
+				if (mdcat.fmt == DO_CODEBLOCK) {
+					if (str[i] == '`') {
+						int bt = 1;
+						if (str[i+1] == '`') { bt++; if (str[i+2] == '`') bt++; }
+						i += bt; /* skip closing backticks */
+						mdcat_render_text(&dstline, &dstindx, DO_CODEBLOCK, ANSI_COLOR_MAGENTA);
+						continue;
+					} else {
+						dstline[dstindx++] = str[i++];
+						dstline[dstindx] = '\0';
+						continue;
+					}
+				}
+
+				/* handle opening backticks: start inline code span */
+				if (str[i] == '`') {
+					int bt = 1;
+					if (str[i+1] == '`') { bt++; if (str[i+2] == '`') bt++; }
+					i += bt; /* skip opening backticks */
+					mdcat_render_text(&dstline, &dstindx, DO_CODEBLOCK, ANSI_COLOR_MAGENTA);
+					continue;
+				}
+
 				/* handle math $...$ */
 				if (str[i] == '$') {
 					mdcat_render_math(&dstline, &dstindx, (char *)str, &i);
@@ -351,16 +374,16 @@ char *mdcat_render_list(char *dstline, char *str){
 					continue;
 				}
 
-					/* beautify commas inside list: if comma not followed by space, insert one */
-					if (str[i] == ',') {
-						dstline[dstindx++] = ',';
-						if (str[i+1] != ' ') {
-							dstline[dstindx++] = ' ';
-						}
-						i++;
-						dstline[dstindx] = '\0';
-						continue;
+				/* beautify commas inside list: if comma not followed by space, insert one */
+				if (str[i] == ',') {
+					dstline[dstindx++] = ',';
+					if (str[i+1] != ' ') {
+						dstline[dstindx++] = ' ';
 					}
+					i++;
+					dstline[dstindx] = '\0';
+					continue;
+				}
 
 				dstline[dstindx++] = str[i++];
 				dstline[dstindx] = '\0';
@@ -389,11 +412,56 @@ int mdcat_render_line(char *str, size_t len){
 		dstline = calloc(len * 2, sizeof(char)); /* @len: double the space of source line length to adapt the format specifiers */
 		assert(dstline != NULL);
 
-		/* Render #ed header line format */
-		if (mdcat_render_header(&dstline, str) != NULL) {
-			goto PRINT_OUTPUT;
-			retval = MDCAT_OK;
-			break;
+		/* Render #ed header line format with inline handling */
+		{
+			char *hbody = mdcat_render_header(&dstline, str);
+			if (hbody != NULL) {
+				/* determine header level (1..3) and choose color */
+				const char *hcolor = ANSI_BOLD_BLUE;
+				if (str[0] == '#' && str[1] == '#') hcolor = ANSI_BOLD_YELLOW;
+				if (str[0] == '#' && str[1] == '#' && str[2] == '#') hcolor = ANSI_BOLD_MAGENTA;
+
+				append_str(&dstline, &dstindx, hcolor);
+
+				/* render header body with limited inline parsing (math, backticks, \dots) */
+				for (int j = 0; hbody[j] != '\0' && dstindx < (int)strlen(dstline) + 1024; ) {
+					/* handle inline code spans */
+					if (mdcat.fmt == DO_CODEBLOCK) {
+						if (hbody[j] == '`') {
+							int bt = 1; if (hbody[j+1] == '`') { bt++; if (hbody[j+2] == '`') bt++; }
+							j += bt;
+							mdcat_render_text(&dstline, &dstindx, DO_CODEBLOCK, ANSI_COLOR_MAGENTA);
+							continue;
+						} else {
+							dstline[dstindx++] = hbody[j++]; dstline[dstindx] = '\0'; continue;
+						}
+					}
+
+					if (hbody[j] == '`') {
+						int bt = 1; if (hbody[j+1] == '`') { bt++; if (hbody[j+2] == '`') bt++; }
+						j += bt; mdcat_render_text(&dstline, &dstindx, DO_CODEBLOCK, ANSI_COLOR_MAGENTA); continue;
+					}
+
+					/* handle inline math */
+					if (hbody[j] == '$') {
+						mdcat_render_math(&dstline, &dstindx, hbody, &j);
+						if (hbody[j] == '$') j++;
+						continue;
+					}
+
+					/* handle \dots */
+					if (hbody[j] == '\\' && strncmp(&hbody[j], "\\dots", 5) == 0) {
+						char ellutf[4] = { (char)0xE2, (char)0x80, (char)0xA6, '\0' };
+						append_str(&dstline, &dstindx, ellutf);
+						j += 5; continue;
+					}
+
+					dstline[dstindx++] = hbody[j++]; dstline[dstindx] = '\0';
+				}
+
+				append_str(&dstline, &dstindx, ANSI_FRMT_RESET);
+				goto PRINT_OUTPUT;
+			}
 		}
 
 		/* Render list format */

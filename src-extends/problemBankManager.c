@@ -76,6 +76,45 @@ static bool contains_case_insensitive(const char* text, const char* pat) {
 	free(lowPat);
 	return res;
 }
+
+// 在输出中将匹配的子串以红色高亮（不改变原始大小写）
+static void print_highlight(const char* value, const char* filter) {
+	const char* RED = "\x1b[31m";
+	const char* RESET = "\x1b[0m";
+	if(!value) value = "";
+	if(!filter || filter[0] == '\0') {
+		printf("%s", value);
+		return;
+	}
+	char lowVal[1024];
+	char lowFilter[256];
+	size_t vlen = strlen(value);
+	size_t flen = strlen(filter);
+	if(vlen >= sizeof(lowVal)) vlen = sizeof(lowVal)-1;
+	if(flen >= sizeof(lowFilter)) flen = sizeof(lowFilter)-1;
+	for(size_t i=0;i<vlen;i++) lowVal[i] = (char)tolower((unsigned char)value[i]);
+	lowVal[vlen] = '\0';
+	for(size_t i=0;i<flen;i++) lowFilter[i] = (char)tolower((unsigned char)filter[i]);
+	lowFilter[flen] = '\0';
+
+	const char* cur = value;
+	const char* lowCur = lowVal;
+	while(true) {
+		char* found = strstr(lowCur, lowFilter);
+		if(!found) {
+			printf("%s", cur);
+			break;
+		}
+		size_t prefixLen = (size_t)(found - lowCur);
+		if(prefixLen > 0) fwrite(cur, 1, prefixLen, stdout);
+		printf("%s", RED);
+		fwrite(cur + prefixLen, 1, flen, stdout);
+		printf("%s", RESET);
+		cur += prefixLen + flen;
+		lowCur += prefixLen + flen;
+		if(*cur == '\0') break;
+	}
+}
 int loadAllProblems(const char* problemsDir, ProblemEntry entries[], int maxEntries) {
 	if(!problemsDir || !entries) return 0;
 	DIR* d = opendir(problemsDir);
@@ -463,10 +502,10 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 		printf("\n1. 提交结果\n2. 查看解析\n3. 查看题解\n4. 运行正确样例\n0. 返回\n=> 请选择：");
 		if(scanf("%d", &sub) != 1) {
 			// 清理输入缓存
-			int c; 
-			while((c=getchar())!='\n' && c!=EOF);
-
-			goto continueWithWait;
+			cleanBuffer();
+			printf("x> 无效的选择\n");
+			sleep(1);
+			continue;	
 		}
 		if(sub == 1) {
 			/* 提交结果：提示用户输入源文件路径（支持带引号），并使用当前题目的 ProblemEntry 进行本地判题 */
@@ -488,7 +527,8 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 				while(pend > pstart && (*pend == '"' || *pend == '\'')) { *pend = '\0'; pend--; }
 				if(!fileExists(pstart)) {
 					printf("x> 源文件不存在：%s\n", pstart);
-					goto continueWithWait;
+					pauseScreen();
+					continue;
 				}
 				/* 计算题目目录 */
 				char probcopy[1024];
@@ -525,8 +565,10 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 							break;
 					}
 				}
-				// cleanBuffer();
+				puts("=> 按 Enter 键继续...");
 				fflush(stdout);
+				cleanBuffer();
+				continue;
 			}
 		} else if(sub == 2) {
 			char path[1200];
@@ -629,10 +671,11 @@ void cleanScreen(void);
 
 void pauseScreen(void);
 // 交互式题库管理主界面
-void interactiveProblemBank(const char* problemsDir) {
+void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 	while(true) {
 		cleanScreen();
 		puts("========= ACM 题库 =========");
+		printf("当前用户: %s\n", currentUser ? currentUser->name : "未登录");
 		puts("|----------------------------|");
 		puts("|      1. 显示所有题目       |");
 		puts("|      2. 搜索题目           |");
@@ -647,7 +690,7 @@ void interactiveProblemBank(const char* problemsDir) {
 			int c;
 			while((c=getchar())!='\n' && c!=EOF);
 			printf("?> 无效输入，请重试。\n");
-			pauseScreen();
+			sleep(1);
 			continue;
 		}
 		if(choice == 0) return;
@@ -808,10 +851,18 @@ void interactiveProblemBank(const char* problemsDir) {
 				continue;
 			}
 			printf("√> 找到 %d 条题目：\n", rcount);
-            printf("|      -------- 题目列表 (%d) ---------       |\n", rcount);
-            printf("ID\t\t标题\t\t难度\n");
-			for (int i=0;i<rcount;i++) 
-			                printf("%s\t\t%s\t\t%s\n", results[i].id, results[i].title, results[i].difficulty);
+			printf("|      -------- 题目列表 (%d) ---------       |\n", rcount);
+			printf("ID\t\t标题\t\t难度\n");
+			for (int i=0;i<rcount;i++) {
+				// 输出 ID，不高亮
+				printf("%s\t\t", results[i].id);
+				// 标题使用 titleFilter 高亮匹配片段
+				print_highlight(results[i].title, titleFilter);
+				printf("\t\t");
+				// 难度使用 diffFilter 高亮（若有）
+				print_highlight(results[i].difficulty, diffFilter);
+				printf("\n");
+			}
 			printf(".      -------------------------------       .\n");
             printf("=> 输入题目 ID 打开详情，或 0 返回：");
 			char idBuf[128];

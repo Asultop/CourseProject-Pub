@@ -25,7 +25,7 @@ extern void cleanScreen(){
     #endif
 }
 extern void pauseScreen(void) {
-	printf("=> 按任意键继续...\n");
+	printf("=> 按 Enter 键继续...\n");
 	fflush(stdout);
 	cleanBuffer();
 	getchar();
@@ -95,7 +95,12 @@ void getInACMIntroduction(){
         puts("|----------------------------|");
         printf("=> 请输入选项：[ ]\b\b");
         int choice;
-        scanf("%d", &choice);
+        if(scanf("%d", &choice) != 1){
+            cleanBuffer();
+            printf("?> 无效的选择，请重新输入。\n");
+            sleep(1);
+            continue;
+        }
         switch (choice){
             case 1:
                 displayFileContent(RULEFILE);
@@ -389,9 +394,15 @@ int main(int argc,char *argv[]){
     }
 
     LINE_DIFF_25_splash: { // Splash 登录/注册界面
+        cleanScreen();
         printSplashScreen();
         int choice;
-        scanf("%d", &choice);
+        if(scanf("%d", &choice) != 1){
+            cleanBuffer();
+            printf("?> 无效的选择，请重新输入。\n");
+            sleep(1);
+            goto LINE_DIFF_25_splash; // LINE DIFF_25 从定义处
+        }
         switch (choice){
             case 1:
                 if(!login(&currentUser)){
@@ -436,16 +447,23 @@ int main(int argc,char *argv[]){
                 exit(0);
             default:
                 printf("?> 无效的选择，请重新输入。\n");
+                sleep(1);
                 goto LINE_DIFF_25_splash; // LINE DIFF_25 从定义处
                 break;
         }
+        
     }
     sleep(1);
     // 进入主界面
     while(true){
         printMainScreen(currentUser.name);
         int choice;
-        scanf("%d", &choice);
+        if(scanf("%d", &choice) != 1){
+            cleanBuffer();
+            printf("?> 无效的选择，请重新输入。\n");
+            sleep(1);
+            continue;
+        }
         if(choice == 0) break;
         switch (choice){
             case 1:
@@ -454,7 +472,7 @@ int main(int argc,char *argv[]){
                 break;
             case 2:
                 // ACM 题库
-                interactiveProblemBank(PROBLEM_DIR);
+                interactiveProblemBank(PROBLEM_DIR, &currentUser);
                 break;
             case 0:
                 // 退出程序
