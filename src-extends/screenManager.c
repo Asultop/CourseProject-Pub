@@ -14,11 +14,26 @@ extern void cleanScreen(){
         system("clear");
     #endif
 }
-extern void pauseScreen(void) {
+extern void pauseScreen() {
     printf("⎵> 按 Enter 键继续...\n");
     fflush(stdout);
     cleanBuffer();
     getchar();
+}
+extern void cleanLine(){
+    printf("\r");
+    for(int i = 0; i < SCREEN_CHAR_WIDTH; i++){
+        printf(" ");
+    }
+    printf("\r");
+}
+void moveUp(size_t lines){
+    if(lines == 0) return;
+    printf("\033[%zuA", lines);
+}
+void moveDown(size_t lines){
+    if(lines == 0) return;
+    printf("\033[%zuB", lines);
 }
 void printSplashScreen(){
     // puts("╔════════════════════════════════════════╗");

@@ -7,6 +7,13 @@ void printSplashScreen();
 void printMainScreen(const char * username);
 void printACMDetailScreen();
 void printACMProblemBankScreen(const char * currentUser);
+void cleanLine();
+void cleanScreen();
+void pauseScreen();
+void cleanBuffer();
+
+void moveUp(size_t lines);
+void moveDown(size_t lines);
 
 void printHeader();
 void printFooter();

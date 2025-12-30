@@ -967,30 +967,42 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 				}
 			}
 			printFooter();
-			printf("=> 输入题目 ID 打开详情，或 0 返回：");
-			char idBuf[128];
-			// 清除换行并读取字符串
-			int rc = scanf("%s", idBuf);
-			if(rc != 1) {
+			// 交互式循环：在“显示所有题目”列表内处理错误输入并重新提示
+			{
 				int c;
-				while((c=getchar())!='\n' && c!=EOF);
-				continue;
+				while ((c = getchar()) != '\n' && c != EOF) ; // 清理残余输入
+				char idBuf[128];
+				while (1) {
+					printf("=> 输入题目 ID 打开详情，或 0 返回：");
+					if(!fgets(idBuf, sizeof(idBuf), stdin)) break;
+					trim_newline(idBuf);
+					if(idBuf[0] == '\0') {
+						printf("?> 无效输入。");
+						cleanLine();
+						moveUp(1);
+						cleanLine();
+						continue; // 重新提示，保持在题目列表
+					}
+					if(strcmp(idBuf, "0") == 0) break; // 返回上一级
+					int found = -1;
+					for (int j = 0; j < cnt; j++) {
+						if(strcmp(entries[j].id, idBuf) == 0 || strcmp(entries[j].folderName, idBuf) == 0) {
+							found = j;
+							break;
+						}
+					}
+					if(found == -1) {
+						printf("?> 未找到 ID: %s", idBuf);
+						sleep(1);
+						cleanLine();
+						moveUp(1);
+						cleanLine();
+						continue; // 保持在题目列表，重新提示
+					}
+					problemDetailMenu(problemsDir, &entries[found]);
+					break; // 打开详情后返回上一级
+				}
 			}
-			if(strcmp(idBuf, "0") == 0) 
-			                continue;
-			// 查找
-			int found = -1;
-			for (int i=0;i<cnt;i++) 
-			                if(strcmp(entries[i].id, idBuf) == 0 || strcmp(entries[i].folderName, idBuf) == 0) {
-				found = i;
-				break;
-			}
-			if(found == -1) {
-				printf("?> 未找到 ID: %s\n", idBuf);
-				pauseScreen();
-				continue;
-			}
-			problemDetailMenu(problemsDir, &entries[found]);
 			continue;
 		} else if(choice == 2) {
 			// 交互式筛选：标题，题干，难度，类型
@@ -1155,10 +1167,10 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 					if(found == -1) {
 						printf("?> 未找到 ID: %s", idBuf);
 						sleep(1);
-						printf("\r                                                     \r");
-						printf("\033[1A"); // 光标上移一行
-						printf("\r                                                     \r");
-						
+						cleanLine();
+						// printf("\033[1A"); // 光标上移一行
+						moveUp(1);
+						cleanLine();
 						// pauseScreen();
 						continue; // 保持在搜索结果，重新提示
 					}
