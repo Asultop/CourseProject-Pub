@@ -3,9 +3,11 @@
 #include <string.h>
 #include <stdbool.h>
 
-/* Define globals declared extern in header */
+
 mdcat_t mdcat = { .fmt = DO_RESET };
 stack_t stack;
+
+static useconds_t mdcat_delay_us = 0;
 
 /* Helper: append to dstline at dstindx, ensure null-termination */
 static void append_str(char **dstline, int *dstindx, const char *s) {
@@ -219,17 +221,18 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 }
 
 int mdcat_print_line(char *line){
-	char *ptr = line;
-	size_t delay = 3000;
-
-	while(*ptr != '\0') {
-		printf("%c", *ptr++);
-		usleep((useconds_t)delay);
-		fflush(stdout);
+	if (mdcat_delay_us == 0) {
+		puts(line);
+		return 0;
 	}
 
-	printf("\n");
-
+	char *ptr = line;
+	while (*ptr != '\0') {
+		putchar(*ptr++);
+		usleep(mdcat_delay_us);
+	}
+	putchar('\n');
+	fflush(stdout);
 	return 0;
 }
 
@@ -286,19 +289,17 @@ char *mdcat_render_text(char **dstline, int *dstindx, int md_op, char *fmt){
 
 			/* Get current format from the stack top */
 			retval = peek(&stack);
-			if (retval == md_op) {
-					mdcat.fmt = DO_RESET;
-					strcat(*dstline, ANSI_FRMT_RESET);        /* 1: Reset the current text format */
-					*dstindx += (int)strlen(ANSI_FRMT_RESET); /* 2: Adjust the dstline pointer to the end of format specifier to load next text */
-					retval = pop(&stack);                     /* 3: Popout the handled format from the stack */
-					assert(retval == md_op);
-			} else {
-					mdcat.fmt = md_op;
-					strcat(*dstline, fmt);        /* 1: Insert the text format specifier */
-					*dstindx += (int)strlen(fmt); /* 2: Adjust the dstline pointer to the end of format specifier to load next text */
-					retval = push(&stack, md_op); /* 3: Push the current format to the stack */
-					assert(retval == STACK_OK);
-			}
+			    if (retval == md_op) {
+				    mdcat.fmt = DO_RESET;
+				    append_str(dstline, dstindx, ANSI_FRMT_RESET);        /* Reset format */
+				    retval = pop(&stack);
+				    assert(retval == md_op);
+			    } else {
+				    mdcat.fmt = md_op;
+				    append_str(dstline, dstindx, fmt);
+				    retval = push(&stack, md_op);
+				    assert(retval == STACK_OK);
+			    }
 	} while(0);
 
 	return *dstline;
@@ -327,8 +328,7 @@ char *mdcat_render_list(char *dstline, char *str){
 		/* detect list marker */
 		if (((str[i] == '-') && (str[i + 1] == ' ')) || ((str[i] == '*') && (str[i + 1] == ' '))) {
 			/* place bullet followed by a space for readability */
-			strcat(dstline, bullet);
-			dstindx = blen;
+			append_str(&dstline, &dstindx, bullet);
 			dstline[dstindx++] = ' ';
 			dstline[dstindx] = '\0';
 			/* advance past marker and following space */
@@ -492,6 +492,17 @@ int mdcat_worker(const char *file){
 	logit("%s", file);
 
 	do {
+		/* configure printing delay from env var MDCAT_DELAY_MS (milliseconds) */
+		const char *env = getenv("MDCAT_DELAY_MS");
+		if (env != NULL) {
+			long ms = atol(env);
+			if (ms < 0) ms = 0;
+			mdcat_delay_us = (useconds_t)(ms * 1000);
+		} else {
+			/* default: no per-char delay for performance */
+			mdcat_delay_us = 0;
+		}
+
 		retval = initialize_stack(&stack);
 		if (retval != STACK_OK) {
 			fprintf(stderr, "failed to init stack");

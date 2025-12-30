@@ -16,7 +16,7 @@
 #define MAX_CHAMPION_RECORDS 1024
 
 // 目录定义
-#define DATABASE_DIR "./database"
+#define DATABASE_DIR "./DataBase"
 #define PLATFORM_DIR DATABASE_DIR "/Platform"
 #define PROBLEM_DIR PLATFORM_DIR "/Problems"
 #define USERDATA_DIR DATABASE_DIR "/usrData"

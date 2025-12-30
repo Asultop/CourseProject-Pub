@@ -423,10 +423,13 @@ CMakeFiles/course_project.dir/src-extends/passwordInputSimulator.c.o: /home/asul
 CMakeFiles/course_project.dir/src-extends/problemBankManager.c.o: /home/asultop/CourseProject/src-extends/problemBankManager.c \
   /home/asultop/CourseProject/src-extends/Def.h \
   /home/asultop/CourseProject/src-extends/fileHelper.h \
+  /home/asultop/CourseProject/src-extends/markdownPrinter.h \
   /home/asultop/CourseProject/src-extends/problemBankManager.h \
+  /home/asultop/CourseProject/src-extends/stack.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/errno-base.h \
   /usr/include/asm-generic/errno.h \
+  /usr/include/assert.h \
   /usr/include/ctype.h \
   /usr/include/dirent.h \
   /usr/include/endian.h \
