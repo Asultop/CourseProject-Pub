@@ -147,76 +147,113 @@ void printDivider(){
     printf("╣\n");
 }
 void printCenter(const char* content){
-    if(get_real_Length(content, NULL) > SCREEN_CHAR_WIDTH - 2){
-        printContent(content);
+    int innerWidth = SCREEN_CHAR_WIDTH - 2; // 去掉左右边框
+    int avail = innerWidth; // center 不应用左右 margin
+    if(avail <= 0){
+        printf("║");
+        for(int i=0;i<innerWidth;i++) putchar(' ');
+        printf("║\n");
         return;
     }
     if(content == NULL){
-        printf("║ %-*s ║\n", SCREEN_CHAR_WIDTH - 4, "");
-        return;
-    }
-    int contentLen = (int)get_real_Length(content, NULL);
-    int count=count_chinese(content, NULL);
-    int actualLen = contentLen; 
-    int totalPadding = SCREEN_CHAR_WIDTH - 2 - actualLen;
-    int leftPadding = totalPadding / 2;
-    int rightPadding = totalPadding - leftPadding;
-    printf("║");
-    for(int i = 0; i < leftPadding; i++){
-        printf(" ");
-    }
-    printf("%s", content);
-    for(int i = 0; i < rightPadding; i++){
-        printf(" ");
-    }
-    printf("║\n");
-}
-void printLeft(const char* content){
-    if(content == NULL){
-        printf("║ %-*s ║\n", SCREEN_CHAR_WIDTH - 4, "");
+        printf("║");
+        for(int i=0;i<avail;i++) putchar(' ');
+        printf("║\n");
         return;
     }
     int visible = (int)get_real_Length(content, NULL);
-    if(visible > SCREEN_CHAR_WIDTH - 2){
-        printContent(content);
+    if(visible > avail){
+            // 可见内容超过可用宽度：仅绘制左侧边框，允许内容溢出右侧
+            printf("║");
+            printf("%s\n", content);
         return;
     }
-    int rightPadding = SCREEN_CHAR_WIDTH - 2 - visible;
+    int totalPadding = avail - visible;
+    int leftPadding = totalPadding / 2;
+    int rightPadding = totalPadding - leftPadding;
     printf("║");
+    for(int i = 0; i < leftPadding; i++) putchar(' ');
     printf("%s", content);
     for(int i = 0; i < rightPadding; i++) putchar(' ');
     printf("║\n");
 }
-void printRight(const char* content){
+void printLeft(const char* content){
+    int innerWidth = SCREEN_CHAR_WIDTH - 2;
+    int avail = innerWidth - SCREEN_MARGIN_LEFT - SCREEN_MARGIN_RIGHT;
+    if(avail <= 0){
+        printf("║"); for(int i=0;i<innerWidth;i++) putchar(' '); printf("║\n"); return;
+    }
     if(content == NULL){
-        printf("║ %-*s ║\n", SCREEN_CHAR_WIDTH - 4, "");
+        printf("║");
+        for(int i=0;i<SCREEN_MARGIN_LEFT;i++) putchar(' ');
+        for(int i=0;i<avail;i++) putchar(' ');
+        for(int i=0;i<SCREEN_MARGIN_RIGHT;i++) putchar(' ');
+        printf("║\n");
         return;
     }
     int visible = (int)get_real_Length(content, NULL);
-    if(visible > SCREEN_CHAR_WIDTH - 2){
+    if(visible > avail){
+            // 可见内容超过可用宽度：仅绘制左侧边框与左边距，允许内容溢出右侧
+            printf("║");
+            for(int i=0;i<SCREEN_MARGIN_LEFT;i++) putchar(' ');
+            printf("%s\n", content);
+        return;
+    }
+    int rightPadding = avail - visible;
+    printf("║");
+    for(int i=0;i<SCREEN_MARGIN_LEFT;i++) putchar(' ');
+    printf("%s", content);
+    for(int i=0;i<rightPadding;i++) putchar(' ');
+    for(int i=0;i<SCREEN_MARGIN_RIGHT;i++) putchar(' ');
+    printf("║\n");
+}
+void printRight(const char* content){
+    int innerWidth = SCREEN_CHAR_WIDTH - 2;
+    int avail = innerWidth - SCREEN_MARGIN_LEFT - SCREEN_MARGIN_RIGHT;
+    if(avail <= 0){
+        printf("║"); for(int i=0;i<innerWidth;i++) putchar(' '); printf("║\n"); return;
+    }
+    if(content == NULL){
+        printf("║");
+        for(int i=0;i<SCREEN_MARGIN_LEFT;i++) putchar(' ');
+        for(int i=0;i<avail;i++) putchar(' ');
+        for(int i=0;i<SCREEN_MARGIN_RIGHT;i++) putchar(' ');
+        printf("║\n");
+        return;
+    }
+    int visible = (int)get_real_Length(content, NULL);
+    if(visible > avail){
         printContent(content);
         return;
     }
-    int leftPadding = SCREEN_CHAR_WIDTH - 2 - visible;
+    int leftPadding = avail - visible;
     printf("║");
-    for(int i = 0; i < leftPadding; i++) putchar(' ');
+    for(int i=0;i<SCREEN_MARGIN_LEFT;i++) putchar(' ');
+    for(int i=0;i<leftPadding;i++) putchar(' ');
     printf("%s", content);
+    for(int i=0;i<SCREEN_MARGIN_RIGHT;i++) putchar(' ');
     printf("║\n");
 }
 void printContent(const char* content){
     // 存在中文
     if(content == NULL){
-        printf("║ %-*s ║\n", SCREEN_CHAR_WIDTH - 4, "");
+        int innerWidth = SCREEN_CHAR_WIDTH - 2;
+        printf("║"); for(int i=0;i<innerWidth;i++) putchar(' '); printf("║\n");
         return;
     }
+    int innerWidth = SCREEN_CHAR_WIDTH - 2;
+    int avail = innerWidth; // content 不应用左右 margin
+    if(avail <= 0){ printf("║"); for(int i=0;i<innerWidth;i++) putchar(' '); printf("║\n"); return; }
     int visible = (int)get_real_Length(content, NULL);
-    if(visible > SCREEN_CHAR_WIDTH - 2){
-        printf("- %s -", content);
+    if(visible > avail){
+            // 可见内容超过可用宽度：仅绘制左侧边框，允许内容溢出右侧
+            printf("║");
+            printf("%s\n", content);
         return;
     }
-    int rightPadding = SCREEN_CHAR_WIDTH - 2 - visible;
+    int rightPadding = avail - visible;
     printf("║");
     printf("%s", content);
-    for(int i = 0; i < rightPadding; i++) putchar(' ');
+    for(int i=0;i<rightPadding;i++) putchar(' ');
     printf("║\n");
 }

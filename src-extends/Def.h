@@ -5,6 +5,9 @@
 
 // 屏幕尺寸定义
 #define SCREEN_CHAR_WIDTH 50
+// 左右Margin
+#define SCREEN_MARGIN_LEFT 2
+#define SCREEN_MARGIN_RIGHT 2
 // 数据量定义
 #define MAX_NAME_LEN 100
 #define MAX_PASSWORD_LEN 100

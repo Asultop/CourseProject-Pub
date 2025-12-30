@@ -88,7 +88,10 @@ static void print_highlight(const char* value, const char* filter) {
 	const char* RESET = "\x1b[0m";
 	if(!value) value = "";
 	if(!filter || filter[0] == '\0') {
-		printf("%s", value);
+		// printf("%s", value);
+		char buf[1024];
+		snprintf(buf, sizeof(buf), "%s", value);
+		printLeft(buf);
 		return;
 	}
 	char lowVal[1024];
@@ -106,19 +109,84 @@ static void print_highlight(const char* value, const char* filter) {
 	const char* lowCur = lowVal;
 	while(true) {
 		char* found = strstr(lowCur, lowFilter);
+		char buffer[1280];
 		if(!found) {
-			printf("%s", cur);
+			// printf("%s", cur);
+			snprintf(buffer, sizeof(buffer), "%s", cur);
+			printLeft(buffer);
 			break;
 		}
 		size_t prefixLen = (size_t)(found - lowCur);
-		if(prefixLen > 0) fwrite(cur, 1, prefixLen, stdout);
-		printf("%s", RED);
-		fwrite(cur + prefixLen, 1, flen, stdout);
-		printf("%s", RESET);
+		if(prefixLen > 0) {
+			// fwrite(cur, 1, prefixLen, stdout);
+			snprintf(buffer, sizeof(buffer), "%.*s", (int)prefixLen, cur);
+		}
+		// printf("%s", RED);
+		// fwrite(cur + prefixLen, 1, flen, stdout);
+		// printf("%s", RESET);
+		snprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), "%s%.*s%s", RED, (int)flen, cur + prefixLen, RESET);
+		cur += prefixLen + flen;
+		lowCur += prefixLen + flen;
+		if(*cur == '\0') break;
+		printLeft(buffer);
+	}
+}
+
+// 将高亮文本写入目标字符串（与 print_highlight 行为一致，但不直接写入 stdout）
+static void highlight_to_str(const char* value, const char* filter, char* dst, size_t dstsz) {
+	const char* RED = "\x1b[31m";
+	const char* RESET = "\x1b[0m";
+	if(!dst || dstsz == 0) return;
+	dst[0] = '\0';
+	if(!value) value = "";
+	if(!filter || filter[0] == '\0') {
+		strncpy(dst, value, dstsz-1);
+		dst[dstsz-1] = '\0';
+		return;
+	}
+	char lowVal[1024];
+	char lowFilter[256];
+	size_t vlen = strlen(value);
+	size_t flen = strlen(filter);
+	if(vlen >= sizeof(lowVal)) vlen = sizeof(lowVal)-1;
+	if(flen >= sizeof(lowFilter)) flen = sizeof(lowFilter)-1;
+	for(size_t i=0;i<vlen;i++) lowVal[i] = (char)tolower((unsigned char)value[i]);
+	lowVal[vlen] = '\0';
+	for(size_t i=0;i<flen;i++) lowFilter[i] = (char)tolower((unsigned char)filter[i]);
+	lowFilter[flen] = '\0';
+
+	const char* cur = value;
+	const char* lowCur = lowVal;
+	size_t used = 0;
+	while(true) {
+		char* found = strstr(lowCur, lowFilter);
+		if(!found) {
+			size_t tocopy = strlen(cur);
+			if(used + tocopy + 1 > dstsz) tocopy = (dstsz > used) ? dstsz - used - 1 : 0;
+			if(tocopy > 0) memcpy(dst + used, cur, tocopy), used += tocopy;
+			break;
+		}
+		size_t prefixLen = (size_t)(found - lowCur);
+		if(prefixLen > 0) {
+			size_t tocopy = prefixLen;
+			if(used + tocopy + 1 > dstsz) tocopy = (dstsz > used) ? dstsz - used - 1 : 0;
+			if(tocopy > 0) memcpy(dst + used, cur, tocopy), used += tocopy;
+		}
+		// 添加 RED
+		size_t rlen = strlen(RED);
+		if(used + rlen + 1 <= dstsz) memcpy(dst + used, RED, rlen), used += rlen;
+		// 添加匹配的片段
+		size_t mlen = flen;
+		if(used + mlen + 1 <= dstsz) memcpy(dst + used, cur + prefixLen, mlen), used += mlen;
+		// 添加 RESET
+		size_t relen = strlen(RESET);
+		if(used + relen + 1 <= dstsz) memcpy(dst + used, RESET, relen), used += relen;
+
 		cur += prefixLen + flen;
 		lowCur += prefixLen + flen;
 		if(*cur == '\0') break;
 	}
+	dst[used] = '\0';
 }
 int loadAllProblems(const char* problemsDir, ProblemEntry entries[], int maxEntries) {
 	if(!problemsDir || !entries) return 0;
@@ -481,6 +549,8 @@ static void printProblemDetails(const ProblemEntry* e) {
 	// printf("|  类型: %s\n", e->type);
 	// printf("|  题目文件: %s\n", e->problemPath);
 	// puts(  "|----------------------------|");
+	printHeader();
+	printCenter("题目详情");
 	printDivider();
 	char IDline[128];
 	snprintf(IDline, sizeof(IDline), "ID: %s", e->id);
@@ -500,11 +570,12 @@ static void printProblemDetails(const ProblemEntry* e) {
         bool contentExist = fileExists(e->problemPath);
         if(contentExist) {
             printCenter("题目开始");
+			printDivider();
+			// 读取并打印题目内容（支持 LaTeX 渲染）
 			printFileWithLatex(e->problemPath);
+			printDivider();
 			printCenter("题目结束");
-
-
-
+			printDivider();
         } else {
             printf("x> 无法读取题目内容文件：%s\n", e->problemPath);
         }
@@ -519,7 +590,15 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 	do {
 		sub = -1;
 		printProblemDetails(e);
-		printf("\n1. 提交结果\n2. 查看解析\n3. 查看题解\n4. 运行正确样例\n0. 返回\n=> 请选择：");
+		// printf("\n1. 提交结果\n2. 查看解析\n3. 查看题解\n4. 运行正确样例\n0. 返回\n=> 请选择：");
+		printLeft("1. 提交结果");
+		printLeft("2. 查看解析");
+		printLeft("3. 查看题解");
+		printLeft("4. 运行正确样例");
+		printDivider();
+		printCenter("0. 返回");
+		printFooter();
+		printf("=> 请选择：");
 		if(scanf("%d", &sub) != 1) {
 			// 清理输入缓存
 			cleanBuffer();
@@ -762,7 +841,7 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 					snprintf(probline, sizeof(probline), "题目文件: %s", entries[found].problemPath);
 					printLeft(probline);
 				}
-
+				printFooter();
 				// printf("将要删除如下题目：\n");
                 // puts(  "|----------------------------|");
                 // printf("|  ID: %s\n", entries[found].id);
@@ -814,16 +893,28 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 			printDivider();
 			{
 				char header[128];
-				snprintf(header, sizeof(header), "难度\t\tID\t\t标题");
-				printContent(header);
+				snprintf(header, sizeof(header), "%-12s %-8s %s", "难度", "ID", "标题");
+				printLeft(header);
 			}
 			for (int i=0;i<cnt;i++) {
-				// printf("| %s\t\t%s\t\t%s\n", entries[i].difficulty, entries[i].id, entries[i].title);
-				char line[1024];
-				snprintf(line, sizeof(line), "%s\t\t%s\t\t", entries[i].difficulty, entries[i].id);
-				// 高亮标题中的关键字（若有）
-				strcat(line, entries[i].title);
-				printContent(line);
+				/* 构造足够大的动态缓冲区以包含完整标题，避免截断导致看起来超出边框 */
+				size_t need = strlen(entries[i].difficulty) + 1 + strlen(entries[i].id) + 1 + strlen(entries[i].title) + 16;
+				char *line = (char*)malloc(need);
+				if(line) {
+					snprintf(line, need, "%-12s %-8s %s", entries[i].difficulty, entries[i].id, entries[i].title);
+					printLeft(line);
+					free(line);
+				} else {
+					/* 内存分配失败则退回到安全的本地缓冲区拼接（不会丢弃太多） */
+					char buf[1024];
+					int w = snprintf(buf, sizeof(buf), "%-12s %-8s ", entries[i].difficulty, entries[i].id);
+					if (w < 0) w = 0;
+					if ((size_t)w < sizeof(buf)) {
+						size_t rem = sizeof(buf) - (size_t)w - 1;
+						strncat(buf, entries[i].title, rem);
+					}
+					printLeft(buf);
+				}
 			}
 			printFooter();
 			printf("=> 输入题目 ID 打开详情，或 0 返回：");
@@ -913,27 +1004,62 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 				continue;
 			}
 			printf("√> 找到 %d 条题目：\n", rcount);
+			printHeader();
 			{
 				char buf[64];
 				snprintf(buf, sizeof(buf), "搜索结果 (%d)", rcount);
-				printContent(buf);
+				printCenter(buf);
 			}
 			
 			printDivider();
 			char header[128];
-			snprintf(header, sizeof(header), "ID\t\t标题\t\t难度");
-			printContent(header);
+			snprintf(header, sizeof(header), "%-8s %-25s %s", "ID", "标题", "难度");
+			printLeft(header);
 			for (int i=0;i<rcount;i++) {
-				// 输出 ID，不高亮
-				printf("%s\t\t", results[i].id);
-				// 标题使用 titleFilter 高亮匹配片段
-				print_highlight(results[i].title, titleFilter);
-				printf("\t\t");
-				// 难度使用 diffFilter 高亮（若有）
-				print_highlight(results[i].difficulty, diffFilter);
-				printf("\n");
+				// 将高亮标题写入缓冲并构造整行，由 printLeft 负责对齐/溢出处理
+				const char* title = results[i].title ? results[i].title : "";
+				const char* diff = results[i].difficulty ? results[i].difficulty : "";
+				size_t need = strlen(results[i].id) + 1 + strlen(title) * 4 + strlen(diff) + 128;
+				char *line = (char*)malloc(need);
+				if(!line) {
+					// 回退到简单打印
+					printf("%-8s ", results[i].id);
+					print_highlight(title, titleFilter);
+					printf(" ");
+					print_highlight(diff, diffFilter);
+					printf("\n");
+				} else {
+					// 先格式化 ID 和间隔
+					int off = snprintf(line, need, "%-8s ", results[i].id);
+					if(off < 0) off = 0;
+					size_t rem = (off >= 0) ? (size_t)off : 0;
+					// 高亮 title 到临时缓冲
+					size_t tbufsz = strlen(title) * 4 + 32;
+					if(tbufsz < 256) tbufsz = 256;
+					char *tbuf = malloc(tbufsz);
+					if(tbuf) {
+						highlight_to_str(title, titleFilter, tbuf, tbufsz);
+						size_t copy = strlen(tbuf);
+						if(rem + copy + 1 < need) memcpy(line + rem, tbuf, copy), rem += copy, line[rem] = '\0';
+						free(tbuf);
+					}
+					// 添加间隔和难度（难度也高亮）
+					int w = snprintf(line + rem, (rem < need) ? need - rem : 0, " %s", ""); (void)w; // ensure NUL
+					rem = strlen(line);
+					size_t dbufsz = strlen(diff) * 4 + 32;
+					if(dbufsz < 128) dbufsz = 128;
+					char *dbuf = malloc(dbufsz);
+					if(dbuf) {
+						highlight_to_str(diff, diffFilter, dbuf, dbufsz);
+						size_t copy2 = strlen(dbuf);
+						if(rem + copy2 + 1 < need) memcpy(line + rem, dbuf, copy2), rem += copy2, line[rem] = '\0';
+						free(dbuf);
+					}
+					printLeft(line);
+					free(line);
+				}
 			}
-			printDivider();
+			printFooter();
             printf("=> 输入题目 ID 打开详情，或 0 返回：");
 			char idBuf[128];
 			if(scanf("%s", idBuf) != 1) 

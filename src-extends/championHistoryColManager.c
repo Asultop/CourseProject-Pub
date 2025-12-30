@@ -99,7 +99,7 @@ static void print_field_highlight(const char* label, const char* value, const ch
     if(!filter || filter[0] == '\0'){
         char buf[512];
         snprintf(buf, sizeof(buf), "%s: %s", label, value);
-        printContent(buf);
+        printLeft(buf);
         // printf("%s: %s\n", label, value);
         return;
     }
@@ -144,7 +144,7 @@ static void print_field_highlight(const char* label, const char* value, const ch
         // 继续循环以拼接后续部分
     }
     // 循环结束后一次性打印构造好的行，避免重复输出
-    printContent(buffer);
+    printLeft(buffer);
 }
 
 void printChampionRecord(const ChampionRecord* r,
