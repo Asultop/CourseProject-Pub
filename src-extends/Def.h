@@ -56,18 +56,21 @@
 #define ANSI_COLOR_256_TEAL     "\e[38;5;38m"    // 蓝绿色（变量）
 
 // ========== 真彩色扩展（RGB，现代终端支持） ==========
-#define ANSI_COLOR_RGB(key, r, g, b) "\e[38;2;" #r ";" #g ";" #b "m"
-#define ANSI_BG_RGB(key, r, g, b)    "\e[48;2;" #r ";" #g ";" #b "m"
+#define rgb( r, g, b) "\e[38;2;" #r ";" #g ";" #b "m"
+#define ANSI_BG_RGB( r, g, b)    "\e[48;2;" #r ";" #g ";" #b "m"
 
-// 预定义真彩色（可自定义RGB值）
-#define ANSI_COLOR_RGB_KEYWORD  ANSI_COLOR_RGB(79, 140, 201) // 关键字：淡蓝
-#define ANSI_COLOR_RGB_TYPE     ANSI_COLOR_RGB(100, 189, 99)  // 类型：淡绿
-#define ANSI_COLOR_RGB_VARIABLE ANSI_COLOR_RGB(210, 180, 210) // 变量：淡紫
-#define ANSI_COLOR_RGB_NUMBER   ANSI_COLOR_RGB(247, 220, 111) // 数字：淡黄
-#define ANSI_COLOR_RGB_STRING   ANSI_COLOR_RGB(231, 107, 107) // 字符串：淡红
-#define ANSI_COLOR_RGB_COMMENT  ANSI_COLOR_RGB(100, 150, 100) // 注释：暗绿
-#define ANSI_COLOR_RGB_PREPROC  ANSI_COLOR_RGB(242, 148, 60)  // 预处理：橙
-#define ANSI_COLOR_RGB_OPERATOR ANSI_COLOR_RGB(170, 130, 200) // 运算符：紫
+
+
+//类似 VSCode 2017 Dark 主题配色
+#define COLOR_KEYWORD           rgb(86, 156, 214) ANSI_FRMT_BOLD
+#define COLOR_TYPE              rgb(86, 156, 214) ANSI_FRMT_BOLD
+#define COLOR_VARIABLE          rgb(212, 212, 212)
+#define COLOR_NUMBER            rgb(181, 206, 168)
+#define COLOR_STRING            rgb(206, 145, 120)
+#define COLOR_COMMENT           rgb(106, 153, 85)
+#define COLOR_PREPROCESSOR      rgb(197, 134, 192) ANSI_FRMT_BOLD
+#define COLOR_OPERATOR          rgb(212, 212, 212)
+#define COLOR_DEFAULT           rgb(204, 204, 204) ANSI_FRMT_RESET
 
 
 // 屏幕尺寸定义
