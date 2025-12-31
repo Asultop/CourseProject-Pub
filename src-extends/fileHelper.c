@@ -1,7 +1,7 @@
 #include "fileHelper.h"
 #include <string.h>
 #include <limits.h>
-
+#include <sys/stat.h>
 bool fileExists(const char* filename){
     FILE* file = fopen(filename, "r");
     if(file){
@@ -9,6 +9,22 @@ bool fileExists(const char* filename){
         return true;
     }
     return false;
+}
+bool dirExists(const char* dirname){
+    #ifdef _WIN32
+        DWORD ftyp = GetFileAttributesA(dirname);
+        if (ftyp == INVALID_FILE_ATTRIBUTES)
+            return false;  // 目录不存在
+        if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
+            return true;   // 是目录
+        return false;      // 不是目录
+    #else
+        struct stat st;
+        if (stat(dirname, &st) == 0 && S_ISDIR(st.st_mode)){
+            return true;
+        }
+        return false;
+    #endif
 }
 bool touchFile(const char* filename){
     FILE* file = fopen(filename, "a");
@@ -19,6 +35,44 @@ bool touchFile(const char* filename){
     return false;
 }
 bool createFile(const char* filename){
+    {
+        if (!filename) return false;
+        char dir[PATH_MAX];
+        strncpy(dir, filename, sizeof(dir)-1);
+        dir[sizeof(dir)-1] = '\0';
+        char *p = dir + strlen(dir);
+        while (p > dir && *p != '/' && *p != '\\') --p;
+        if (p == dir && *p != '/' && *p != '\\') {
+            
+        } else {
+            if (*p) *p = '\0';
+            size_t len = strlen(dir);
+            size_t start = 1;
+            
+            if (len > 1 && dir[1] == ':') start = 3; // 省略驱动器 (Windows)
+            for (size_t i = start; i <= len; ++i) {
+                if (dir[i] == '/' || dir[i] == '\\' || dir[i] == '\0') {
+                    char save = dir[i];
+                    dir[i] = '\0';
+                    if (!dirExists(dir)) {
+                        #ifdef _WIN32
+                            if (!CreateDirectoryA(dir, NULL)) {
+                                #ifdef _MSC_VER
+                                    _mkdir(dir);
+                                #else
+                                    mkdir(dir, 0755);
+                                #endif
+                            }
+                        #else
+                            mkdir(dir, 0755);
+                        #endif
+                    }
+                    dir[i] = save;
+                }
+            }
+        }
+    }
+
     FILE* file = fopen(filename, "w");
     if(file){
         fclose(file);

@@ -19,6 +19,7 @@ char* readFileToStr(const char* path);
 bool copyFile(const char* src, const char* dst);
 // 删除文件，成功返回 true
 bool removeFile(const char* path);
+bool dirExists(const char* dirname);
 bool fileExists(const char* filename);
 bool touchFile(const char* filename);
 bool createFile(const char* filename);

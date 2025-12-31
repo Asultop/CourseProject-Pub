@@ -1,10 +1,12 @@
 #include "usrManager.h"
+#include "passwordInputSimulator.h"
 #include "Def.h"
 #include "md5.h"
 #include <stdio.h>
 #include "fileHelper.h"
 #include <string.h>
 #include <stdlib.h>
+bool checkCaptcha(int retryCount);
 
 UsrActionReturnType createUser(UsrProfile globalUserGroup[],UsrProfile* user, const char* name, const char* password){
     if(strlen(name) >= MAX_NAME_LEN || strlen(password) >= MAX_PASSWORD_LEN){

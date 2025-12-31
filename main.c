@@ -120,7 +120,24 @@ extern bool checkCaptcha(int retryCount){
         return checkCaptcha(retryCount - 1);
     }
 }
-
+void envCheck(){
+    // 检查必要的文件夹是否存在
+    if(!dirExists(ACMT_DIR)){
+        fprintf(stderr, "x> 必要的文件夹 %s 不存在！请检查环境。\n", ACMT_DIR);
+        sleep(1);
+        exit(EXIT_FAILURE);
+    }
+    // if(!dirExists(USERDATA_DIR)){
+    //     fprintf(stderr, "x> 必要的文件夹 %s 不存在！请检查环境。\n", USERDATA_DIR);
+    //     sleep(1);
+    //     exit(EXIT_FAILURE);
+    // }
+    if(!dirExists(PROBLEM_DIR)){
+        fprintf(stderr, "x> 必要的文件夹 %s 不存在！请检查环境。\n", PROBLEM_DIR);
+        sleep(1);
+        exit(EXIT_FAILURE);
+    }
+}
 void initDataBase(){
     // 初始化用户数据文件
     if(fileExists(USERDATA_DIR "/userData.txt") == false){
@@ -144,6 +161,7 @@ void initDataBase(){
 }
 int main(int argc,char *argv[]){
     // 初始化
+    envCheck();
     initDataBase();
     puts("");
     // 检查是否存在 userData.txt 文件
