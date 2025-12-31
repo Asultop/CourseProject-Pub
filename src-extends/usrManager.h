@@ -17,7 +17,12 @@ UsrActionReturnType addToGlobalUserGroup(UsrProfile globalUserGroup[], UsrProfil
 UsrActionReturnInfo getAllUsrByReadDataFile(UsrProfile globalUserGroup[],const char* filename);
 UsrActionReturnInfo saveAllUsrToDataFile(UsrProfile globalUserGroup[],const char* filename);
 
-bool loginUser(const char* name, const char* password);
+bool loginUser(UsrProfile globalUserGroup[], const char* name, const char* password);
 bool hasUsrInDB(UsrProfile globalUserGroup[]);
 
+// Interactive - 交互式函数 
+bool login(UsrProfile globalUserGroup[],UsrProfile* prof);
+bool registerUser(UsrProfile globalUserGroup[],UsrProfile* prof);
+bool modifyAccount(UsrProfile globalUserGroup[]);
+bool deleteUserFlow(UsrProfile globalUserGroup[]);
 #endif // USRMANAGER_H

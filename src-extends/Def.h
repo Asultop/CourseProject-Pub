@@ -5,6 +5,8 @@
 #ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200809L
 #endif
+
+
 // 修复 Warning
 // ========== 基础ANSI格式宏（原有+扩展） ==========
 #define ANSI_FRMT_RESET         "\e[0m"          // 重置所有格式
@@ -62,6 +64,7 @@
 
 
 //类似 VSCode 2017 Dark 主题配色
+
 #define COLOR_KEYWORD           rgb(86, 156, 214) ANSI_FRMT_BOLD
 #define COLOR_TYPE              rgb(86, 156, 214) ANSI_FRMT_BOLD
 #define COLOR_VARIABLE          rgb(212, 212, 212)
@@ -76,8 +79,8 @@
 // 屏幕尺寸定义
 #define SCREEN_CHAR_WIDTH 50
 // 左右Margin
-#define SCREEN_MARGIN_LEFT 2
-#define SCREEN_MARGIN_RIGHT 2
+#define SCREEN_MARGIN_LEFT 1
+#define SCREEN_MARGIN_RIGHT 1
 // 高亮颜色定义
 
 #define HIGHLIGHT_COLOR ANSI_COLOR_YELLOW
