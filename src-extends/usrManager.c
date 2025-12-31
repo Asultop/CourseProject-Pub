@@ -6,6 +6,7 @@
 #include "fileHelper.h"
 #include <string.h>
 #include <stdlib.h>
+
 bool checkCaptcha(int retryCount);
 
 UsrActionReturnType createUser(UsrProfile globalUserGroup[],UsrProfile* user, const char* name, const char* password){

@@ -23,5 +23,5 @@ bool dirExists(const char* dirname);
 bool fileExists(const char* filename);
 bool touchFile(const char* filename);
 bool createFile(const char* filename);
-
+int recursiveMakeDir(const char* dirPath);
 #endif // FILEHELPER_H

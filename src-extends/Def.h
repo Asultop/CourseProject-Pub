@@ -100,6 +100,15 @@
 #define CAPTCHA_RETRY_LIMIT 3
 #define MAX_CHAMPION_RECORDS 1024
 
+
+// 跨平台
+
+#ifdef _WIN32
+    #define PATH_SEP '\\'
+#else
+    #define PATH_SEP '/'
+#endif
+
 // 目录定义
 #define DATABASE_DIR "./DataBase"
 #define PLATFORM_DIR DATABASE_DIR "/Platform"

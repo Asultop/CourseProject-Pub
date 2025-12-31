@@ -1,16 +1,17 @@
-#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
-#include "src-extends/Def.h"
-#include "src-extends/usrManager.h"
-#include "src-extends/fileHelper.h"
-#include "src-extends/passwordInputSimulator.h"
-#include "src-extends/md5.h"
 #include "src-extends/championHistoryColManager.h"
+#include "src-extends/passwordInputSimulator.h"
 #include "src-extends/problemBankManager.h"
 #include "src-extends/markdownPrinter.h"
+#include "src-extends/releaseRuntime.h"
 #include "src-extends/screenManager.h"
+#include "src-extends/usrManager.h"
+#include "src-extends/fileHelper.h"
+#include "src-extends/md5.h"
+#include "src-extends/Def.h"
 
 #ifdef _WIN32
     #define sleep(seconds) Sleep((seconds) * 1000)
@@ -120,23 +121,24 @@ extern bool checkCaptcha(int retryCount){
         return checkCaptcha(retryCount - 1);
     }
 }
-void envCheck(){
+bool envCheck(){
     // 检查必要的文件夹是否存在
     if(!dirExists(ACMT_DIR)){
-        fprintf(stderr, "x> 必要的文件夹 %s 不存在！请检查环境。\n", ACMT_DIR);
+        fprintf(stderr, "x> 必要的文件夹 %s 不存在！\n", ACMT_DIR);
         sleep(1);
-        exit(EXIT_FAILURE);
+        return false;    
     }
-    // if(!dirExists(USERDATA_DIR)){
-    //     fprintf(stderr, "x> 必要的文件夹 %s 不存在！请检查环境。\n", USERDATA_DIR);
-    //     sleep(1);
-    //     exit(EXIT_FAILURE);
-    // }
+    if(!dirExists(USERDATA_DIR)){
+        fprintf(stderr, "x> 必要的文件夹 %s 不存在！\n", USERDATA_DIR);
+        sleep(1);
+        return false;
+    }
     if(!dirExists(PROBLEM_DIR)){
-        fprintf(stderr, "x> 必要的文件夹 %s 不存在！请检查环境。\n", PROBLEM_DIR);
+        fprintf(stderr, "x> 必要的文件夹 %s 不存在！\n", PROBLEM_DIR);
         sleep(1);
-        exit(EXIT_FAILURE);
+        return false;
     }
+    return true;
 }
 void initDataBase(){
     // 初始化用户数据文件
@@ -161,7 +163,24 @@ void initDataBase(){
 }
 int main(int argc,char *argv[]){
     // 初始化
-    envCheck();
+    if(!envCheck()){
+        puts("?> 是否要修复环境？(y/n)：");
+        char choice;
+        if(scanf(" %c", &choice) != 1 || (choice != 'y' && choice != 'Y')){
+            printf("x> 环境未修复，程序退出！\n");
+            sleep(1);
+            exit(EXIT_FAILURE);
+        }
+        printf("=> 正在修复环境...\n");
+        releaseRuntimeResources(DATABASE_DIR);
+        if(!envCheck()){
+            printf("x> 环境修复失败，程序退出！\n");
+            sleep(1);
+            exit(EXIT_FAILURE);
+        }
+        printf("√> 环境修复成功！\n");
+        sleep(1);
+    }
     initDataBase();
     puts("");
     // 检查是否存在 userData.txt 文件

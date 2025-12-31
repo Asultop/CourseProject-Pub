@@ -11,6 +11,7 @@ set(SOURCES
     src-extends/passwordInputSimulator.c
 	src-extends/problemBankManager.c
 	src-extends/markdownPrinter.c
+	src-extends/releaseRuntime.c
 	src-extends/chineseSupport.c
 	src-extends/ACMLocalJudger.c
 	src-extends/screenManager.c
@@ -65,6 +66,16 @@ set(TEST_STACK_SOURCES
 	src-test/test_stack.c
 	src-extends/stack.c
 )
+set(TEST_RELEASE_RUNTIME_SOURCES
+	src-extends/releaseRuntime.c
+	src-extends/fileHelper.c
+	src-test/test_releaseDir.c
+	
+)
+
+set(TOOL_FILE2SHELLCODE_SOURCES
+	src-test/tool_file2ShellCode.c
+)
 
 add_executable(course_project ${SOURCES})
 add_executable(test_codeRender ${TEST_RENDERER_SOURCES})
@@ -75,8 +86,11 @@ add_executable(test_md5 ${TEST_MD5_SOURCES})
 add_executable(test_printf ${TEST_PRINTF_SOURCES})
 add_executable(test_screenManager ${TEST_SCREENMANAGER_SOURCES})
 add_executable(test_stack ${TEST_STACK_SOURCES})
+add_executable(test_releaseRuntime ${TEST_RELEASE_RUNTIME_SOURCES})
+add_executable(tool_file2ShellCode ${TOOL_FILE2SHELLCODE_SOURCES})
 
-target_link_libraries(course_project m)
+
+target_link_libraries(course_project m z)
 target_link_libraries(test_codeRender m)
 target_link_libraries(test_chineseSupport m)
 target_link_libraries(test_passwordInputSimulator m)
@@ -85,6 +99,8 @@ target_link_libraries(test_md5 m)
 target_link_libraries(test_printf m)
 target_link_libraries(test_screenManager m)
 target_link_libraries(test_stack m)
+target_link_libraries(test_releaseRuntime m z)
+target_link_libraries(tool_file2ShellCode m z)
 
 add_custom_target(test ALL
 	DEPENDS test_codeRender
@@ -95,6 +111,10 @@ add_custom_target(test ALL
 			test_printf
 			test_screenManager
 			test_stack
+			test_releaseRuntime
+)
+add_custom_target(tool ALL
+	DEPENDS tool_file2ShellCode
 )
 
 set_target_properties(course_project PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
@@ -107,3 +127,6 @@ set_target_properties(test_md5 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURC
 set_target_properties(test_printf PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/src-test/build)
 set_target_properties(test_screenManager PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/src-test/build)
 set_target_properties(test_stack PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/src-test/build)
+set_target_properties(test_releaseRuntime PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/src-test/build)
+
+set_target_properties(tool_file2ShellCode PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/src-test/build)

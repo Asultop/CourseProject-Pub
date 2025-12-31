@@ -2,6 +2,8 @@
 #include <string.h>
 #include <limits.h>
 #include <sys/stat.h>
+#include <errno.h>
+#include "Def.h"
 bool fileExists(const char* filename){
     FILE* file = fopen(filename, "r");
     if(file){
@@ -48,7 +50,7 @@ bool createFile(const char* filename){
             if (*p) *p = '\0';
             size_t len = strlen(dir);
             size_t start = 1;
-            
+
             if (len > 1 && dir[1] == ':') start = 3; // 省略驱动器 (Windows)
             for (size_t i = start; i <= len; ++i) {
                 if (dir[i] == '/' || dir[i] == '\\' || dir[i] == '\0') {
@@ -179,7 +181,43 @@ bool copyFile(const char* src, const char* dst) {
 }
 
 // 删除文件封装
-bool removeFile(const char* path) {
-    if (!path) return false;
-    return remove(path) == 0;
+int recursiveMakeDir(const char* path) {
+    if (path == NULL || strlen(path) == 0) return -1;
+
+    char tmp[PATH_MAX];
+    char* p = NULL;
+    size_t len;
+
+    // 安全拷贝路径，防止溢出
+    if (strlen(path) >= PATH_MAX) {
+        fprintf(stderr, "路径过长: %s\n", path);
+        return -1;
+    }
+    snprintf(tmp, sizeof(tmp), "%s", path);
+    len = strlen(tmp);
+    if (tmp[len - 1] == PATH_SEP) tmp[len - 1] = 0;
+
+    for (p = tmp + 1; *p; p++) {
+        if (*p == PATH_SEP) {
+            *p = 0;
+            #ifdef _WIN32
+            if (_mkdir(tmp) == -1 && errno != EEXIST) {
+            #else
+            if (mkdir(tmp, 0755) == -1 && errno != EEXIST) {
+            #endif
+                fprintf(stderr, "创建目录失败: %s - %s\n", tmp, strerror(errno));
+                return -1;
+            }
+            *p = PATH_SEP;
+        }
+    }
+    #ifdef _WIN32
+    if (_mkdir(tmp) == -1 && errno != EEXIST) {
+    #else
+    if (mkdir(tmp, 0755) == -1 && errno != EEXIST) {
+    #endif
+        fprintf(stderr, "创建目录失败: %s - %s\n", tmp, strerror(errno));
+        return -1;
+    }
+    return 0;
 }
