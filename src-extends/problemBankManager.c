@@ -333,9 +333,9 @@ void addProblemInteractive(const char* problemsDir) {
 	printf("=> 输入类型：");
 	fgets(type, sizeof(type), stdin);
 	trim_newline(type);
-	// 期望的解文件名：{ID}.cpp（小写比较）
+	// 期望的解文件名：{ID}.c（小写比较）
 	char expectedSolLower[256];
-	snprintf(expectedSolLower, sizeof(expectedSolLower), "%s.cpp", id);
+	snprintf(expectedSolLower, sizeof(expectedSolLower), "%s.c", id);
 	for (char* p = expectedSolLower; *p; ++p) *p = (char)tolower((unsigned char)*p);
 	// 创建目录
 	if(mkdir(newDir, 0755) != 0) {
@@ -352,7 +352,7 @@ void addProblemInteractive(const char* problemsDir) {
 	}
 	fprintf(mf, "%s|%s|%s|%s\n", id, title, diff, type);
 	closeFile(mf);
-	printf("=> 请逐行输入题目文件的路径（需要三个文件：analyzing.txt, %s.cpp, problem.txt）。\n", id);
+	printf("=> 请逐行输入题目文件的路径（需要三个文件：analyzing.txt, %s.c, problem.txt）。\n", id);
 	printf("   粘贴路径时可带引号，程序会自动去掉引号；文件不存在时会继续提示，输入空行取消并删除已创建目录。\n");
 	char pathbuf[1024];
 	bool gotAnalyzing = false, gotSolution = false, gotProblem = false;
@@ -466,10 +466,10 @@ void addProblemInteractive(const char* problemsDir) {
 				printf("√ 已拷贝解析至 analyzing.txt\n");
 			} else printf("x> 拷贝失败：%s\n", pstart);
 		} else if(strcmp(lowb, expectedSolLower) == 0) {
-			snprintf(dst, sizeof(dst), "%s/%s.cpp", newDir, id);
+			snprintf(dst, sizeof(dst), "%s/%s.c", newDir, id);
 			if(copy_file(pstart, dst)) {
 				gotSolution = true;
-				printf("√ 已拷贝题解至 %s.cpp\n", id);
+				printf("√ 已拷贝题解至 %s.c\n", id);
 			} else printf("x> 拷贝失败：%s\n", pstart);
 		} else if(strcmp(lowb, "problem.txt") == 0) {
 			snprintf(dst, sizeof(dst), "%s/problem.txt", newDir);
@@ -724,8 +724,8 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 			}
 		} else if(sub == 3) {
 			char path[1200];
-			snprintf(path, sizeof(path), "%s/%s/%s.cpp", problemsDir, e->folderName, e->id);
-			if(!fileExists(path)) snprintf(path, sizeof(path), "%s/%s/general_solution.cpp", problemsDir, e->folderName);
+			snprintf(path, sizeof(path), "%s/%s/%s.c", problemsDir, e->folderName, e->id);
+			if(!fileExists(path)) snprintf(path, sizeof(path), "%s/%s/general_solution.c", problemsDir, e->folderName);
 			if(fileExists(path)) {
 				bool srcExist = fileExists(path);
 				if(srcExist) { 
@@ -740,15 +740,15 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 				}
 				else printf("x> 无法读取题解文件：%s\n", path);
 			} else {
-				printf("x> 题解文件不存在：%s 或 %s.cpp\n", e->folderName, e->id);
+				printf("x> 题解文件不存在：%s 或 %s.c\n", e->folderName, e->id);
 			}
 		} else if(sub == 4) {
-			// 运行正确样例：编译 {id}.cpp 到临时目录并执行，优先使用 in/ 下第一个 .in 作为输入
+			// 运行正确样例：编译 {id}.c 到临时目录并执行，优先使用 in/ 下第一个 .in 作为输入
 			char src[1200];
-			snprintf(src, sizeof(src), "%s/%s/%s.cpp", problemsDir, e->folderName, e->id);
-			if(!fileExists(src)) snprintf(src, sizeof(src), "%s/%s/general_solution.cpp", problemsDir, e->folderName);
+			snprintf(src, sizeof(src), "%s/%s/%s.c", problemsDir, e->folderName, e->id);
+			if(!fileExists(src)) snprintf(src, sizeof(src), "%s/%s/general_solution.c", problemsDir, e->folderName);
 			if(!fileExists(src)) {
-				printf("x> 找不到可运行的源文件：%s.cpp 或 general_solution.cpp\n", e->id);
+				printf("x> 找不到可运行的源文件：%s.c 或 general_solution.c\n", e->id);
 				goto continueWithWait;
 			}
 			char tmpTemplate[] = "/tmp/progrunXXXXXX";
@@ -773,7 +773,7 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 				rmdir(tmpdir);
 				goto continueWithWait;
 			}
-			snprintf(compileCmd, compile_need, "g++ -std=c++17 -O2 -o '%s' '%s' 2>&1", exePath, src);
+			snprintf(compileCmd, compile_need, "gcc -std=c11 -O2 -o '%s' '%s' 2>&1", exePath, src);
 			printf("=> 编译: %s\n", compileCmd);
 			int cret = system(compileCmd);
 			free(compileCmd);
@@ -825,6 +825,11 @@ void cleanScreen(void);
 
 void pauseScreen(void);
 // 交互式题库管理主界面
+int compareProblemEntries(const void* a, const void* b) {
+	const ProblemEntry* pa = (const ProblemEntry*)a;
+	const ProblemEntry* pb = (const ProblemEntry*)b;
+	return strcmp(pa->id, pb->id);
+}
 void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 	while(true) {
 		cleanScreen();
@@ -953,6 +958,7 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 				snprintf(header, sizeof(header), "%-12s %-8s %s", "难度", "ID", "标题");
 				printLeft(header);
 			}
+			qsort(entries, (size_t)cnt, sizeof(ProblemEntry), compareProblemEntries);
 			for (int i=0;i<cnt;i++) {
 				/* 构造足够大的动态缓冲区以包含完整标题，避免截断导致看起来超出边框 */
 				size_t need = strlen(entries[i].difficulty) + 1 + strlen(entries[i].id) + 1 + strlen(entries[i].title) + 16;

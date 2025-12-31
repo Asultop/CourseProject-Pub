@@ -55,7 +55,8 @@ static bool map_latex_cmd(const char *s, int *consumed, unsigned int *out_code) 
 		{"phi", 0x03C6}, {"chi", 0x03C7}, {"psi", 0x03C8}, {"omega", 0x03C9},
 		{"Gamma", 0x0393}, {"Delta", 0x0394}, {"Theta", 0x0398}, {"Lambda", 0x039B},
 		{"Xi", 0x039E}, {"Pi", 0x03A0}, {"Sigma", 0x03A3}, {"Phi", 0x03A6},
-		{"Omega", 0x03A9}, {NULL, 0}
+		{"Omega", 0x03A9},
+		{"times", 0x00D7}, {"div", 0x00F7}, {"pm", 0x00B1}, {"leq", 0x2264}, {"geq", 0x2265}, {"neq", 0x2260}, {"cdot", 0x22C5}, {NULL, 0}
 	};
 
 	for (int i = 0; table[i].name != NULL; i++) {
@@ -73,7 +74,14 @@ static bool map_latex_cmd(const char *s, int *consumed, unsigned int *out_code) 
 /* Render simple math between $ ... $ supporting A_i -> A_i (use Unicode subscript digits when possible) */
 char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 	int i = *ip; /* points at the opening $ */
-	i++; /* move past opening $ */
+	bool is_display = false;
+	/* detect $$ (display math) */
+	if (lineptr[i+1] == '$') {
+		is_display = true;
+		i += 2; /* skip opening $$ */
+	} else {
+		i++; /* skip single $ */
+	}
 	int start = i;
 	char buf[1024];
 	int bi = 0;
@@ -82,8 +90,14 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 	auto_append_codepoint:
 	;
 
-	/* iterate tokens until closing $ */
-	while (lineptr[i] != '\0' && lineptr[i] != '$' && bi < (int)sizeof(buf)-1) {
+	/* iterate tokens until closing $ (or $$ when display math) */
+	bool last_was_operator = false;
+	while (lineptr[i] != '\0' && bi < (int)sizeof(buf)-1) {
+		if (is_display) {
+			if (lineptr[i] == '$' && lineptr[i+1] == '$') break;
+		} else {
+			if (lineptr[i] == '$') break;
+		}
 		/* handle backslash escapes: \dots or LaTeX commands like \alpha */
 		if (lineptr[i] == '\\') {
 			/* \dots special-case kept for compatibility */
@@ -102,17 +116,23 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 				/* append mapped codepoint */
 				append_codepoint_utf8(buf, &bi, code, (int)sizeof(buf));
 				i += 1 + consumed;
+				/* if this code is a math operator, mark it so we can trim following spaces */
+				if (code == 0x00D7 || code == 0x00F7 || code == 0x22C5) last_was_operator = true; else last_was_operator = false;
 				continue;
 			}
 			/* unknown escape: copy backslash as-is */
 			buf[bi++] = lineptr[i++];
+			last_was_operator = false;
 			continue;
 		}
 
 		/* skip spaces and copy them */
 		if (lineptr[i] == ' ') {
+			/* if previous token was an operator symbol, skip this space to avoid "× b" */
+			if (last_was_operator) { i++; continue; }
 			buf[bi++] = ' ';
 			i++;
+			last_was_operator = false;
 			continue;
 		}
 
@@ -205,17 +225,50 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 
 		/* otherwise copy single char */
 		buf[bi++] = lineptr[i++];
+		/* set flag if this appended char is a simple ASCII operator */
+		{
+			char appended = buf[bi-1];
+			if (appended == '*' || appended == '+' || appended == '-' || appended == '/') last_was_operator = true; else last_was_operator = false;
+		}
 	}
 
 	buf[bi] = '\0';
 
-	/* append rendered math (simple) to dstline (no surrounding $) */
-	append_str(dstline, dstindx, buf);
+	/* append rendered math (simple) to dstline (no surrounding delimiters) */
+	/* If this was display math ($$...$$) and content is ASCII-only, make it bold+italic */
+	bool ascii_only = true;
+	for (int p = 0; p < bi; p++) {
+		unsigned char uc = (unsigned char)buf[p];
+		if (uc >= 0x80 || (!isprint(uc) && uc != '\t' && uc != '\n' && uc != '\r')) { ascii_only = false; break; }
+	}
 
-	if (lineptr[i] == '$') {
-		*ip = i; /* point to closing $ */
+	if (is_display && ascii_only && bi > 0) {
+		append_str(dstline, dstindx, ANSI_FRMT_BOLD);
+		append_str(dstline, dstindx, ANSI_FRMT_ITALICS);
+		append_str(dstline, dstindx, buf);
+		append_str(dstline, dstindx, ANSI_FRMT_RESET);
+	} else if (!is_display) {
+		/* inline math: render as italics */
+		append_str(dstline, dstindx, ANSI_FRMT_ITALICS);
+		append_str(dstline, dstindx, buf);
+		append_str(dstline, dstindx, ANSI_FRMT_RESET);
 	} else {
-		*ip = i - 1;
+		append_str(dstline, dstindx, buf);
+	}
+
+	/* set *ip to index of the closing delimiter (for $$ set to second '$') */
+	if (is_display) {
+		if (lineptr[i] == '$' && lineptr[i+1] == '$') {
+			*ip = i + 1; /* point to the second $ */
+		} else {
+			*ip = i - 1;
+		}
+	} else {
+		if (lineptr[i] == '$') {
+			*ip = i; /* point to closing $ */
+		} else {
+			*ip = i - 1;
+		}
 	}
 
 	return *dstline;

@@ -4,9 +4,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
 #include "Def.h"
-
-
 
 
 UsrActionReturnType createUser(UsrProfile globalUserGroup[],UsrProfile* user, const char* name, const char* password);

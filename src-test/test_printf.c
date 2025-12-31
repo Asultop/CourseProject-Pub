@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+
 int rcount = 5;
 int main(){
     printf("√> 找到 %d 条题目：\n", rcount);

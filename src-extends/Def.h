@@ -77,7 +77,7 @@
 
 
 // 屏幕尺寸定义
-#define SCREEN_CHAR_WIDTH 50
+#define SCREEN_CHAR_WIDTH 156
 // 左右Margin
 #define SCREEN_MARGIN_LEFT 1
 #define SCREEN_MARGIN_RIGHT 1

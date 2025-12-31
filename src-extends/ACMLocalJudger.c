@@ -92,7 +92,7 @@ JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *e
     char compileLog[2048];
     snprintf(compileLog, sizeof(compileLog), "%s/compile.log", tmpdir);
     char compileCmd[8192];
-    snprintf(compileCmd, sizeof(compileCmd), "g++ -std=c++17 -O2 -o '%s' '%s' 2> '%s'", exePath, source_file_path, compileLog);
+    snprintf(compileCmd, sizeof(compileCmd), "gcc -std=c11 -O2 -o '%s' '%s' 2> '%s'", exePath, source_file_path, compileLog);
     int cret = system(compileCmd);
 
     // 遍历输入文件
