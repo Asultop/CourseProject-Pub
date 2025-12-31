@@ -143,19 +143,19 @@ JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *e
             continue;
         }
         if (pid == 0) {
-            // child: redirect stdin/stdout/stderr and exec
+            // 子进程 : 重定向输入输出
             FILE *fin = openFile(inpath, "rb");
             if (fin) { dup2(fileno(fin), STDIN_FILENO); closeFile(fin); }
             FILE *fout = openFile(tmpOut, "wb");
             if (fout) { dup2(fileno(fout), STDOUT_FILENO); closeFile(fout); }
             FILE *ferr = openFile(tmpErr, "wb");
             if (ferr) { dup2(fileno(ferr), STDERR_FILENO); closeFile(ferr); }
-            // exec
+            // 执行
             execl(exePath, exePath, (char*)NULL);
             _exit(127);
         }
 
-        // parent: wait with timeout (milliseconds)
+        // 父进程：等待子进程完成或超时（毫秒）
         int status = 0;
         int waited_ms = 0;
         const int poll_ms = 10;
@@ -168,7 +168,7 @@ JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *e
             }
             if (w == pid) { finished = 1; break; }
             if (waited_ms >= MAX_JUDGES_TIMELIMIT_MSEC) {
-                // timeout: kill child
+                // 超时 
                 kill(pid, SIGKILL);
                 waitpid(pid, &status, 0);
                 summary.infos[idx].result = JUDGE_RESULT_TIME_LIMIT_EXCEEDED;
@@ -183,7 +183,7 @@ JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *e
         }
 
         if (!finished) {
-            // some error occurred waiting
+            // 未完成，视为运行时错误
             summary.infos[idx].result = JUDGE_RESULT_RUNTIME_ERROR;
             strncpy(summary.infos[idx].message, "运行时错误", sizeof(summary.infos[idx].message)-1);
             summary.infos[idx].message[sizeof(summary.infos[idx].message)-1] = '\0';
@@ -191,13 +191,13 @@ JudgeSummary acm_local_judge(const char *source_file_path, const ProblemEntry *e
             continue;
         }
 
-        // if timed out we already set result; skip to next
+        // 若已超时则跳过后续检查
         if (summary.infos[idx].result == JUDGE_RESULT_TIME_LIMIT_EXCEEDED) {
             idx++;
             continue;
         }
 
-        // child finished, check exit status
+        // 检查退出状态
         if (WIFSIGNALED(status)) {
             summary.infos[idx].result = JUDGE_RESULT_RUNTIME_ERROR;
             strncpy(summary.infos[idx].message, "运行时错误", sizeof(summary.infos[idx].message)-1);

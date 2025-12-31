@@ -10,7 +10,7 @@ stack_t stack;
 
 static useconds_t mdcat_delay_us = 0;
 
-/* Helper: append to dstline at dstindx, ensure null-termination */
+/* 帮助函数：在 dstline 的 dstindx 位置追加字符串，确保以 '\0' 结尾 */
 static void append_str(char **dstline, int *dstindx, const char *s) {
 	int sl = (int)strlen(s);
 	memcpy(*dstline + *dstindx, s, sl);
@@ -18,7 +18,7 @@ static void append_str(char **dstline, int *dstindx, const char *s) {
 	(*dstline)[*dstindx] = '\0';
 }
 
-/* Append a Unicode codepoint as UTF-8 to a byte buffer */
+/* 将 Unicode 代码点以 UTF-8 编码追加到字节缓冲区 */
 static bool append_codepoint_utf8(char *buf, int *bi, unsigned int code, int bufsize) {
 	if (*bi >= bufsize - 1) return false;
 	if (code <= 0x7F) {
@@ -43,7 +43,8 @@ static bool append_codepoint_utf8(char *buf, int *bi, unsigned int code, int buf
 	return true;
 }
 
-/* Map common LaTeX commands (after '\\') to Unicode codepoints. Returns true if mapped and sets consumed length and code. */
+/* 将常见的 LaTeX 命令（反斜杠后的内容）映射到 Unicode 代码点。
+	如果映射成功返回 true，并设置消耗的长度和对应代码点。 */
 static bool map_latex_cmd(const char *s, int *consumed, unsigned int *out_code) {
 	/* s points at first char after backslash */
 	struct { const char *name; unsigned int code; } table[] = {
@@ -71,7 +72,7 @@ static bool map_latex_cmd(const char *s, int *consumed, unsigned int *out_code) 
 	return false;
 }
 
-/* Render simple math between $ ... $ supporting A_i -> A_i (use Unicode subscript digits when possible) */
+/* 渲染简单的数学表达式（位于 $ ... $ 之间），支持 A_i -> A_i（尽可能使用 Unicode 下标/上标） */
 char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 	int i = *ip; /* points at the opening $ */
 	bool is_display = false;
@@ -86,11 +87,11 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 	char buf[1024];
 	int bi = 0;
 
-	/* helper to append codepoint utf-8 to buf */
+	/* 辅助标签：将代码点以 UTF-8 追加到 buf（在需要时可跳转到此处） */
 	auto_append_codepoint:
 	;
 
-	/* iterate tokens until closing $ (or $$ when display math) */
+	/* 遍历标记直到遇到结束的 $（显示数学模式则为 $$） */
 	bool last_was_operator = false;
 	while (lineptr[i] != '\0' && bi < (int)sizeof(buf)-1) {
 		if (is_display) {
@@ -98,9 +99,9 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 		} else {
 			if (lineptr[i] == '$') break;
 		}
-		/* handle backslash escapes: \dots or LaTeX commands like \alpha */
+		/* 处理反斜杠转义：例如 \dots 或 LaTeX 命令如 \alpha */
 		if (lineptr[i] == '\\') {
-			/* \dots special-case kept for compatibility */
+			/* 对 \dots 的特殊处理以保持兼容性 */
 			if (strncmp(&lineptr[i], "\\dots", 5) == 0) {
 				if (bi + 3 < (int)sizeof(buf)-1) {
 					buf[bi++] = (char)0xE2; buf[bi++] = (char)0x80; buf[bi++] = (char)0xA6;
@@ -109,7 +110,7 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 				continue;
 			}
 
-			/* Map common LaTeX commands (e.g. \alpha) */
+			/* 映射常见 LaTeX 命令（例如 \alpha） */
 			int consumed = 0;
 			unsigned int code = 0;
 			if (map_latex_cmd(&lineptr[i+1], &consumed, &code)) {
@@ -120,13 +121,13 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 				if (code == 0x00D7 || code == 0x00F7 || code == 0x22C5) last_was_operator = true; else last_was_operator = false;
 				continue;
 			}
-			/* unknown escape: copy backslash as-is */
+			/* 未知的转义：原样复制反斜杠 */
 			buf[bi++] = lineptr[i++];
 			last_was_operator = false;
 			continue;
 		}
 
-		/* skip spaces and copy them */
+		/* 跳过空格并复制它们（在运算符之后可选地省略） */
 		if (lineptr[i] == ' ') {
 			/* if previous token was an operator symbol, skip this space to avoid "× b" */
 			if (last_was_operator) { i++; continue; }
@@ -136,12 +137,12 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 			continue;
 		}
 
-		/* read base token (letters/digits) */
+		/* 读取基本标记（字母/数字） */
 		if ((lineptr[i] >= 'A' && lineptr[i] <= 'Z') || (lineptr[i] >= 'a' && lineptr[i] <= 'z') || (lineptr[i] >= '0' && lineptr[i] <= '9')) {
 			int bstart = i;
 			while ((lineptr[i] >= 'A' && lineptr[i] <= 'Z') || (lineptr[i] >= 'a' && lineptr[i] <= 'z') || (lineptr[i] >= '0' && lineptr[i] <= '9')) i++;
 			int bend = i;
-			/* check for subscript or superscript */
+			/* 检查是否为下标或上标 */
 			if ((lineptr[i] == '_' || lineptr[i] == '^') && lineptr[i+1] != '\0') {
 				char sym = lineptr[i]; /* '_' or '^' */
 				/* capture subscript raw */
@@ -156,13 +157,13 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 				sub[sj] = '\0';
 				if (has_brace && lineptr[j] == '}') j++;
 
-				/* try map every char in sub to sub/superscript codepoints */
+				/* 尝试将 sub 中的每个字符映射为上标/下标的 Unicode 代码点 */
 				bool all_mapped = true;
 				char tmp[256]; int tbi = 0;
 				for (int k = 0; k < sj; k++) {
 					char c = sub[k];
 					if (sym == '_') {
-						/* subscript mapping */
+						/* 下标映射 */
 						if (c >= '0' && c <= '9') {
 							unsigned int code = 0x2080 + (c - '0');
 							/* 0x2080..209F are multi-byte in UTF-8 */
@@ -178,7 +179,7 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 							if (code != 0) append_codepoint_utf8(tmp, &tbi, code, (int)sizeof(tmp)); else { all_mapped = false; break; }
 						}
 					} else {
-						/* superscript mapping */
+						/* 上标映射 */
 						if (c >= '0' && c <= '9') {
 							unsigned int code;
 							switch (c) {
@@ -200,12 +201,12 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 				}
 
 				if (all_mapped) {
-					/* append base */
+					/* 追加基字符 */
 					for (int p = bstart; p < bend && bi < (int)sizeof(buf)-1; p++) buf[bi++] = lineptr[p];
-					/* append mapped sub/superscript */
+					/* 追加映射后的上/下标 */
 					for (int p = 0; p < tbi && bi < (int)sizeof(buf)-1; p++) buf[bi++] = tmp[p];
 				} else {
-					/* fallback: output original text including underscore/caret/braces */
+					/* 回退：输出原始文本，包括下划线/插入符/花括号 */
 					for (int p = bstart; p < bend && bi < (int)sizeof(buf)-1; p++) buf[bi++] = lineptr[p];
 					/* append marker and raw sub */
 					if (bi < (int)sizeof(buf)-1) buf[bi++] = sym;
@@ -214,16 +215,16 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 					if (has_brace && bi < (int)sizeof(buf)-1) buf[bi++] = '}';
 				}
 
-				i = j; /* advance past subscript/superscript */
+				i = j; /* 跳过下标/上标内容 */
 				continue;
 			} else {
-				/* no sub/sup - append base */
+				/* 无上下标 - 追加基字符 */
 				for (int p = bstart; p < bend && bi < (int)sizeof(buf)-1; p++) buf[bi++] = lineptr[p];
 				continue;
 			}
 		}
 
-		/* otherwise copy single char */
+		/* 否则复制单个字符 */
 		buf[bi++] = lineptr[i++];
 		/* set flag if this appended char is a simple ASCII operator */
 		{
@@ -234,7 +235,7 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 
 	buf[bi] = '\0';
 
-	/* append rendered math (simple) to dstline (no surrounding delimiters) */
+	/* 将渲染后的数学（简单）追加到 dstline（不包含外围定界符） */
 	/* If this was display math ($$...$$) and content is ASCII-only, make it bold+italic */
 	bool ascii_only = true;
 	for (int p = 0; p < bi; p++) {
@@ -248,7 +249,7 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 		append_str(dstline, dstindx, buf);
 		append_str(dstline, dstindx, ANSI_FRMT_RESET);
 	} else if (!is_display) {
-		/* inline math: render as italics */
+		/* 行内数学：渲染为斜体 */
 		append_str(dstline, dstindx, ANSI_FRMT_ITALICS);
 		append_str(dstline, dstindx, buf);
 		append_str(dstline, dstindx, ANSI_FRMT_RESET);
@@ -256,7 +257,7 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 		append_str(dstline, dstindx, buf);
 	}
 
-	/* set *ip to index of the closing delimiter (for $$ set to second '$') */
+	/* 将 *ip 设置为闭合定界符的索引（对于 $$ 指向第二个 '$'） */
 	if (is_display) {
 		if (lineptr[i] == '$' && lineptr[i+1] == '$') {
 			*ip = i + 1; /* point to the second $ */

@@ -27,7 +27,7 @@ bool createFile(const char* filename){
     return false;
 }
 
-// Join base directory and relative path, normalize '.' and '..'
+// 将基目录与相对路径拼接并规范化（处理 "." 和 ".."），结果写入 out（大小 outsz）。
 void joinBasedirAndRel(const char *basedir, const char *rel, char *out, size_t outsz) {
     if (!out || outsz == 0) return;
     out[0] = '\0';
@@ -36,7 +36,7 @@ void joinBasedirAndRel(const char *basedir, const char *rel, char *out, size_t o
         out[outsz-1] = '\0';
         return;
     }
-    // If rel is absolute, normalize rel
+    // 如果 rel 是绝对路径，则规范化 rel
     if (rel[0] == '/') {
         char buf[4096]; strncpy(buf, rel, sizeof(buf)-1); buf[sizeof(buf)-1] = '\0';
         char *components[256]; size_t compc = 0;
@@ -58,7 +58,7 @@ void joinBasedirAndRel(const char *basedir, const char *rel, char *out, size_t o
         return;
     }
 
-    // join basedir + rel
+    // 拼接 basedir 和 rel
     char joined[4096];
     if (basedir && basedir[0] != '\0') snprintf(joined, sizeof(joined), "%s/%s", basedir, rel);
     else snprintf(joined, sizeof(joined), "%s", rel);
