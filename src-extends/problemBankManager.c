@@ -44,7 +44,7 @@ static void trim_space(char* s) {
 	while(len > 0 && isspace((unsigned char)s[len-1])) { s[len-1] = '\0'; len--; }
 }
 
-// 比较两个字符串（不区分大小写），用于类型标签匹配
+// 比较两个字符串（不区分大小写），用于精确比较（保留以备）
 static bool equals_case_insensitive(const char* a, const char* b) {
 	if(!a || !b) return false;
 	while(*a && *b) {
@@ -54,34 +54,55 @@ static bool equals_case_insensitive(const char* a, const char* b) {
 	return *a == '\0' && *b == '\0';
 }
 
-// 判断 entries 中的类型字段是否与 typeFilter（逗号分隔）匹配
-// 如果 typeFilter 为空则返回 true；否则当 typeFilter 中任一标签等于 entries 的任一标签时返回 true
-static bool type_matches_filter(const char* entryType, const char* typeFilter) {
+// 前向声明：不区分大小写包含匹配（在文件后面定义）
+static bool contains_case_insensitive(const char* text, const char* pat);
+
+// 类型筛选：用于决定题目是否被包含在搜索结果中
+// 如果 typeFilter 为空则视为通配（返回 true）
+// 支持逗号分隔的多标签匹配，采用不区分大小写的子串匹配（类似标题匹配）
+static bool type_filter_anymatch(const char* entryType, const char* typeFilter) {
 	if(!typeFilter || typeFilter[0] == '\0') return true;
 	if(!entryType || entryType[0] == '\0') return false;
-	// 复制两个字符串到可修改缓冲
 	char efbuf[256];
 	char tfbuf[256];
 	strncpy(efbuf, entryType, sizeof(efbuf)-1); efbuf[sizeof(efbuf)-1] = '\0';
 	strncpy(tfbuf, typeFilter, sizeof(tfbuf)-1); tfbuf[sizeof(tfbuf)-1] = '\0';
-	// 切分 entry 类型
 	char* epart = efbuf;
 	while(epart) {
 		char* comma = strchr(epart, ',');
 		if(comma) *comma = '\0';
 		trim_space(epart);
-		// 对于每个 filter token
 		char* tpart = tfbuf;
 		while(tpart) {
 			char* tcomma = strchr(tpart, ',');
 			if(tcomma) *tcomma = '\0';
 			trim_space(tpart);
-			if(equals_case_insensitive(epart, tpart)) return true;
+			if(contains_case_insensitive(epart, tpart)) return true;
 			if(!tcomma) break;
 			tpart = tcomma + 1;
 		}
 		if(!comma) break;
 		epart = comma + 1;
+	}
+	return false;
+}
+
+// 类型高亮匹配：用于决定单个类型子项是否高亮
+// 如果 typeFilter 为空则不高亮（返回 false）
+// 支持逗号分隔的 filter token，使用不区分大小写的子串匹配
+static bool type_token_matches_for_highlight(const char* entryToken, const char* typeFilter) {
+	if(!typeFilter || typeFilter[0] == '\0') return false;
+	if(!entryToken || entryToken[0] == '\0') return false;
+	char tfbuf[256];
+	strncpy(tfbuf, typeFilter, sizeof(tfbuf)-1); tfbuf[sizeof(tfbuf)-1] = '\0';
+	char* tpart = tfbuf;
+	while(tpart) {
+		char* tcomma = strchr(tpart, ',');
+		if(tcomma) *tcomma = '\0';
+		trim_space(tpart);
+		if(contains_case_insensitive(entryToken, tpart)) return true;
+		if(!tcomma) break;
+		tpart = tcomma + 1;
 	}
 	return false;
 }
@@ -105,8 +126,8 @@ static void highlight_type_to_str(const char* entryType, const char* typeFilter,
 		if(!first) {
 			if(used + 2 < dstsz) { dst[used++] = ','; dst[used++] = ' '; dst[used] = '\0'; }
 		}
-		// 检查是否匹配任一 filter token
-		bool matched = type_matches_filter(part, typeFilter);
+		// 检查是否匹配任一 filter token（高亮使用：空 filter 不高亮；采用子串匹配）
+		bool matched = type_token_matches_for_highlight(part, typeFilter);
 		if(matched) {
 			size_t rlen = strlen(COLOR);
 			size_t plen = strlen(part);
@@ -1165,7 +1186,7 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 				bool ok = true;
 				if(!contains_case_insensitive(entries[i].title, titleFilter)) ok = false;
 				if(!contains_case_insensitive(entries[i].difficulty, diffFilter)) ok = false;
-				if(!type_matches_filter(entries[i].type, typeFilter)) ok = false;
+				if(!type_filter_anymatch(entries[i].type, typeFilter)) ok = false;
 				if(ok && stmtFilter[0] != '\0') {
 					char* stmt = readFileToString(entries[i].problemPath);
 					if(stmt) {
