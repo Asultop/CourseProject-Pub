@@ -32,6 +32,102 @@ static void trim_newline(char* s) {
 	if(s[i-1]=='\n') s[i-1]='\0';
 	if(i>1 && s[i-2]=='\r') s[i-2]='\0';
 }
+// 去除字符串首尾空白（就地修改）
+static void trim_space(char* s) {
+	if(!s) return;
+	// trim leading
+	char* start = s;
+	while(*start && isspace((unsigned char)*start)) start++;
+	if(start != s) memmove(s, start, strlen(start)+1);
+	// trim trailing
+	size_t len = strlen(s);
+	while(len > 0 && isspace((unsigned char)s[len-1])) { s[len-1] = '\0'; len--; }
+}
+
+// 比较两个字符串（不区分大小写），用于类型标签匹配
+static bool equals_case_insensitive(const char* a, const char* b) {
+	if(!a || !b) return false;
+	while(*a && *b) {
+		if(tolower((unsigned char)*a) != tolower((unsigned char)*b)) return false;
+		a++; b++;
+	}
+	return *a == '\0' && *b == '\0';
+}
+
+// 判断 entries 中的类型字段是否与 typeFilter（逗号分隔）匹配
+// 如果 typeFilter 为空则返回 true；否则当 typeFilter 中任一标签等于 entries 的任一标签时返回 true
+static bool type_matches_filter(const char* entryType, const char* typeFilter) {
+	if(!typeFilter || typeFilter[0] == '\0') return true;
+	if(!entryType || entryType[0] == '\0') return false;
+	// 复制两个字符串到可修改缓冲
+	char efbuf[256];
+	char tfbuf[256];
+	strncpy(efbuf, entryType, sizeof(efbuf)-1); efbuf[sizeof(efbuf)-1] = '\0';
+	strncpy(tfbuf, typeFilter, sizeof(tfbuf)-1); tfbuf[sizeof(tfbuf)-1] = '\0';
+	// 切分 entry 类型
+	char* epart = efbuf;
+	while(epart) {
+		char* comma = strchr(epart, ',');
+		if(comma) *comma = '\0';
+		trim_space(epart);
+		// 对于每个 filter token
+		char* tpart = tfbuf;
+		while(tpart) {
+			char* tcomma = strchr(tpart, ',');
+			if(tcomma) *tcomma = '\0';
+			trim_space(tpart);
+			if(equals_case_insensitive(epart, tpart)) return true;
+			if(!tcomma) break;
+			tpart = tcomma + 1;
+		}
+		if(!comma) break;
+		epart = comma + 1;
+	}
+	return false;
+}
+
+// 将 entryType 中每个逗号分隔的子项按原样输出，若子项命中 typeFilter 中任一 token，则为该子项加高亮
+static void highlight_type_to_str(const char* entryType, const char* typeFilter, char* dst, size_t dstsz) {
+	if(!dst || dstsz == 0) return;
+	dst[0] = '\0';
+	if(!entryType) return;
+	const char* COLOR = HIGHLIGHT_COLOR;
+	const char* RESET = ANSI_FRMT_RESET;
+	char buf[256];
+	strncpy(buf, entryType, sizeof(buf)-1); buf[sizeof(buf)-1] = '\0';
+	char* part = buf;
+	bool first = true;
+	size_t used = 0;
+	while(part) {
+		char* comma = strchr(part, ',');
+		if(comma) *comma = '\0';
+		trim_space(part);
+		if(!first) {
+			if(used + 2 < dstsz) { dst[used++] = ','; dst[used++] = ' '; dst[used] = '\0'; }
+		}
+		// 检查是否匹配任一 filter token
+		bool matched = type_matches_filter(part, typeFilter);
+		if(matched) {
+			size_t rlen = strlen(COLOR);
+			size_t plen = strlen(part);
+			size_t llen = strlen(RESET);
+			if(used + rlen + plen + llen + 1 < dstsz) {
+				memcpy(dst + used, COLOR, rlen); used += rlen;
+				memcpy(dst + used, part, plen); used += plen;
+				memcpy(dst + used, RESET, llen); used += llen;
+				dst[used] = '\0';
+			}
+		} else {
+			size_t plen = strlen(part);
+			if(used + plen + 1 < dstsz) {
+				memcpy(dst + used, part, plen); used += plen; dst[used] = '\0';
+			}
+		}
+		first = false;
+		if(!comma) break;
+		part = comma + 1;
+	}
+}
 // 读取小文件到动态分配字符串
 static char* readFileToString(const char* path) {
 	return readFileToStr(path);
@@ -955,27 +1051,28 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 			printDivider();
 			{
 				char header[128];
-				snprintf(header, sizeof(header), "%-12s %-8s %s", "难度", "ID", "标题");
+				snprintf(header, sizeof(header), "%-12s %-8s %-25s %s", "难度", "ID", "标题", "类型");
 				printLeft(header);
 			}
 			qsort(entries, (size_t)cnt, sizeof(ProblemEntry), compareProblemEntries);
 			for (int i=0;i<cnt;i++) {
 				/* 构造足够大的动态缓冲区以包含完整标题，避免截断导致看起来超出边框 */
-				size_t need = strlen(entries[i].difficulty) + 1 + strlen(entries[i].id) + 1 + strlen(entries[i].title) + 16;
+				size_t need = strlen(entries[i].difficulty) + 1 + strlen(entries[i].id) + 1 + strlen(entries[i].title) + 1 + strlen(entries[i].type) + 64;
 				char *line = (char*)malloc(need);
 				if(line) {
-					snprintf(line, need, "%-12s %-8s %s", entries[i].difficulty, entries[i].id, entries[i].title);
+					snprintf(line, need, "%-12s %-8s %-25s %s", entries[i].difficulty, entries[i].id, entries[i].title, entries[i].type);
 					printLeft(line);
 					free(line);
 				} else {
 					/* 内存分配失败则退回到安全的本地缓冲区拼接（不会丢弃太多） */
 					char buf[1024];
-					int w = snprintf(buf, sizeof(buf), "%-12s %-8s ", entries[i].difficulty, entries[i].id);
+					int w = snprintf(buf, sizeof(buf), "%-12s %-8s %-25s ", entries[i].difficulty, entries[i].id, "");
 					if (w < 0) w = 0;
 					if ((size_t)w < sizeof(buf)) {
 						size_t rem = sizeof(buf) - (size_t)w - 1;
 						strncat(buf, entries[i].title, rem);
 					}
+					// 添加类型可能被截断
 					printLeft(buf);
 				}
 			}
@@ -1057,7 +1154,7 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 				bool ok = true;
 				if(!contains_case_insensitive(entries[i].title, titleFilter)) ok = false;
 				if(!contains_case_insensitive(entries[i].difficulty, diffFilter)) ok = false;
-				if(!contains_case_insensitive(entries[i].type, typeFilter)) ok = false;
+				if(!type_matches_filter(entries[i].type, typeFilter)) ok = false;
 				if(ok && stmtFilter[0] != '\0') {
 					char* stmt = readFileToString(entries[i].problemPath);
 					if(stmt) {
@@ -1093,32 +1190,55 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 			
 			printDivider();
 			char header[128];
-			snprintf(header, sizeof(header), "%-8s %-25s %s", "ID", "标题", "难度");
+			snprintf(header, sizeof(header), "%-12s %-8s %-25s %s", "难度", "ID", "标题", "类型");
 			printLeft(header);
 			for (int i=0;i<rcount;i++) {
 				// 将高亮标题写入缓冲并构造整行，保证标题列使用固定可见宽度以对齐难度列
 				const char* title = results[i].title ? results[i].title : "";
 				const char* diff = results[i].difficulty ? results[i].difficulty : "";
+				const char* type = results[i].type ? results[i].type : "";
 				const int title_col_width = 25; // 与表头宽度保持一致
-				size_t need = strlen(results[i].id) + 1 + strlen(title) * 4 + strlen(diff) * 4 + 256;
+				const int type_col_width = 12;
+				size_t need = strlen(diff) * 4 + strlen(results[i].id) + strlen(title) * 4 + strlen(type) * 4 + 512;
 				char *line = (char*)malloc(need);
 				if(!line) {
 					// 回退到简单打印（无对齐）
+					// 难度
+					char dbuf_fallback[256];
+					highlight_to_str(diff, diffFilter, dbuf_fallback, sizeof(dbuf_fallback));
+					printf("%-12s ", dbuf_fallback);
+					// ID
 					printf("%-8s ", results[i].id);
+					// 标题
 					print_highlight(title, titleFilter);
-					// 根据可见标题长度填充空格
 					int vlen = (int)get_real_Length(title, NULL);
 					if(vlen < title_col_width) {
 						for(int k=0;k < title_col_width - vlen; ++k) putchar(' ');
 					}
 					putchar(' ');
-					print_highlight(diff, diffFilter);
-					printf("\n");
+					// 类型
+					char tbuf_fallback[256];
+					highlight_type_to_str(type, typeFilter, tbuf_fallback, sizeof(tbuf_fallback));
+					printf("%s\n", tbuf_fallback);
 				} else {
-					// 先格式化 ID 和间隔
-					int off = snprintf(line, need, "%-8s ", results[i].id);
+					// 先写难度（高亮）
+					size_t rem = 0;
+					char *dbuf = malloc(256);
+					if(dbuf) {
+						highlight_to_str(diff, diffFilter, dbuf, 256);
+						size_t dlen = strlen(dbuf);
+						if(rem + dlen + 1 < need) memcpy(line + rem, dbuf, dlen), rem += dlen, line[rem] = '\0';
+						free(dbuf);
+					}
+					// 补充空格到难度列宽
+					int visible_diff_len = (int)get_real_Length(diff, NULL);
+					int dpad = 0;
+					if(visible_diff_len < 12) dpad = 12 - visible_diff_len;
+					if(rem + dpad + 1 < need) { memset(line + rem, ' ', dpad + 1); rem += dpad + 1; line[rem] = '\0'; }
+					// 添加 ID
+					int off = snprintf(line + rem, need - rem, "%-8s ", results[i].id);
 					if(off < 0) off = 0;
-					size_t rem = (size_t)off;
+					rem += (size_t)off;
 					// 高亮 title 到临时缓冲
 					size_t tbufsz = strlen(title) * 4 + 64;
 					if(tbufsz < 256) tbufsz = 256;
@@ -1133,21 +1253,16 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 					int visible_len = (int)get_real_Length(title, NULL);
 					int pad = 0;
 					if(visible_len < title_col_width) pad = title_col_width - visible_len;
-					// 至少保留一个空格间隔
-					if(rem + pad + 1 < need) {
-						memset(line + rem, ' ', pad + 1);
-						rem += pad + 1;
-						line[rem] = '\0';
-					}
-					// 添加难度（高亮）
-					size_t dbufsz = strlen(diff) * 4 + 64;
-					if(dbufsz < 128) dbufsz = 128;
-					char *dbuf = malloc(dbufsz);
-					if(dbuf) {
-						highlight_to_str(diff, diffFilter, dbuf, dbufsz);
-						size_t copy2 = strlen(dbuf);
-						if(rem + copy2 + 1 < need) memcpy(line + rem, dbuf, copy2), rem += copy2, line[rem] = '\0';
-						free(dbuf);
+					if(rem + pad + 1 < need) { memset(line + rem, ' ', pad + 1); rem += pad + 1; line[rem] = '\0'; }
+					// 添加类型（专用高亮）
+					size_t typebufsz = strlen(type) * 4 + 128;
+					if(typebufsz < 128) typebufsz = 128;
+					char *typebuf = malloc(typebufsz);
+					if(typebuf) {
+						highlight_type_to_str(type, typeFilter, typebuf, typebufsz);
+						size_t tcopy = strlen(typebuf);
+						if(rem + tcopy + 1 < need) memcpy(line + rem, typebuf, tcopy), rem += tcopy, line[rem] = '\0';
+						free(typebuf);
 					}
 					printLeft(line);
 					free(line);

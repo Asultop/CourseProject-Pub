@@ -256,6 +256,64 @@ unsigned long get_real_Length(const char * str, EncodingType *encoding) {
     return real_len;
 }
 
+// 根据边距类型返回填充过的字符串（包含空格），返回值需由调用方 free()
+char * getSpaceContent(const char *content, size_t totalWidth, PrintMarginType marginType) {
+    // empty content -> return string of spaces
+    if(!content) {
+        size_t sz = totalWidth + 1;
+        char *out = (char*)malloc(sz);
+        if(!out) return NULL;
+        for(size_t i=0;i<totalWidth;i++) out[i] = ' ';
+        out[totalWidth] = '\0';
+        return out;
+    }
+
+    // 使用 processRawChar 统计显示单元（每个多字节中文/全角或单个ASCII计为1；ANSI ESC序列不计入）
+    char **units = processRawChar(content);
+    size_t visible_units = 0;
+    if(units) {
+        for(size_t i=0; units[i] != NULL; ++i) {
+            if(strcmp(units[i], "EOL") == 0) break;
+            // 跳过 ANSI 转义序列
+            if((unsigned char)units[i][0] == 0x1B) continue;
+            visible_units++;
+        }
+        freeProcessedChars(units);
+    } else {
+        // 回退：使用 get_real_Length（按宽度计）并将其视为单位数的近似值
+        unsigned long rl = get_real_Length(content, NULL);
+        visible_units = (size_t)rl;
+    }
+
+    if(visible_units >= totalWidth) {
+        return strdup(content);
+    }
+
+    size_t pad = totalWidth - visible_units;
+    size_t leftPad = 0, rightPad = 0;
+    switch(marginType) {
+        case MARGIN_LEFT:
+            leftPad = 0; rightPad = pad; break;
+        case MARGIN_RIGHT:
+            leftPad = pad; rightPad = 0; break;
+        case MARGIN_CENTER:
+            leftPad = pad / 2; rightPad = pad - leftPad; break;
+        default:
+            leftPad = 0; rightPad = pad; break;
+    }
+
+    size_t clen = strlen(content);
+    size_t outsz = leftPad + clen + rightPad + 1;
+    char *out = (char*)malloc(outsz);
+    if(!out) return NULL;
+    size_t pos = 0;
+    for(size_t i=0;i<leftPad;i++) out[pos++] = ' ';
+    memcpy(out + pos, content, clen); pos += clen;
+    for(size_t i=0;i<rightPad;i++) out[pos++] = ' ';
+    out[pos] = '\0';
+    return out;
+}
+
 // 将原始行拆分为显示单元数组（每个单元是一个字符串），最后一个单元为 "EOL"。
 char ** processRawChar(const char * rawLine) {
     if(!rawLine) return NULL;

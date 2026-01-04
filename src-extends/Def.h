@@ -77,7 +77,7 @@
 
 
 // 屏幕尺寸定义
-#define SCREEN_CHAR_WIDTH 156
+#define SCREEN_CHAR_WIDTH 100
 // 左右Margin
 #define SCREEN_MARGIN_LEFT 1
 #define SCREEN_MARGIN_RIGHT 1
@@ -159,7 +159,14 @@ typedef enum {
     ENCODING_GBK,
     ENCODING_UNKNOWN
 } EncodingType;
-
+// 中文支持 格式
+typedef enum{
+    MARGIN_LEFT,
+    MARGIN_CENTER,
+    MARGIN_RIGHT,
+    MARGIN_NONE,
+    MARGIN_ELSE
+} PrintMarginType;
 // 返回信息定义
 typedef enum {
     ERR=-1,

@@ -272,3 +272,19 @@ void printContent(const char* content){
     for(int i=0;i<rightPadding;i++) putchar(' ');
     printf("║\n");
 }
+void printConsole(const char *contentLine, PrintMarginType marginType){
+    switch(marginType){
+        case MARGIN_LEFT:
+            printLeft(contentLine);
+            break;
+        case MARGIN_CENTER:
+            printCenter(contentLine);
+            break;
+        case MARGIN_RIGHT:
+            printRight(contentLine);
+            break;
+        default:
+            printContent(contentLine);
+            break;
+    }
+}

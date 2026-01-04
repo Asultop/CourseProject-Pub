@@ -7,4 +7,8 @@ int main(){
     printf("长度：%ld\n", get_real_Length(testStr1,NULL));
     const char* RED = "\x1b[31m";
     printf("长度(含颜色码): %ld\n", get_real_Length(RED,NULL));
+    printf("|%s|\n",getSpaceContent("测试",10,MARGIN_CENTER));
+    printf("|%s|\n",getSpaceContent("测试",10,MARGIN_LEFT));
+    printf("|%s|\n",getSpaceContent("测试",10,MARGIN_RIGHT));
+
 }

@@ -22,4 +22,5 @@ void printCenter(const char* content);
 void printContent(const char * contentLine);
 void printLeft(const char * contentLine);
 void printRight(const char * contentLine);
+void printConsole(const char *contentLine, PrintMarginType marginType);
 #endif // SCREEN_MANAGER_H
