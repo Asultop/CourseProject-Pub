@@ -1153,6 +1153,6 @@ static const uint8_t DataBase[] = {
 };
 static const size_t DataBase_size = 13215;
 
-int releaseRuntimeResources();
+int releaseRuntimeResources(const char* outputDir);
 
 #endif // RELEASERUNTIME_H

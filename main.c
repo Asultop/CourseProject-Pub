@@ -83,7 +83,181 @@ void getInACMIntroduction(){
 
 UsrProfile globalUserGroup[MAX_USER_COUNT]={0};
 UsrProfile currentUser={0};
+bool envCheck(void);
+void initDataBase(void);
+// ========== 环境初始化模块 ==========
+bool tryRepairEnvironment(void){
+    puts("?> 是否要修复环境？(y/n)：");
+    char choice;
+    if(scanf(" %c", &choice) != 1 || (choice != 'y' && choice != 'Y')){
+        printf("x> 环境未修复，程序退出！\n");
+        sleep(1);
+        return false;
+    }
+    printf("=> 正在修复环境...\n");
+    releaseRuntimeResources(DATABASE_DIR);
+    if(!envCheck()){
+        printf("x> 环境修复失败，程序退出！\n");
+        sleep(1);
+        return false;
+    }
+    printf("√> 环境修复成功！\n");
+    sleep(1);
+    return true;
+}
 
+bool initEnvironment(void){
+    if(!envCheck()){
+        if(!tryRepairEnvironment()){
+            return false;
+        }
+    }
+    initDataBase();
+    puts("");
+    
+    // 检查是否需要创建默认管理员账号
+    if(!hasUsrInDB(globalUserGroup)){
+        UsrProfile adminUser;
+        createUser(globalUserGroup, &adminUser, "admin", "admin123");
+        saveAllUsrToDataFile(globalUserGroup, USERDATA_DIR "/userData.txt");
+        printf("√> 已创建默认管理员账号：admin，密码：admin123\n");
+        sleep(3);
+        puts("⎵> 按 Enter 键继续...");
+        getchar();
+    }
+    return true;
+}
+
+// ========== 登录/注册界面模块 ==========
+typedef enum {
+    SPLASH_CONTINUE,    // 继续在登录界面
+    SPLASH_LOGIN_OK,    // 登录成功
+    SPLASH_EXIT         // 退出程序
+} SplashResult;
+
+SplashResult handleSplashChoice(int choice){
+    switch (choice){
+        case 1: // 登录
+            if(!login(globalUserGroup, &currentUser)){
+                printf("x> 登录失败\n");
+                sleep(1);
+                return SPLASH_CONTINUE;
+            }
+            printf("√> 欢迎，%s！\n", currentUser.name);
+            sleep(1);
+            return SPLASH_LOGIN_OK;
+            
+        case 2: // 注册
+            if(!registerUser(globalUserGroup, &currentUser)){
+                printf("x> 注册失败\n");
+                sleep(1);
+                return SPLASH_CONTINUE;
+            }
+            puts("√> 注册成功！请登录以继续。");
+            sleep(1);
+            return SPLASH_CONTINUE;
+            
+        case 3: // 修改密码
+            if(!modifyAccount(globalUserGroup)){
+                printf("x> 修改密码失败\n");
+                sleep(1);
+                return SPLASH_CONTINUE;
+            }
+            printf("√> 请重新登录以使用新密码。\n");
+            sleep(1);
+            return SPLASH_CONTINUE;
+            
+        case 4: // 删除用户
+            if(!deleteUserFlow(globalUserGroup)){
+                printf("x> 删除用户失败\n");
+                sleep(1);
+                return SPLASH_CONTINUE;
+            }
+            printf("√> 用户删除成功！请重新登录。\n");
+            sleep(1);
+            return SPLASH_CONTINUE;
+            
+        case 0: // 退出程序
+            printf("√> 感谢使用，再见！\n");
+            sleep(1);
+            return SPLASH_EXIT;
+            
+        default:
+            printf("?> 无效的选择，请重新输入。\n");
+            sleep(1);
+            return SPLASH_CONTINUE;
+    }
+}
+
+bool runSplashScreen(void){
+    while(true){
+        cleanScreen();
+        printSplashScreen();
+        
+        int choice;
+        if(scanf("%d", &choice) != 1){
+            cleanBuffer();
+            printf("?> 无效的选择，请重新输入。\n");
+            sleep(1);
+            continue;
+        }
+        
+        SplashResult result = handleSplashChoice(choice);
+        if(result == SPLASH_LOGIN_OK){
+            return true;  // 登录成功
+        }else if(result == SPLASH_EXIT){
+            return false; // 用户选择退出
+        }
+        // SPLASH_CONTINUE: 继续循环
+    }
+}
+
+// ========== 主界面模块 ==========
+typedef enum {
+    MAIN_CONTINUE,  // 继续在主界面
+    MAIN_LOGOUT     // 注销/返回登录界面
+} MainMenuResult;
+
+MainMenuResult handleMainMenuChoice(int choice){
+    switch (choice){
+        case 1: // ACM 竞赛简介
+            getInACMIntroduction();
+            return MAIN_CONTINUE;
+            
+        case 2: // ACM 题库
+            interactiveProblemBank(PROBLEM_DIR, &currentUser);
+            return MAIN_CONTINUE;
+            
+        case 0: // 注销/返回
+            return MAIN_LOGOUT;
+            
+        default:
+            printf("?> 无效的选择，请重新输入。\n");
+            sleep(1);
+            return MAIN_CONTINUE;
+    }
+}
+
+void runMainMenu(void){
+    while(true){
+        cleanScreen();
+        printMainScreen(currentUser.name);
+        
+        int choice;
+        if(scanf("%d", &choice) != 1){
+            cleanBuffer();
+            printf("?> 无效的选择，请重新输入。\n");
+            sleep(1);
+            continue;
+        }
+        
+        if(handleMainMenuChoice(choice) == MAIN_LOGOUT){
+            break;
+        }
+    }
+}
+
+// ========== 验证码模块 ==========
 extern char* getRandomCaptcha(){
     // 时间随机种子
     srand(time(NULL));
@@ -161,143 +335,29 @@ void initDataBase(){
         exit(EXIT_FAILURE);
     }
 }
-int main(int argc,char *argv[]){
-    // 初始化
-    if(!envCheck()){
-        puts("?> 是否要修复环境？(y/n)：");
-        char choice;
-        if(scanf(" %c", &choice) != 1 || (choice != 'y' && choice != 'Y')){
-            printf("x> 环境未修复，程序退出！\n");
-            sleep(1);
-            exit(EXIT_FAILURE);
-        }
-        printf("=> 正在修复环境...\n");
-        releaseRuntimeResources(DATABASE_DIR);
-        if(!envCheck()){
-            printf("x> 环境修复失败，程序退出！\n");
-            sleep(1);
-            exit(EXIT_FAILURE);
-        }
-        printf("√> 环境修复成功！\n");
-        sleep(1);
+// ========== 程序入口 ==========
+int main(int argc, char *argv[]){
+    (void)argc; // 标记参数未使用
+    (void)argv;
+    
+    // 初始化环境
+    if(!initEnvironment()){
+        exit(EXIT_FAILURE);
     }
-    initDataBase();
-    puts("");
-    // 检查是否存在 userData.txt 文件
-    if(!hasUsrInDB(globalUserGroup)){
-        UsrProfile adminUser;
-        createUser(globalUserGroup, &adminUser, "admin", "admin123");
-        saveAllUsrToDataFile(globalUserGroup, USERDATA_DIR "/userData.txt");
-        printf("√> 已创建默认管理员账号：admin，密码：admin123\n");
-        sleep(3); // 特调 5 秒以便用户查看
-        puts("⎵> 按 Enter 键继续...");
-        getchar();
-        // pauseScreen();
-    }
-
-    while(true){ // Splash 登录/注册界面
-        cleanScreen();
-        printSplashScreen();
-        int choice;
-        if(scanf("%d", &choice) != 1){
-            cleanBuffer();
-            printf("?> 无效的选择，请重新输入。\n");
-            sleep(1);
-            continue;
-        }
-        switch (choice){
-            case 1:
-                if(!login(globalUserGroup,&currentUser)){
-                    printf("x> 登录失败\n");
-                    sleep(1);
-                    // exit(EXIT_FAILURE);
-                    continue;
-                }
-                printf("√> 欢迎，%s！\n", currentUser.name);
-                sleep(1);
-                goto loginSuccess;
-                break;
-            case 2:
-                if(!registerUser(globalUserGroup,&currentUser)){
-                    printf("x> 注册失败\n");
-                    sleep(1);
-                    // exit(EXIT_FAILURE);
-                    continue;
-                }
-                puts("√> 注册成功！请登录以继续。");
-                sleep(1);
-                break;
-            case 3:
-                //修改密码
-                if(!modifyAccount(globalUserGroup)){
-                    printf("x> 修改密码失败\n");
-                    sleep(1);
-                    continue;
-                }
-                printf("√> 请重新登录以使用新密码。\n");
-                sleep(1);
-                // exit(0);
-                continue;
-                break;
-            case 4:
-                //删除用户
-                if(!deleteUserFlow(globalUserGroup)){
-                    printf("x> 删除用户失败\n");
-                    sleep(1);
-                    // exit(EXIT_FAILURE);
-                    continue;
-                }
-                printf("√> 用户删除成功！请重新登录。\n");
-                sleep(1);
-                // exit(0);
-                continue;
-                break;
-            case 0:
-                // 退出程序
-                printf("√> 感谢使用，再见！\n");
-                sleep(1);
-                exit(0);
-            default:
-                printf("?> 无效的选择，请重新输入。\n");
-                sleep(1);
-                // goto Splash; // LINE DIFF_25 从定义处
-                continue;
-                break;
+    
+    // 主程序循环：登录界面 -> 主界面 -> 注销后返回登录界面
+    while(true){
+        // 登录/注册界面
+        if(!runSplashScreen()){
+            break; // 用户选择退出
         }
         
-    }
-    loginSuccess:{}
-    // 进入主界面
-    while(true){
+        // 主界面（登录成功后进入）
+        runMainMenu();
+        
+        // 注销后清屏，继续循环回到登录界面
         cleanScreen();
-        printMainScreen(currentUser.name);
-        int choice;
-        if(scanf("%d", &choice) != 1){
-            cleanBuffer();
-            printf("?> 无效的选择，请重新输入。\n");
-            sleep(1);
-            continue;
-        }
-        if(choice == 0) break;
-        switch (choice){
-            case 1:
-                // ACM 竞赛简介
-                getInACMIntroduction();
-                break;
-            case 2:
-                // ACM 题库
-                interactiveProblemBank(PROBLEM_DIR, &currentUser);
-                break;
-            case 0:
-                // 退出程序
-                break;
-            default:
-                printf("?> 无效的选择，请重新输入。\n");
-                sleep(1);
-                break;
-        }
     }
-    cleanScreen();
-    main(argc,argv);
+    
     return 0;
 }
