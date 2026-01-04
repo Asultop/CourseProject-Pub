@@ -62,24 +62,10 @@ void refreshCurrentScreen(void) {
 
 
 void displayFileContent(const char* filepath){
-    // FILE* file = fopen(filepath, "r");
-    // if(file == NULL){
-    //     printf("x> 无法打开文件：%s\n", filepath);
-    //     sleep(1);
-    //     return;
-    // }
-    // char line[MAX_MESSAGE_LEN];
-    // printf("====== 文件内容：%s ======\n", filepath);
-    // while(fgets(line, sizeof(line), file) != NULL){
-    //     printf("%s", line);
-    // }
-    // printf("\n====== 文件结束 ======\n");
-    // fclose(file);
-    // printf("=> 按任意键继续...");
-    // getchar(); // 捕获换行符
-    // getchar(); // 等待用户按键
+    pauseDynamicRefresh();  // 暂停刷新
     mdcat_worker(filepath);
     pauseScreen();
+    resumeDynamicRefresh(); // 恢复刷新
 }
 void getInACMIntroduction(){
     g_currentScreen = SCREEN_ACM_DETAIL;
@@ -107,9 +93,11 @@ void getInACMIntroduction(){
                 displayFileContent(INTRFILE);
                 break;
             case 5:
+                pauseDynamicRefresh();  // 暂停刷新
                 interactiveChampionQuery(AWARFILE);
                 printf("√> 按下任意键继续...");
                 getchar();
+                resumeDynamicRefresh(); // 恢复刷新
                 break;
                 
             case 0:
@@ -193,57 +181,66 @@ typedef enum {
 } SplashResult;
 
 SplashResult handleSplashChoice(int choice){
+    pauseDynamicRefresh();  // 暂停刷新，避免操作过程中被重绘
+    SplashResult result = SPLASH_CONTINUE;
+    
     switch (choice){
         case 1: // 登录
             if(!login(globalUserGroup, &currentUser)){
                 printf("x> 登录失败\n");
                 sleep(1);
-                return SPLASH_CONTINUE;
+                result = SPLASH_CONTINUE;
+            } else {
+                printf("√> 欢迎，%s！\n", currentUser.name);
+                sleep(1);
+                result = SPLASH_LOGIN_OK;
             }
-            printf("√> 欢迎，%s！\n", currentUser.name);
-            sleep(1);
-            return SPLASH_LOGIN_OK;
+            break;
             
         case 2: // 注册
             if(!registerUser(globalUserGroup, &currentUser)){
                 printf("x> 注册失败\n");
                 sleep(1);
-                return SPLASH_CONTINUE;
+            } else {
+                puts("√> 注册成功！请登录以继续。");
+                sleep(1);
             }
-            puts("√> 注册成功！请登录以继续。");
-            sleep(1);
-            return SPLASH_CONTINUE;
+            break;
             
         case 3: // 修改密码
             if(!modifyAccount(globalUserGroup)){
                 printf("x> 修改密码失败\n");
                 sleep(1);
-                return SPLASH_CONTINUE;
+            } else {
+                printf("√> 请重新登录以使用新密码。\n");
+                sleep(1);
             }
-            printf("√> 请重新登录以使用新密码。\n");
-            sleep(1);
-            return SPLASH_CONTINUE;
+            break;
             
         case 4: // 删除用户
             if(!deleteUserFlow(globalUserGroup)){
                 printf("x> 删除用户失败\n");
                 sleep(1);
-                return SPLASH_CONTINUE;
+            } else {
+                printf("√> 用户删除成功！请重新登录。\n");
+                sleep(1);
             }
-            printf("√> 用户删除成功！请重新登录。\n");
-            sleep(1);
-            return SPLASH_CONTINUE;
+            break;
             
         case 0: // 退出程序
             printf("√> 感谢使用，再见！\n");
             sleep(1);
-            return SPLASH_EXIT;
+            result = SPLASH_EXIT;
+            break;
             
         default:
             printf("?> 无效的选择，请重新输入。\n");
             sleep(1);
-            return SPLASH_CONTINUE;
+            break;
     }
+    
+    resumeDynamicRefresh();  // 恢复刷新
+    return result;
 }
 
 bool runSplashScreen(void){
@@ -283,15 +280,21 @@ MainMenuResult handleMainMenuChoice(int choice){
             return MAIN_CONTINUE;
             
         case 2: // ACM 题库
+            pauseDynamicRefresh();  // 题库交互暂停刷新
+            g_currentScreen = SCREEN_PROBLEM_BANK;
             interactiveProblemBank(PROBLEM_DIR, &currentUser);
+            resumeDynamicRefresh();
+            g_currentScreen = SCREEN_MAIN;
             return MAIN_CONTINUE;
             
         case 0: // 注销/返回
             return MAIN_LOGOUT;
             
         default:
+            pauseDynamicRefresh();
             printf("?> 无效的选择，请重新输入。\n");
             sleep(1);
+            resumeDynamicRefresh();
             return MAIN_CONTINUE;
     }
 }

@@ -13,14 +13,15 @@
 // ============== 动态刷新相关 ==============
 static ScreenRefreshCallback g_refreshCallback = NULL;
 static volatile sig_atomic_t g_needRefresh = 0;
+static volatile sig_atomic_t g_refreshPaused = 0;  // 暂停刷新标志
 
 #ifndef _WIN32
 // SIGWINCH 信号处理函数
 static void sigwinchHandler(int sig) {
     (void)sig;
     g_needRefresh = 1;
-    // 在信号处理中直接调用重绘（注意：复杂场景可能需要在主循环中检查标志）
-    if (g_refreshCallback != NULL) {
+    // 仅在未暂停时调用重绘
+    if (!g_refreshPaused && g_refreshCallback != NULL) {
         g_refreshCallback();
     }
 }
@@ -29,6 +30,7 @@ static void sigwinchHandler(int sig) {
 // 启用动态刷新
 void enableDynamicRefresh(ScreenRefreshCallback callback) {
     g_refreshCallback = callback;
+    g_refreshPaused = 0;
 #ifndef _WIN32
     struct sigaction sa;
     sa.sa_handler = sigwinchHandler;
@@ -41,9 +43,20 @@ void enableDynamicRefresh(ScreenRefreshCallback callback) {
 // 禁用动态刷新
 void disableDynamicRefresh() {
     g_refreshCallback = NULL;
+    g_refreshPaused = 0;
 #ifndef _WIN32
     signal(SIGWINCH, SIG_DFL);
 #endif
+}
+
+// 暂停动态刷新（用于显示临时内容时）
+void pauseDynamicRefresh() {
+    g_refreshPaused = 1;
+}
+
+// 恢复动态刷新
+void resumeDynamicRefresh() {
+    g_refreshPaused = 0;
 }
 
 // 设置重绘回调

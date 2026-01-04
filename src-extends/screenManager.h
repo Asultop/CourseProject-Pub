@@ -13,6 +13,8 @@ int getScreenWidth();
 // 动态刷新相关函数
 void enableDynamicRefresh(ScreenRefreshCallback callback);  // 启用动态刷新
 void disableDynamicRefresh();                                // 禁用动态刷新
+void pauseDynamicRefresh();                                  // 暂停动态刷新
+void resumeDynamicRefresh();                                 // 恢复动态刷新
 void setRefreshCallback(ScreenRefreshCallback callback);     // 设置重绘回调
 void triggerRefresh();                                       // 手动触发刷新
 
