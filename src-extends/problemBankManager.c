@@ -763,56 +763,59 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 				printDivider();
 				for (int i = 0; i < js.count; ++i) {
 					JudgeReturnInfo *ri = &js.infos[i];
+					char buf[512];
 					switch (ri->result) {
 						case JUDGE_RESULT_ACCEPTED:
 							// printf(ANSI_BOLD_GREEN "[AC]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
 							{
-								char buf[512];
+								// char buf[512];
 								snprintf(buf, sizeof(buf), ANSI_BOLD_GREEN "[AC]" ANSI_FRMT_RESET " 测试点 %d: %s", i+1, ri->message);
-								printConsole(buf,MARGIN_LEFT);
+								// printConsole(buf,MARGIN_LEFT);
 							}
 							break;
 						case JUDGE_RESULT_WRONG_ANSWER:
 							// printf(ANSI_BOLD_COLOR "[WA]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
 							{
-								char buf[512];
+								// char buf[512];
 								snprintf(buf, sizeof(buf), ANSI_BOLD_RED "[WA]" ANSI_FRMT_RESET " 测试点 %d: %s", i+1, ri->message);
-								printConsole(buf,MARGIN_LEFT);
+								// printConsole(buf,MARGIN_LEFT);
 							}
 							break;
 						case JUDGE_RESULT_RUNTIME_ERROR:
 							// printf(ANSI_BOLD_MAGENTA "[RE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
 							{
-								char buf[512];
+								// char buf[512];
 								snprintf(buf, sizeof(buf), ANSI_BOLD_MAGENTA "[RE]" ANSI_FRMT_RESET " 测试点 %d: %s", i+1, ri->message);
-								printConsole(buf,MARGIN_LEFT);
+								// printConsole(buf,MARGIN_LEFT);
 							}	
 							break;
 						case JUDGE_RESULT_COMPILE_ERROR:
 							// printf(ANSI_BOLD_YELLOW "[CE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
 							{
-								char buf[512];
+								// char buf[512];
 								snprintf(buf, sizeof(buf), ANSI_BOLD_YELLOW "[CE]" ANSI_FRMT_RESET " 测试点 %d: %s", i+1, ri->message);
-								printConsole(buf,MARGIN_LEFT);
+								// printConsole(buf,MARGIN_LEFT);
 							}
 							break;
 						case JUDGE_RESULT_TIME_LIMIT_EXCEEDED:
 							// printf(ANSI_BOLD_WHITE "[TLE]" ANSI_FRMT_RESET " 测试点 %d: %s\n", i+1, ri->message);
 							{
-								char buf[512];
+								// char buf[512];
 								snprintf(buf, sizeof(buf), ANSI_BOLD_WHITE "[TLE]" ANSI_FRMT_RESET " 测试点 %d: %s", i+1, ri->message);
-								printConsole(buf,MARGIN_LEFT);
+								// printConsole(buf,MARGIN_LEFT);
 							}
 							break;
 						default:
 							// printf("[?] 测试点 %d: %s\n", i+1, ri->message);
 							{
-								char buf[512];
+								// char buf[512];
 								snprintf(buf, sizeof(buf), "[?] 测试点 %d: %s", i+1, ri->message);
-								printConsole(buf,MARGIN_LEFT);
+								// printConsole(buf,MARGIN_LEFT);
 							}
 							break;
 					}
+					printConsole(buf,MARGIN_CENTER);
+						
 					if(i < js.count - 1) printDivider();
 				}
 				printFooter();

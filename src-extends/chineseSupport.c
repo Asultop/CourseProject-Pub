@@ -148,7 +148,8 @@ int count_chinese(const char *str, EncodingType *detected_encoding) {
 }
 // 判断UTF-8字符是否为中文/全角字符（计2）
 // 支持: 中文汉字、全角标点、全角字母数字、日文平假名/片假名、韩文、
-//       中文标点符号、特殊符号等
+//       中文标点符号等双宽度字符
+// 注意：上标/下标(⁰¹²³⁴⁵⁶⁷⁸⁹)、希腊字母、箭头、数学符号等通常是单宽度
 int is_utf8_double_width(const unsigned char *c, int i, int len) {
     // 三字节UTF-8：中文/全角字符
     if ((c[i] >= 0xE0 && c[i] <= 0xEF) && (i + 2 < len)) {
@@ -157,45 +158,40 @@ int is_utf8_double_width(const unsigned char *c, int i, int len) {
         if (unicode >= 0x4E00 && unicode <= 0x9FFF) return 1;
         // CJK扩展A：0x3400~0x4DBF
         if (unicode >= 0x3400 && unicode <= 0x4DBF) return 1;
-        // 全角ASCII变体：0xFF00~0xFF5E（！到～的全角版本）
+        // 全角ASCII变体：0xFF01~0xFF5E（！到～的全角版本）
         if (unicode >= 0xFF01 && unicode <= 0xFF5E) return 1;
         // 全角空格：0x3000
         if (unicode == 0x3000) return 1;
-        // 中文标点符号：0x3000~0x303F（CJK符号和标点）
-        if (unicode >= 0x3000 && unicode <= 0x303F) return 1;
+        // 中文标点符号：0x3001~0x303F（CJK符号和标点，排除0x3000已处理）
+        if (unicode >= 0x3001 && unicode <= 0x303F) return 1;
         // 日文平假名：0x3040~0x309F
         if (unicode >= 0x3040 && unicode <= 0x309F) return 1;
         // 日文片假名：0x30A0~0x30FF
         if (unicode >= 0x30A0 && unicode <= 0x30FF) return 1;
-        // 韩文字母：0x1100~0x11FF（谚文字母）
-        if (unicode >= 0x1100 && unicode <= 0x11FF) return 1;
+        // 韩文字母：0x1100~0x11FF（谚文字母）- 注意：这是双字节UTF-8范围
         // 韩文音节：0xAC00~0xD7AF
         if (unicode >= 0xAC00 && unicode <= 0xD7AF) return 1;
         // 中文标点扩展：0xFE30~0xFE4F（CJK兼容形式）
         if (unicode >= 0xFE30 && unicode <= 0xFE4F) return 1;
         // 中文竖排标点：0xFE10~0xFE1F
         if (unicode >= 0xFE10 && unicode <= 0xFE1F) return 1;
-        // 半角片假名和全角形式：0xFF00~0xFFEF
-        if (unicode >= 0xFF00 && unicode <= 0xFFEF) return 1;
-        // 特殊符号（箭头、数学符号等常用双宽字符）
-        // 箭头：0x2190~0x21FF
-        if (unicode >= 0x2190 && unicode <= 0x21FF) return 1;
-        // 数学运算符：0x2200~0x22FF
-        if (unicode >= 0x2200 && unicode <= 0x22FF) return 1;
-        // 杂项技术符号：0x2300~0x23FF
-        if (unicode >= 0x2300 && unicode <= 0x23FF) return 1;
-        // 方块元素：0x2580~0x259F
-        if (unicode >= 0x2580 && unicode <= 0x259F) return 1;
-        // 几何图形：0x25A0~0x25FF
-        if (unicode >= 0x25A0 && unicode <= 0x25FF) return 1;
-        // 杂项符号：0x2600~0x26FF
-        if (unicode >= 0x2600 && unicode <= 0x26FF) return 1;
-        // Dingbats：0x2700~0x27BF
-        if (unicode >= 0x2700 && unicode <= 0x27BF) return 1;
-        // 制表符/边框：0x2500~0x257F（Box Drawing）
+        // 全角形式：0xFF00~0xFFEF（仅全角部分，半角片假名0xFF61~0xFF9F是单宽）
+        if (unicode >= 0xFF00 && unicode <= 0xFF60) return 1;
+        if (unicode >= 0xFFA0 && unicode <= 0xFFEF) return 1;
+        // 制表符/边框：0x2500~0x257F（Box Drawing）- 通常双宽
         if (unicode >= 0x2500 && unicode <= 0x257F) return 1;
-        // 希腊字母（数学常用）：0x0370~0x03FF - 通常单宽，但部分终端双宽
-        // Emoji表情：0x1F300~0x1F9FF（需要4字节UTF-8，下面处理）
+        // 方块元素：0x2580~0x259F - 通常双宽
+        if (unicode >= 0x2580 && unicode <= 0x259F) return 1;
+        
+        // === 以下是单宽度字符，返回0 ===
+        // 上标/下标：0x2070~0x209F（⁰¹²³⁴⁵⁶⁷⁸⁹等）- 单宽
+        // 箭头：0x2190~0x21FF - 单宽
+        // 数学运算符：0x2200~0x22FF - 单宽
+        // 杂项技术符号：0x2300~0x23FF - 单宽
+        // 几何图形：0x25A0~0x25FF - 单宽
+        // 杂项符号：0x2600~0x26FF - 大部分单宽
+        // Dingbats：0x2700~0x27BF - 单宽
+        // 希腊字母：0x0370~0x03FF - 单宽
         return 0;
     }
     // 四字节UTF-8：Emoji等（通常双宽）
