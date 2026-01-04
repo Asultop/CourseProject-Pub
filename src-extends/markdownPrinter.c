@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "fileHelper.h"
+#include "screenManager.h"
 
 
 mdcat_t mdcat = { .fmt = DO_RESET };
@@ -277,7 +278,8 @@ char *mdcat_render_math(char **dstline, int *dstindx, char *lineptr, int *ip) {
 
 int mdcat_print_line(char *line){
 	if (mdcat_delay_us == 0) {
-		puts(line);
+		// puts(line);
+		printConsole((const char*)line,MARGIN_LEFT);
 		return 0;
 	}
 

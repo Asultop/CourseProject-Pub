@@ -11,6 +11,7 @@
 #include "src-extends/screenManager.h"
 #include "src-extends/usrManager.h"
 #include "src-extends/fileHelper.h"
+#include "src-extends/colorPrint.h"
 #include "src-extends/md5.h"
 #include "src-extends/Def.h"
 
@@ -64,6 +65,7 @@ void refreshCurrentScreen(void) {
 void displayFileContent(const char* filepath){
     pauseDynamicRefresh();  // 暂停刷新
     mdcat_worker(filepath);
+    printFooter();
     pauseScreen();
     resumeDynamicRefresh(); // 恢复刷新
 }
@@ -81,16 +83,33 @@ void getInACMIntroduction(){
         }
         switch (choice){
             case 1:
+                printHeader();
+                printConsole(rainbowizeString("参赛规则"), MARGIN_CENTER);
+                printDivider();
                 displayFileContent(RULEFILE);
+                // printFooter();
                 break;
             case 2:
+                printHeader();
+                printConsole(rainbowizeString("评分标准"), MARGIN_CENTER);
+                printDivider();
                 displayFileContent(RATEDFILE);
+                // printFooter();
                 break;
             case 3:
+                printHeader();
+                printConsole(rainbowizeString("赛事构成"), MARGIN_CENTER);
+                printDivider();
                 displayFileContent(COMPFILE);
+                // printFooter();
                 break;
             case 4:
+                printHeader();
+                printConsole(rainbowizeString("赛事介绍"), MARGIN_CENTER);
+                printDivider();
                 displayFileContent(INTRFILE);
+                // printFooter();
+
                 break;
             case 5:
                 pauseDynamicRefresh();  // 暂停刷新

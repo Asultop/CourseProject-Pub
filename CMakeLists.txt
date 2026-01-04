@@ -41,6 +41,7 @@ set(TEST_INPUT_SIMULATOR_SOURCES
 )
 set(TEST_MARKDOWN_SOURCES
 	src-extends/markdownPrinter.c
+	src-extends/screenManager.c
 	src-extends/chineseSupport.c
 	src-extends/fileHelper.c
 	src-test/test_markdown.c

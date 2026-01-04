@@ -147,17 +147,68 @@ int count_chinese(const char *str, EncodingType *detected_encoding) {
     return count;
 }
 // 判断UTF-8字符是否为中文/全角字符（计2）
+// 支持: 中文汉字、全角标点、全角字母数字、日文平假名/片假名、韩文、
+//       中文标点符号、特殊符号等
 int is_utf8_double_width(const unsigned char *c, int i, int len) {
     // 三字节UTF-8：中文/全角字符
     if ((c[i] >= 0xE0 && c[i] <= 0xEF) && (i + 2 < len)) {
         unsigned int unicode = utf8_to_unicode(&c[i]);
-        // 中文汉字：0x4E00~0x9FA5；全角标点/字符：0xFF00~0xFFEF
-        return (unicode >= 0x4E00 && unicode <= 0x9FA5) || (unicode >= 0xFF00 && unicode <= 0xFFEF);
+        // 中文汉字：0x4E00~0x9FFF（CJK统一汉字）
+        if (unicode >= 0x4E00 && unicode <= 0x9FFF) return 1;
+        // CJK扩展A：0x3400~0x4DBF
+        if (unicode >= 0x3400 && unicode <= 0x4DBF) return 1;
+        // 全角ASCII变体：0xFF00~0xFF5E（！到～的全角版本）
+        if (unicode >= 0xFF01 && unicode <= 0xFF5E) return 1;
+        // 全角空格：0x3000
+        if (unicode == 0x3000) return 1;
+        // 中文标点符号：0x3000~0x303F（CJK符号和标点）
+        if (unicode >= 0x3000 && unicode <= 0x303F) return 1;
+        // 日文平假名：0x3040~0x309F
+        if (unicode >= 0x3040 && unicode <= 0x309F) return 1;
+        // 日文片假名：0x30A0~0x30FF
+        if (unicode >= 0x30A0 && unicode <= 0x30FF) return 1;
+        // 韩文字母：0x1100~0x11FF（谚文字母）
+        if (unicode >= 0x1100 && unicode <= 0x11FF) return 1;
+        // 韩文音节：0xAC00~0xD7AF
+        if (unicode >= 0xAC00 && unicode <= 0xD7AF) return 1;
+        // 中文标点扩展：0xFE30~0xFE4F（CJK兼容形式）
+        if (unicode >= 0xFE30 && unicode <= 0xFE4F) return 1;
+        // 中文竖排标点：0xFE10~0xFE1F
+        if (unicode >= 0xFE10 && unicode <= 0xFE1F) return 1;
+        // 半角片假名和全角形式：0xFF00~0xFFEF
+        if (unicode >= 0xFF00 && unicode <= 0xFFEF) return 1;
+        // 特殊符号（箭头、数学符号等常用双宽字符）
+        // 箭头：0x2190~0x21FF
+        if (unicode >= 0x2190 && unicode <= 0x21FF) return 1;
+        // 数学运算符：0x2200~0x22FF
+        if (unicode >= 0x2200 && unicode <= 0x22FF) return 1;
+        // 杂项技术符号：0x2300~0x23FF
+        if (unicode >= 0x2300 && unicode <= 0x23FF) return 1;
+        // 方块元素：0x2580~0x259F
+        if (unicode >= 0x2580 && unicode <= 0x259F) return 1;
+        // 几何图形：0x25A0~0x25FF
+        if (unicode >= 0x25A0 && unicode <= 0x25FF) return 1;
+        // 杂项符号：0x2600~0x26FF
+        if (unicode >= 0x2600 && unicode <= 0x26FF) return 1;
+        // Dingbats：0x2700~0x27BF
+        if (unicode >= 0x2700 && unicode <= 0x27BF) return 1;
+        // 制表符/边框：0x2500~0x257F（Box Drawing）
+        if (unicode >= 0x2500 && unicode <= 0x257F) return 1;
+        // 希腊字母（数学常用）：0x0370~0x03FF - 通常单宽，但部分终端双宽
+        // Emoji表情：0x1F300~0x1F9FF（需要4字节UTF-8，下面处理）
+        return 0;
     }
-    // 双字节UTF-8：全角字符（如全角字母/数字）
-    else if ((c[i] >= 0xC0 && c[i] <= 0xDF) && (i + 1 < len)) {
-        return 1;
+    // 四字节UTF-8：Emoji等（通常双宽）
+    else if ((c[i] >= 0xF0 && c[i] <= 0xF4) && (i + 3 < len)) {
+        unsigned int unicode = ((c[i] & 0x07) << 18) | ((c[i+1] & 0x3F) << 12) |
+                               ((c[i+2] & 0x3F) << 6) | (c[i+3] & 0x3F);
+        // Emoji范围：0x1F300~0x1F9FF
+        if (unicode >= 0x1F300 && unicode <= 0x1F9FF) return 1;
+        // 补充CJK：0x20000~0x2A6DF
+        if (unicode >= 0x20000 && unicode <= 0x2A6DF) return 1;
+        return 0;
     }
+    // 双字节UTF-8：一般不是双宽字符
     return 0;
 }
 
@@ -168,85 +219,87 @@ int is_gbk_double_width(const unsigned char *c) {
            ((c[0] >= 0xB0 && c[0] <= 0xF7) || (c[0] >= 0xA1 && c[0] <= 0xA9));
 }
 /************************ 获取字符串实际显示长度（含中文） ************************/
-unsigned long get_real_Length(const char * str, EncodingType *encoding) {
-    // 1. 空字符串处理
-    if (str == NULL || *str == '\0') {
-        if (encoding != NULL) {
-            *encoding = ENCODING_UNKNOWN;
+// 跳过ANSI转义序列（CSI/OSC等），返回跳过后的位置
+static int skip_ansi_escape(const unsigned char *u_str, int i, int len) {
+    if (u_str[i] != 0x1B || i + 1 >= len) return i;
+    
+    unsigned char next = u_str[i + 1];
+    
+    // CSI序列：ESC [ ... 终结符
+    if (next == '[') {
+        int j = i + 2;
+        while (j < len && u_str[j] >= 0x20 && u_str[j] <= 0x3F) j++;
+        while (j < len && u_str[j] >= 0x20 && u_str[j] <= 0x2F) j++;
+        if (j < len && u_str[j] >= 0x40 && u_str[j] <= 0x7E) {
+            return j + 1;
         }
+        return j;
+    }
+    // OSC序列：ESC ] ... (BEL或ST)
+    if (next == ']') {
+        int j = i + 2;
+        while (j < len) {
+            if (u_str[j] == 0x07) return j + 1;
+            if (u_str[j] == 0x1B && j + 1 < len && u_str[j + 1] == '\\') return j + 2;
+            j++;
+        }
+        return len;
+    }
+    // SS2/SS3序列：ESC N 或 ESC O + 1字符
+    if (next == 'N' || next == 'O') {
+        return (i + 3 < len) ? i + 3 : len;
+    }
+    // 其他简单转义：ESC + 单字符
+    if (next >= 0x40 && next <= 0x5F) {
+        return i + 2;
+    }
+    return i + 1;
+}
+
+unsigned long get_real_Length(const char *str, EncodingType *encoding) {
+    if (str == NULL || *str == '\0') {
+        if (encoding != NULL) *encoding = ENCODING_UNKNOWN;
         return 0;
     }
 
-    // 2. 检测编码
     EncodingType enc = detect_encoding(str);
-    if (encoding != NULL) {
-        *encoding = enc;
-    }
+    if (encoding != NULL) *encoding = enc;
 
     unsigned long real_len = 0;
     int i = 0;
-    int len = strlen(str);
+    int len = (int)strlen(str);
     unsigned char *u_str = (unsigned char *)str;
 
-    // 3. 按编码精准计算实际长度
     if (enc == ENCODING_UTF8) {
         while (i < len) {
-            // 跳过 ANSI 转义序列（例如颜色码：\x1b[...m）不计入显示长度
-            if (u_str[i] == 0x1B && i + 1 < len && u_str[i+1] == '[') {
-                int j = i + 2;
-                // CSI 序列以 0x40('@') 到 0x7E('~') 的字节结束，常见为 'm'
-                while (j < len && !(u_str[j] >= 0x40 && u_str[j] <= 0x7E)) {
-                    j++;
-                }
-                if (j < len) {
-                    // 跳过整个转义序列
-                    i = j + 1;
-                    continue;
-                } else {
-                    // 不完整的转义序列，直接跳出以防越界
-                    break;
-                }
+            // 跳过ANSI转义序列
+            if (u_str[i] == 0x1B) {
+                i = skip_ansi_escape(u_str, i, len);
+                continue;
             }
-            if (u_str[i] < 0x80) {  // 半角ASCII（字母/数字/半角标点）：计1
+            // ASCII字符
+            if (u_str[i] < 0x80) {
                 real_len += 1;
                 i += 1;
             } else {
-                // 中文/全角字符：计2
-                if (is_utf8_double_width(u_str, i, len)) {
-                    real_len += 2;
-                } else {  // 非中文/全角的多字节字符（极少）：计1
-                    real_len += 1;
-                }
-                // 按UTF-8规则步进
-                if (u_str[i] < 0xE0) {
-                    i += 2;
-                } else if (u_str[i] < 0xF0) {
-                    i += 3;
-                } else {
-                    i += 4;
-                }
+                // 多字节UTF-8
+                real_len += is_utf8_double_width(u_str, i, len) ? 2 : 1;
+                if ((u_str[i] & 0xF8) == 0xF0) i += 4;
+                else if ((u_str[i] & 0xF0) == 0xE0) i += 3;
+                else if ((u_str[i] & 0xE0) == 0xC0) i += 2;
+                else i += 1;
             }
         }
     } else if (enc == ENCODING_GBK) {
         while (i < len) {
-            // 跳过 ANSI 转义序列（GBK 编码下也可能包含颜色码）
-            if (u_str[i] == 0x1B && i + 1 < len && u_str[i+1] == '[') {
-                int j = i + 2;
-                while (j < len && !(u_str[j] >= 0x40 && u_str[j] <= 0x7E)) {
-                    j++;
-                }
-                if (j < len) {
-                    i = j + 1;
-                    continue;
-                } else {
-                    break;
-                }
+            if (u_str[i] == 0x1B) {
+                i = skip_ansi_escape(u_str, i, len);
+                continue;
             }
-            if (u_str[i] < 0x80) {  // 半角ASCII：计1
+            if (u_str[i] < 0x80) {
                 real_len += 1;
                 i += 1;
-            } else {  // 双字节GBK
-                // 中文/全角字符：计2；其他双字节：计1
+            } else {
                 real_len += is_gbk_double_width(&u_str[i]) ? 2 : 1;
                 i += 2;
             }
