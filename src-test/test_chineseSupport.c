@@ -10,5 +10,12 @@ int main(){
     printf("|%s|\n",getSpaceContent("测试",10,MARGIN_CENTER));
     printf("|%s|\n",getSpaceContent("测试",10,MARGIN_LEFT));
     printf("|%s|\n",getSpaceContent("测试",10,MARGIN_RIGHT));
+    printf("|%s|\n",getSpaceContent("Test",10,MARGIN_CENTER));
+    printf("|%s|\n",getSpaceContent("Test",10,MARGIN_LEFT));
+    printf("|%s|\n",getSpaceContent("Test",10,MARGIN_RIGHT));
+    printf("|%s|\n",getSpaceContent("测试Test",10,MARGIN_CENTER));
+    printf("|%s|\n",getSpaceContent("测试Test",10,MARGIN_LEFT));
+    printf("|%s|\n",getSpaceContent("测试Test",10,MARGIN_RIGHT));
+
 
 }

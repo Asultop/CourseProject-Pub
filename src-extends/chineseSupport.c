@@ -268,28 +268,13 @@ char * getSpaceContent(const char *content, size_t totalWidth, PrintMarginType m
         return out;
     }
 
-    // 使用 processRawChar 统计显示单元（每个多字节中文/全角或单个ASCII计为1；ANSI ESC序列不计入）
-    char **units = processRawChar(content);
-    size_t visible_units = 0;
-    if(units) {
-        for(size_t i=0; units[i] != NULL; ++i) {
-            if(strcmp(units[i], "EOL") == 0) break;
-            // 跳过 ANSI 转义序列
-            if((unsigned char)units[i][0] == 0x1B) continue;
-            visible_units++;
-        }
-        freeProcessedChars(units);
-    } else {
-        // 回退：使用 get_real_Length（按宽度计）并将其视为单位数的近似值
-        unsigned long rl = get_real_Length(content, NULL);
-        visible_units = (size_t)rl;
-    }
-
-    if(visible_units >= totalWidth) {
+    // 使用 get_real_Length 计算可见宽度（中文/全角计2），并据此计算需要填充的空格数
+    unsigned long vis = get_real_Length(content, NULL);
+    size_t visible = (size_t)vis;
+    if(visible >= totalWidth) {
         return strdup(content);
     }
-
-    size_t pad = totalWidth - visible_units;
+    size_t pad = totalWidth - visible;
     size_t leftPad = 0, rightPad = 0;
     switch(marginType) {
         case MARGIN_LEFT:
