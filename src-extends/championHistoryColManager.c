@@ -103,7 +103,7 @@ static void print_field_highlight(const char* label, const char* value, const ch
     if(!filter || filter[0] == '\0'){
         char buf[512];
         snprintf(buf, sizeof(buf), "%s: %s", label, value);
-        printLeft(buf);
+        printConsole(buf,MARGIN_LEFT);
         // printf("%s: %s\n", label, value);
         return;
     }
@@ -148,7 +148,7 @@ static void print_field_highlight(const char* label, const char* value, const ch
         // 继续循环以拼接后续部分
     }
     // 循环结束后一次性打印构造好的行，避免重复输出
-    printLeft(buffer);
+    printConsole(buffer,MARGIN_LEFT);
 }
 
 void printChampionRecord(const ChampionRecord* r,
@@ -215,7 +215,7 @@ void interactiveChampionQuery(const char* filename){
     }
     printf("√> 找到 %d 条记录：\n", found);
     printHeader();
-    printCenter("获奖记录详情");
+    printConsole("获奖记录详情", MARGIN_CENTER);
     printDivider();
     for(int i=0;i<found;i++){
         printChampionRecord(&results[i], year, location, university, country, teamMembers, coach);

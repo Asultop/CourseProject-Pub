@@ -163,9 +163,9 @@ static void print_breadcrumb(const char* sub) {
 	if(sub && sub[0]) {
 		char buf[128];
 		snprintf(buf, sizeof(buf), "ACM 题库 - %s", sub);
-		printCenter(buf);
+		printConsole(buf, MARGIN_CENTER);
 	} else {
-		printCenter("ACM 题库");
+		printConsole("ACM 题库", MARGIN_CENTER);
 	}
 	printFooter();
 }
@@ -201,7 +201,7 @@ static void print_highlight(const char* value, const char* filter) {
 		// printf("%s", value);
 		char buf[1024];
 		snprintf(buf, sizeof(buf), "%s", value);
-		printLeft(buf);
+		printConsole(buf,MARGIN_LEFT);
 		return;
 	}
 	char lowVal[1024];
@@ -223,7 +223,7 @@ static void print_highlight(const char* value, const char* filter) {
 		if(!found) {
 			// printf("%s", cur);
 			snprintf(buffer, sizeof(buffer), "%s", cur);
-			printLeft(buffer);
+			printConsole(buffer,MARGIN_LEFT);
 			break;
 		}
 		size_t prefixLen = (size_t)(found - lowCur);
@@ -238,7 +238,7 @@ static void print_highlight(const char* value, const char* filter) {
 		cur += prefixLen + flen;
 		lowCur += prefixLen + flen;
 		if(*cur == '\0') break;
-		printLeft(buffer);
+		printConsole(buffer,MARGIN_LEFT);
 	}
 }
 
@@ -661,31 +661,31 @@ static void printProblemDetails(const ProblemEntry* e) {
 	// printf("|  题目文件: %s\n", e->problemPath);
 	// puts(  "|----------------------------|");
 	printHeader();
-	printCenter("题目详情");
+	printConsole("题目详情", MARGIN_CENTER);
 	printDivider();
 	char IDline[128];
 	snprintf(IDline, sizeof(IDline), "ID: %s", e->id);
-	printLeft(IDline);
+	printConsole(IDline,MARGIN_LEFT);
 	char titleline[512];
 	snprintf(titleline, sizeof(titleline), "标题: %s", e->title);
-	printLeft(titleline);
+	printConsole(titleline,MARGIN_LEFT);
 	char difline[128];
 	snprintf(difline, sizeof(difline), "难度: %s", e->difficulty);
-	printLeft(difline);
+	printConsole(difline,MARGIN_LEFT);
 	char typeline[256];
 	snprintf(typeline, sizeof(typeline), "类型: %s", e->type);
-	printLeft(typeline);
+	printConsole(typeline,MARGIN_LEFT);
 	printDivider();
 	// 读取题目内容文件
     if(fileExists(e->problemPath)) {
         bool contentExist = fileExists(e->problemPath);
         if(contentExist) {
-            printCenter("题目开始");
+            printConsole("题目开始", MARGIN_CENTER);
 			printDivider();
 			// 读取并打印题目内容（支持 LaTeX 渲染）
 			printFileWithLatex(e->problemPath);
 			printDivider();
-			printCenter("题目结束");
+			printConsole("题目结束", MARGIN_CENTER);
 			printDivider();
         } else {
             printf("x> 无法读取题目内容文件：%s\n", e->problemPath);
@@ -702,12 +702,12 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 		sub = -1;
 		printProblemDetails(e);
 		// printf("\n1. 提交结果\n2. 查看解析\n3. 查看题解\n4. 运行正确样例\n0. 返回\n=> 请选择：");
-		printLeft("1. 提交结果");
-		printLeft("2. 查看解析");
-		printLeft("3. 查看题解");
-		printLeft("4. 运行正确样例");
+		printConsole("1. 提交结果",MARGIN_LEFT);
+		printConsole("2. 查看解析",MARGIN_LEFT);
+		printConsole("3. 查看题解",MARGIN_LEFT);
+		printConsole("4. 运行正确样例",MARGIN_LEFT);
 		printDivider();
-		printCenter("0. 返回");
+		printConsole("0. 返回", MARGIN_CENTER);
 		printFooter();
 		printf("=> 请选择：");
 		if(scanf("%d", &sub) != 1) {
@@ -751,12 +751,12 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 				/* 调用本地判题器 */
 				JudgeSummary js = acm_local_judge(pstart, e);
 				printHeader();
-				printCenter("判题结果");
+				printConsole("判题结果", MARGIN_CENTER);
 				if (js.count == 0) {
 					// printf("=> 未发现 in/ 测试用例 (目录: %s/in)\n", pdir);
 					char buf[512];
 					snprintf(buf, sizeof(buf), "=> 未发现 in/ 测试用例 (目录: %s/in)", pdir);
-					printLeft(buf);
+					printConsole(buf,MARGIN_LEFT);
 					printFooter();
 					goto continueWithWait;
 				}
@@ -769,7 +769,7 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 							{
 								char buf[512];
 								snprintf(buf, sizeof(buf), ANSI_BOLD_GREEN "[AC]" ANSI_FRMT_RESET " 测试点 %d: %s", i+1, ri->message);
-								printLeft(buf);
+								printConsole(buf,MARGIN_LEFT);
 							}
 							break;
 						case JUDGE_RESULT_WRONG_ANSWER:
@@ -777,7 +777,7 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 							{
 								char buf[512];
 								snprintf(buf, sizeof(buf), ANSI_BOLD_RED "[WA]" ANSI_FRMT_RESET " 测试点 %d: %s", i+1, ri->message);
-								printLeft(buf);
+								printConsole(buf,MARGIN_LEFT);
 							}
 							break;
 						case JUDGE_RESULT_RUNTIME_ERROR:
@@ -785,7 +785,7 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 							{
 								char buf[512];
 								snprintf(buf, sizeof(buf), ANSI_BOLD_MAGENTA "[RE]" ANSI_FRMT_RESET " 测试点 %d: %s", i+1, ri->message);
-								printLeft(buf);
+								printConsole(buf,MARGIN_LEFT);
 							}	
 							break;
 						case JUDGE_RESULT_COMPILE_ERROR:
@@ -793,7 +793,7 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 							{
 								char buf[512];
 								snprintf(buf, sizeof(buf), ANSI_BOLD_YELLOW "[CE]" ANSI_FRMT_RESET " 测试点 %d: %s", i+1, ri->message);
-								printLeft(buf);
+								printConsole(buf,MARGIN_LEFT);
 							}
 							break;
 						case JUDGE_RESULT_TIME_LIMIT_EXCEEDED:
@@ -801,7 +801,7 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 							{
 								char buf[512];
 								snprintf(buf, sizeof(buf), ANSI_BOLD_WHITE "[TLE]" ANSI_FRMT_RESET " 测试点 %d: %s", i+1, ri->message);
-								printLeft(buf);
+								printConsole(buf,MARGIN_LEFT);
 							}
 							break;
 						default:
@@ -809,7 +809,7 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 							{
 								char buf[512];
 								snprintf(buf, sizeof(buf), "[?] 测试点 %d: %s", i+1, ri->message);
-								printLeft(buf);
+								printConsole(buf,MARGIN_LEFT);
 							}
 							break;
 					}
@@ -828,11 +828,11 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 				bool txt = fileExists(path);
 				if(txt) { 
 					printHeader();
-					printCenter("解析文件");
+					printConsole("解析文件", MARGIN_CENTER);
 					printDivider();
 					printFileWithLatex(path);
 					printDivider();
-					printCenter("解析结束"); 
+					printConsole("解析结束", MARGIN_CENTER); 
 					printFooter();
 				}
 				else printf("x> 无法读取解析文件：%s\n", path);
@@ -847,12 +847,12 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 				bool srcExist = fileExists(path);
 				if(srcExist) { 
 					printHeader();
-					printCenter("题解文件");
+					printConsole("题解文件", MARGIN_CENTER);
 					printDivider();
 					codeRender_worker(path);
 					puts("");
 					printDivider();
-					printCenter("题解结束");
+					printConsole("题解结束", MARGIN_CENTER);
 					printFooter();
 				}
 				else printf("x> 无法读取题解文件：%s\n", path);
@@ -901,7 +901,7 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 				char header[128];
 				snprintf(header, sizeof(header), " %s 正确样例运行开始 ", e->id);
 				printDivider();
-				printCenter(header);
+				printConsole(header, MARGIN_CENTER);
 				printDivider();
 				fflush(stdout);
 				size_t run_need = 2 + strlen(exePath) + 1;
@@ -916,7 +916,7 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 				}
 				snprintf(header, sizeof(header), " %s 正确样例运行结束 ", e->id);
 				printDivider();
-				printCenter(header);
+				printConsole(header, MARGIN_CENTER);
 				printFooter();
 				remove(exePath);
 			}
@@ -986,22 +986,22 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 			if(found != -1) {
 				
 				printHeader();
-				printCenter("确认删除题目");
+				printConsole("确认删除题目", MARGIN_CENTER);
 				printDivider();
-				printCenter("将要删除如下题目: ");
+				printConsole("将要删除如下题目: ", MARGIN_CENTER);
 				{
 					char IDline[128];
 					snprintf(IDline, sizeof(IDline), "ID: %s", entries[found].id);
-					printLeft(IDline);
+					printConsole(IDline,MARGIN_LEFT);
 					char titleline[512];
 					snprintf(titleline, sizeof(titleline), "标题: %s", entries[found].title);
-					printLeft(titleline);
+					printConsole(titleline,MARGIN_LEFT);
 					char difline[128];
 					snprintf(difline, sizeof(difline), "难度: %s", entries[found].difficulty);
-					printLeft(difline);
+					printConsole(difline,MARGIN_LEFT);
 					char typeline[256];
 					snprintf(typeline, sizeof(typeline), "类型: %s", entries[found].type);
-					printLeft(typeline);
+					printConsole(typeline,MARGIN_LEFT);
 					char probline[512];
 					// snprintf(probline, sizeof(probline), "题目文件: %s", entries[found].problemPath);
 					{
@@ -1018,7 +1018,7 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 							probline[sizeof(probline) - 1] = '\0';
 						}
 					}
-					printLeft(probline);
+					printConsole(probline,MARGIN_LEFT);
 				}
 				printFooter();
 				// printf("将要删除如下题目：\n");
@@ -1068,7 +1068,7 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 			// printf("-------- 题目列表 (%d) ---------\n", cnt);
 			// printf("难度\t\tID\t\t标题\n");
 			printHeader();
-			printCenter("题目列表");
+			printConsole("题目列表", MARGIN_CENTER);
 			printDivider();
 			{
 				char header[128];
@@ -1079,7 +1079,7 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 					, getSpaceContent( "标题",25,MARGIN_LEFT)
 					, getSpaceContent( "类型",25,MARGIN_LEFT)
 				);
-				printLeft(header);
+				printConsole(header,MARGIN_LEFT);
 			}
 			qsort(entries, (size_t)cnt, sizeof(ProblemEntry), compareProblemEntries);
 			for (int i=0;i<cnt;i++) {
@@ -1093,7 +1093,7 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 						, getSpaceContent(entries[i].title	   ,25,MARGIN_LEFT)
 						, getSpaceContent(entries[i].type      ,25,MARGIN_LEFT)
 					);
-					printLeft(line);
+					printConsole(line,MARGIN_LEFT);
 					free(line);
 				} else {
 					/* 内存分配失败则退回到安全的本地缓冲区拼接（不会丢弃太多） */
@@ -1105,7 +1105,7 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 						strncat(buf, entries[i].title, rem);
 					}
 					// 添加类型可能被截断
-					printLeft(buf);
+					printConsole(buf,MARGIN_LEFT);
 				}
 			}
 			printFooter();
@@ -1217,7 +1217,7 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 			{
 				char buf[64];
 				snprintf(buf, sizeof(buf), "搜索结果 (%d)", rcount);
-				printCenter(buf);
+				printConsole(buf, MARGIN_CENTER);
 			}
 			
 			printDivider();
@@ -1229,7 +1229,7 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 				, getSpaceContent( "标题",25,MARGIN_LEFT)
 				, getSpaceContent( "类型",25,MARGIN_LEFT)
 			);
-			printLeft(header);
+			printConsole(header,MARGIN_LEFT);
 			for (int i=0;i<rcount;i++) {
 				// 将高亮标题写入缓冲并构造整行，保证标题列使用固定可见宽度以对齐难度列
 				const char* title = results[i].title ? results[i].title : "";
@@ -1302,7 +1302,7 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 						if(rem + tcopy + 1 < need) memcpy(line + rem, typebuf, tcopy), rem += tcopy, line[rem] = '\0';
 						free(typebuf);
 					}
-					printLeft(line);
+					printConsole(line,MARGIN_LEFT);
 					free(line);
 				}
 			}
