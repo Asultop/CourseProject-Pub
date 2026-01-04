@@ -1051,7 +1051,13 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 			printDivider();
 			{
 				char header[128];
-				snprintf(header, sizeof(header), "%-12s %-8s %-25s %s", "难度", "ID", "标题", "类型");
+				snprintf(header, sizeof(header)
+					, "%s %s %s %s"
+					, getSpaceContent( "难度",12,MARGIN_LEFT)
+					, getSpaceContent( "ID"  ,8 ,MARGIN_LEFT)
+					, getSpaceContent( "标题",25,MARGIN_LEFT)
+					, getSpaceContent( "类型",25,MARGIN_LEFT)
+				);
 				printLeft(header);
 			}
 			qsort(entries, (size_t)cnt, sizeof(ProblemEntry), compareProblemEntries);
@@ -1060,7 +1066,12 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 				size_t need = strlen(entries[i].difficulty) + 1 + strlen(entries[i].id) + 1 + strlen(entries[i].title) + 1 + strlen(entries[i].type) + 64;
 				char *line = (char*)malloc(need);
 				if(line) {
-					snprintf(line, need, "%-12s %-8s %-25s %s", entries[i].difficulty, entries[i].id, entries[i].title, entries[i].type);
+					snprintf(line, need, "%s %s %s %s"
+						, getSpaceContent(entries[i].difficulty,12,MARGIN_LEFT)
+						, getSpaceContent(entries[i].id		   ,8 ,MARGIN_LEFT)
+						, getSpaceContent(entries[i].title	   ,25,MARGIN_LEFT)
+						, getSpaceContent(entries[i].type      ,25,MARGIN_LEFT)
+					);
 					printLeft(line);
 					free(line);
 				} else {
@@ -1190,7 +1201,13 @@ void interactiveProblemBank(const char* problemsDir, UsrProfile * currentUser) {
 			
 			printDivider();
 			char header[128];
-			snprintf(header, sizeof(header), "%-12s %-8s %-25s %s", "难度", "ID", "标题", "类型");
+			snprintf(header, sizeof(header)
+				, "%s %s %s %s"
+				, getSpaceContent( "难度",12,MARGIN_ELSE)
+				, getSpaceContent( "ID"  ,8 ,MARGIN_LEFT)
+				, getSpaceContent( "标题",25,MARGIN_LEFT)
+				, getSpaceContent( "类型",25,MARGIN_LEFT)
+			);
 			printLeft(header);
 			for (int i=0;i<rcount;i++) {
 				// 将高亮标题写入缓冲并构造整行，保证标题列使用固定可见宽度以对齐难度列
