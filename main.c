@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <assert.h>
 #include "src-extends/championHistoryColManager.h"
 #include "src-extends/passwordInputSimulator.h"
 #include "src-extends/problemBankManager.h"
@@ -20,6 +21,44 @@
 void cleanBuffer(void);
 void cleanScreen(void);
 void pauseScreen(void);
+
+// ========== 全局变量定义 ==========
+UsrProfile globalUserGroup[MAX_USER_COUNT]={0};
+UsrProfile currentUser={0};
+
+// ========== 动态刷新回调定义 ==========
+// 当前界面类型枚举
+typedef enum {
+    SCREEN_SPLASH,      // 登录界面
+    SCREEN_MAIN,        // 主界面
+    SCREEN_ACM_DETAIL,  // ACM 详情界面
+    SCREEN_PROBLEM_BANK // 题库界面
+} CurrentScreenType;
+
+static CurrentScreenType g_currentScreen = SCREEN_SPLASH;
+
+// 前向声明
+void refreshCurrentScreen(void);
+
+// 动态刷新回调函数
+void refreshCurrentScreen(void) {
+    cleanScreen();
+    switch (g_currentScreen) {
+        case SCREEN_SPLASH:
+            printSplashScreen();
+            break;
+        case SCREEN_MAIN:
+            printMainScreen(currentUser.name);
+            break;
+        case SCREEN_ACM_DETAIL:
+            printACMDetailScreen();
+            break;
+        case SCREEN_PROBLEM_BANK:
+            printACMProblemBankScreen(currentUser.name);
+            break;
+    }
+    fflush(stdout);
+}
 
 
 void displayFileContent(const char* filepath){
@@ -43,6 +82,7 @@ void displayFileContent(const char* filepath){
     pauseScreen();
 }
 void getInACMIntroduction(){
+    g_currentScreen = SCREEN_ACM_DETAIL;
     while(true){
         cleanScreen();
         printACMDetailScreen();
@@ -73,6 +113,7 @@ void getInACMIntroduction(){
                 break;
                 
             case 0:
+                g_currentScreen = SCREEN_MAIN;  // 返回主界面时恢复状态
                 return;
             default:
                 printf("?> 无效的选择，请重新输入。\n");
@@ -81,8 +122,6 @@ void getInACMIntroduction(){
     }
 }
 
-UsrProfile globalUserGroup[MAX_USER_COUNT]={0};
-UsrProfile currentUser={0};
 bool envCheck(void);
 void initDataBase(void);
 // ========== 环境初始化模块 ==========
@@ -107,6 +146,24 @@ bool tryRepairEnvironment(void){
 }
 
 bool initEnvironment(void){
+    assert(MAX_USER_COUNT > 0 ); // 用户数检查
+    assert(SCREEN_CHAR_WIDTH > 0 || SCREEN_CHAR_WIDTH == -1 ); // 屏幕宽度检查
+    assert(MAX_MESSAGE_LEN > 0 ); // 消息长度检查
+    assert(MAX_NAME_LEN > 0 ); // 用户名长度检查
+    assert(MAX_PASSWORD_LEN > 0 ); // 密码长度检查
+    assert(SCREEN_CHAR_WIDTH == -1 || SCREEN_MARGIN_LEFT + SCREEN_MARGIN_RIGHT < SCREEN_CHAR_WIDTH ); // 屏幕边距检查
+    assert(MAX_PROBLEMS > 0 ); // 题目数量检查
+    assert(MAX_JUDGES_PER_PROBLEM > 0 ); // 判题数量检查
+    assert(MAX_JUDGES_TIMELIMIT_MSEC > 0 ); // 判题时间限制检查
+    assert(MAX_MESSAGE_LEN > 20 ); // 消息长度下限检查
+    assert(MAX_NAME_LEN > 10 ); // 用户名长度下限检查
+    assert(MAX_PASSWORD_LEN > 10 ); // 密码长度下限检查
+    assert(RETRY_DELAY_SECONDS > 0 ); // 重试延时检查
+    assert(SLOW_TRY_LIMIT > 0 ); // 慢速重试限制检查
+    assert(MAX_TRY_COUNT > 0 ); // 最大重试次数检查
+    assert(CAPTCHA_RETRY_LIMIT > 0 ); // 验证码重试限制检查
+    assert(MAX_CHAMPION_RECORDS > 0 ); // 冠军记录数量检查
+
     if(!envCheck()){
         if(!tryRepairEnvironment()){
             return false;
@@ -190,6 +247,7 @@ SplashResult handleSplashChoice(int choice){
 }
 
 bool runSplashScreen(void){
+    g_currentScreen = SCREEN_SPLASH;
     while(true){
         cleanScreen();
         printSplashScreen();
@@ -239,6 +297,7 @@ MainMenuResult handleMainMenuChoice(int choice){
 }
 
 void runMainMenu(void){
+    g_currentScreen = SCREEN_MAIN;
     while(true){
         cleanScreen();
         printMainScreen(currentUser.name);
@@ -345,6 +404,11 @@ int main(int argc, char *argv[]){
         exit(EXIT_FAILURE);
     }
     
+    // 启用动态刷新（当 SCREEN_CHAR_WIDTH == -1 时生效）
+    if (SCREEN_CHAR_WIDTH == -1) {
+        enableDynamicRefresh(refreshCurrentScreen);
+    }
+    
     // 主程序循环：登录界面 -> 主界面 -> 注销后返回登录界面
     while(true){
         // 登录/注册界面
@@ -357,6 +421,11 @@ int main(int argc, char *argv[]){
         
         // 注销后清屏，继续循环回到登录界面
         cleanScreen();
+    }
+    
+    // 禁用动态刷新
+    if (SCREEN_CHAR_WIDTH == -1) {
+        disableDynamicRefresh();
     }
     
     return 0;

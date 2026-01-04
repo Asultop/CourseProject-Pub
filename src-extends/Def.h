@@ -76,8 +76,8 @@
 #define COLOR_DEFAULT           rgb(204, 204, 204) ANSI_FRMT_RESET
 
 
-// 屏幕尺寸定义
-#define SCREEN_CHAR_WIDTH 100
+// 屏幕尺寸定义 (无符号类型 -1: 跟随终端宽度)
+#define SCREEN_CHAR_WIDTH -1
 // 左右Margin
 #define SCREEN_MARGIN_LEFT 1
 #define SCREEN_MARGIN_RIGHT 1

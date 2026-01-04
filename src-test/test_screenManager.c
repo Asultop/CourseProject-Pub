@@ -5,8 +5,13 @@
 #include "../src-extends/Def.h"
 #include "../src-extends/chineseSupport.h"
 #include "../src-extends/colorPrint.h"
+#include <sys/ioctl.h>
+#include <unistd.h>
 int main(){
-
+    struct winsize w;
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == 0 && w.ws_col > 0) {
+        printf("ws.col:%d\nws.row:%d\n", w.ws_col, w.ws_row);
+    }
     printHeader();
     printContent("This is a test content line.");
     printContent("中文测试内容行");

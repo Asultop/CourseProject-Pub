@@ -2,6 +2,91 @@
 #include "chineseSupport.h"
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include <signal.h>
+#endif
+
+// ============== 动态刷新相关 ==============
+static ScreenRefreshCallback g_refreshCallback = NULL;
+static volatile sig_atomic_t g_needRefresh = 0;
+
+#ifndef _WIN32
+// SIGWINCH 信号处理函数
+static void sigwinchHandler(int sig) {
+    (void)sig;
+    g_needRefresh = 1;
+    // 在信号处理中直接调用重绘（注意：复杂场景可能需要在主循环中检查标志）
+    if (g_refreshCallback != NULL) {
+        g_refreshCallback();
+    }
+}
+#endif
+
+// 启用动态刷新
+void enableDynamicRefresh(ScreenRefreshCallback callback) {
+    g_refreshCallback = callback;
+#ifndef _WIN32
+    struct sigaction sa;
+    sa.sa_handler = sigwinchHandler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+    sigaction(SIGWINCH, &sa, NULL);
+#endif
+}
+
+// 禁用动态刷新
+void disableDynamicRefresh() {
+    g_refreshCallback = NULL;
+#ifndef _WIN32
+    signal(SIGWINCH, SIG_DFL);
+#endif
+}
+
+// 设置重绘回调
+void setRefreshCallback(ScreenRefreshCallback callback) {
+    g_refreshCallback = callback;
+}
+
+// 手动触发刷新
+void triggerRefresh() {
+    if (g_refreshCallback != NULL) {
+        g_refreshCallback();
+    }
+}
+
+// 检查是否需要刷新（用于主循环轮询模式）
+int checkAndClearRefreshFlag() {
+    if (g_needRefresh) {
+        g_needRefresh = 0;
+        return 1;
+    }
+    return 0;
+}
+
+// ============== 屏幕宽度获取 ==============
+// 获取当前屏幕宽度，若 SCREEN_CHAR_WIDTH 为 -1 则动态获取终端宽度
+int getScreenWidth() {
+    if (SCREEN_CHAR_WIDTH != -1) {
+        return SCREEN_CHAR_WIDTH;
+    }
+#ifdef _WIN32
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) {
+        return csbi.srWindow.Right - csbi.srWindow.Left + 1;
+    }
+    return 80; // 默认宽度
+#else
+    struct winsize w;
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == 0 && w.ws_col > 0) {
+        return w.ws_col;
+    }
+    return 80; // 默认宽度
+#endif
+}
 
 extern void cleanBuffer(){
     char c;
@@ -22,7 +107,8 @@ extern void pauseScreen() {
 }
 extern void cleanLine(){
     printf("\r");
-    for(int i = 0; i < SCREEN_CHAR_WIDTH; i++){
+    int width = getScreenWidth();
+    for(int i = 0; i < width; i++){
         printf(" ");
     }
     printf("\r");
@@ -76,7 +162,8 @@ void printMainScreen(const char * username){
     printHeader();
     printConsole("ACM 竞赛管理与训练系统", MARGIN_CENTER);
     printDivider();
-    char userLine[SCREEN_CHAR_WIDTH];
+    int screenWidth = getScreenWidth();
+    char userLine[screenWidth > 0 ? screenWidth : 256];
     snprintf(userLine, sizeof(userLine), "用户: %s", username);
     printConsole(userLine, MARGIN_LEFT);
     printDivider();
@@ -127,7 +214,8 @@ void printACMProblemBankScreen(const char * currentUser){
     printHeader();
     printConsole("ACM 题库", MARGIN_CENTER);
     printDivider();
-    char userLine[SCREEN_CHAR_WIDTH];
+    int screenWidth = getScreenWidth();
+    char userLine[screenWidth > 0 ? screenWidth : 256];
     snprintf(userLine, sizeof(userLine), "当前用户: %s", currentUser);
     printConsole(userLine, MARGIN_LEFT);
     printDivider();
@@ -141,28 +229,32 @@ void printACMProblemBankScreen(const char * currentUser){
     printf("=> 请输入选项：[ ]\b\b");
 }
 void printHeader(){
+    int width = getScreenWidth();
     printf("╔");
-    for(int i = 0; i < SCREEN_CHAR_WIDTH -2; i++){
+    for(int i = 0; i < width - 2; i++){
         printf("═");
     }
     printf("╗\n");
 }
 void printFooter(){
+    int width = getScreenWidth();
     printf("╚");
-    for(int i = 0; i < SCREEN_CHAR_WIDTH -2; i++){
+    for(int i = 0; i < width - 2; i++){
         printf("═");
     }
     printf("╝\n");
 }
 void printDivider(){
+    int width = getScreenWidth();
     printf("╠");
-    for(int i = 0; i < SCREEN_CHAR_WIDTH -2; i++){
+    for(int i = 0; i < width - 2; i++){
         printf("─");
     }
     printf("╣\n");
 }
 void printCenter(const char* content){
-    int innerWidth = SCREEN_CHAR_WIDTH - 2; // 去掉左右边框
+    int width = getScreenWidth();
+    int innerWidth = width - 2; // 去掉左右边框
     int avail = innerWidth; // center 不应用左右 margin
     if(avail <= 0){
         printf("║");
@@ -193,7 +285,8 @@ void printCenter(const char* content){
     printf("║\n");
 }
 void printLeft(const char* content){
-    int innerWidth = SCREEN_CHAR_WIDTH - 2;
+    int width = getScreenWidth();
+    int innerWidth = width - 2;
     int avail = innerWidth - SCREEN_MARGIN_LEFT - SCREEN_MARGIN_RIGHT;
     if(avail <= 0){
         printf("║"); for(int i=0;i<innerWidth;i++) putchar(' '); printf("║\n"); return;
@@ -223,7 +316,8 @@ void printLeft(const char* content){
     printf("║\n");
 }
 void printRight(const char* content){
-    int innerWidth = SCREEN_CHAR_WIDTH - 2;
+    int width = getScreenWidth();
+    int innerWidth = width - 2;
     int avail = innerWidth - SCREEN_MARGIN_LEFT - SCREEN_MARGIN_RIGHT;
     if(avail <= 0){
         printf("║"); for(int i=0;i<innerWidth;i++) putchar(' '); printf("║\n"); return;
@@ -251,12 +345,13 @@ void printRight(const char* content){
 }
 void printContent(const char* content){
     // 存在中文
+    int width = getScreenWidth();
     if(content == NULL){
-        int innerWidth = SCREEN_CHAR_WIDTH - 2;
+        int innerWidth = width - 2;
         printf("║"); for(int i=0;i<innerWidth;i++) putchar(' '); printf("║\n");
         return;
     }
-    int innerWidth = SCREEN_CHAR_WIDTH - 2;
+    int innerWidth = width - 2;
     int avail = innerWidth; // content 不应用左右 margin
     if(avail <= 0){ printf("║"); for(int i=0;i<innerWidth;i++) putchar(' '); printf("║\n"); return; }
     int visible = (int)get_real_Length(content, NULL);
