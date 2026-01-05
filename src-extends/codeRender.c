@@ -1,6 +1,7 @@
 #define _XOPEN_SOURCE 700  // 启用POSIX扩展，兼容
 #include "codeRender.h"
 #include "chineseSupport.h"
+#include "screenManager.h"
 #include "fileHelper.h"
 #include <libgen.h>
 #include <limits.h>
@@ -341,6 +342,14 @@ static void render_cpp_line(const char* restrict line, int* restrict in_multi_co
     char quote = '\0';
     char tokenbuf[512]; tokenbuf[0] = '\0';
 
+    // 输出缓冲区，累积所有输出，最后一次性打印
+    char buf[8192];
+    size_t off = 0;
+    #define BUF_APPEND(...) do { \
+        int _n = snprintf(buf + off, sizeof(buf) - off, __VA_ARGS__); \
+        if (_n > 0 && off + (size_t)_n < sizeof(buf)) off += (size_t)_n; \
+    } while(0)
+
     // 遍历直到遇到 "EOL" 标记（不包含 EOL 本身）
     for (size_t i = 0; units[i] && strcmp(units[i], "EOL") != 0; ++i) {
         const char *cur = units[i];
@@ -353,31 +362,27 @@ static void render_cpp_line(const char* restrict line, int* restrict in_multi_co
 
         // 多行注释状态
         if (*in_multi_comment) {
-            printf("%s%s%s", COLOR_COMMENT, cur, COLOR_DEFAULT);
+            BUF_APPEND("%s%s%s", COLOR_COMMENT, cur, COLOR_DEFAULT);
             // 检查结束 */（下一个单元为 '/'）
             if (is_ascii && c == '*' && next && next[0] == '/' && next[1] == '\0') {
-                printf("%s", units[++i]);
+                BUF_APPEND("%s", units[++i]);
                 *in_multi_comment = 0;
-                printf(COLOR_DEFAULT);
+                BUF_APPEND(COLOR_DEFAULT);
             }
             continue;
-        }
-
-        if (in_single_comment) {
-            printf("%s%s%s", COLOR_COMMENT, cur, COLOR_DEFAULT);
+        } else if (in_single_comment) {
+            BUF_APPEND("%s%s%s", COLOR_COMMENT, cur, COLOR_DEFAULT);
             continue;
-        }
-
-        if (in_string) {
-            printf("%s%s%s", COLOR_STRING, cur, COLOR_DEFAULT);
+        } else if (in_string) {
+            BUF_APPEND("%s%s%s", COLOR_STRING, cur, COLOR_DEFAULT);
             // 处理转义：如果为 '\\' 且下一个存在，则打印下一个并跳过
             if (is_ascii && c == '\\' && next) {
-                printf("%s%s%s", COLOR_STRING, next, COLOR_DEFAULT);
+                BUF_APPEND("%s%s%s", COLOR_STRING, next, COLOR_DEFAULT);
                 i++;
             }
             if (is_ascii && c == quote) {
                 in_string = 0;
-                printf(COLOR_DEFAULT);
+                BUF_APPEND(COLOR_DEFAULT);
             }
             continue;
         }
@@ -387,41 +392,41 @@ static void render_cpp_line(const char* restrict line, int* restrict in_multi_co
             // 多行注释起始 /*
             if (c == '/' && next && next[0] == '*' && next[1] == '\0') {
                 //  刷新 tokenbuf
-                if (tokenbuf[0]) { printf("%s", tokenbuf); tokenbuf[0] = '\0'; }
-                printf("%s/*", COLOR_COMMENT);
+                if (tokenbuf[0]) { BUF_APPEND("%s", tokenbuf); tokenbuf[0] = '\0'; }
+                BUF_APPEND("%s/*", COLOR_COMMENT);
                 *in_multi_comment = 1;
                 i++; // 跳过 '*'
                 continue;
             }
             // 单行注释起始 //
-            if (c == '/' && next && next[0] == '/' && next[1] == '\0') {
-                if (tokenbuf[0]) { printf("%s", tokenbuf); tokenbuf[0] = '\0'; }
-                printf("%s//", COLOR_COMMENT);
+            else if (c == '/' && next && next[0] == '/' && next[1] == '\0') {
+                if (tokenbuf[0]) { BUF_APPEND("%s", tokenbuf); tokenbuf[0] = '\0'; }
+                BUF_APPEND("%s//", COLOR_COMMENT);
                 in_single_comment = 1;
                 i++;
                 continue;
             }
             // 预处理指令 (#) — 判断行首非空白
-            if (c == '#') {
+            else if (c == '#') {
                 // 检查前面是否只有空白
                 int only_ws = 1;
                 // 扫描前面的单元
                 for (size_t k = 0; k < i; ++k) { if (!(units[k][0] == ' ' && units[k][1] == '\0') && !(units[k][0] == '\t' && units[k][1] == '\0')) { only_ws = 0; break; } }
                 if (only_ws) {
-                    if (tokenbuf[0]) { printf("%s", tokenbuf); tokenbuf[0] = '\0'; }
-                    printf("%s", COLOR_PREPROCESSOR);
+                    if (tokenbuf[0]) { BUF_APPEND("%s", tokenbuf); tokenbuf[0] = '\0'; }
+                    BUF_APPEND("%s", COLOR_PREPROCESSOR);
                     // print remaining units until EOL
                     for (size_t k = i; units[k] && strcmp(units[k], "EOL") != 0; ++k) {
-                        printf("%s", units[k]);
+                        BUF_APPEND("%s", units[k]);
                     }
-                    printf(COLOR_DEFAULT);
+                    BUF_APPEND(COLOR_DEFAULT);
                     break;
                 }
             }
             // 字符串起始
-            if (c == '"' || c == '\'') {
-                if (tokenbuf[0]) { printf("%s", tokenbuf); tokenbuf[0] = '\0'; }
-                printf("%s%c", COLOR_STRING, c);
+            else if (c == '"' || c == '\'') {
+                if (tokenbuf[0]) { BUF_APPEND("%s", tokenbuf); tokenbuf[0] = '\0'; }
+                BUF_APPEND("%s%c", COLOR_STRING, c);
                 in_string = 1; quote = c;
                 continue;
             }
@@ -438,22 +443,40 @@ static void render_cpp_line(const char* restrict line, int* restrict in_multi_co
             // flush tokenbuf
             if (tokenbuf[0]) {
                 // 判断类型并高亮
-                if (is_cpp_type(tokenbuf) || is_known_type(tokenbuf)) printf("%s%s%s", COLOR_TYPE, tokenbuf, COLOR_DEFAULT);
-                else if (is_cpp_keyword(tokenbuf)) printf("%s%s%s", COLOR_KEYWORD, tokenbuf, COLOR_DEFAULT);
-                else if (is_number(tokenbuf)) printf("%s%s%s", COLOR_NUMBER, tokenbuf, COLOR_DEFAULT);
-                else if (is_variable(tokenbuf)) printf("%s%s%s", COLOR_VARIABLE, tokenbuf, COLOR_DEFAULT);
-                else printf("%s", tokenbuf);
+                if (is_cpp_type(tokenbuf) || is_known_type(tokenbuf)) {
+                    BUF_APPEND("%s%s%s", COLOR_TYPE, tokenbuf, COLOR_DEFAULT);
+                } else if (is_cpp_keyword(tokenbuf)) {
+                    BUF_APPEND("%s%s%s", COLOR_KEYWORD, tokenbuf, COLOR_DEFAULT);
+                } else if (is_number(tokenbuf)) {
+                    BUF_APPEND("%s%s%s", COLOR_NUMBER, tokenbuf, COLOR_DEFAULT);
+                } else if (is_variable(tokenbuf)) {
+                    BUF_APPEND("%s%s%s", COLOR_VARIABLE, tokenbuf, COLOR_DEFAULT);
+                } else {
+                    BUF_APPEND("%s", tokenbuf);
+                }
                 tokenbuf[0] = '\0';
             }
             // 输出当前单元
             if (is_ascii) {
-                if (is_operator(c)) printf("%s%c%s", COLOR_OPERATOR, c, COLOR_DEFAULT);
-                else printf("%c", c);
+                if (is_operator(c)) {
+                    BUF_APPEND("%s%c%s", COLOR_OPERATOR, c, COLOR_DEFAULT);
+                } else {
+                    BUF_APPEND("%c", c);
+                }
             } else {
                 // 多字节或转义序列直接输出（不做运算符判断）
-                printf("%s", cur);
+                BUF_APPEND("%s", cur);
             }
         }
+    }
+
+    #undef BUF_APPEND
+
+
+    // 一次性输出整个缓冲区
+    if (off > 0) {
+        printf("║ %s", buf);
+        // printConsole(buf, MARGIN_LEFT);
     }
 
     freeProcessedChars(units);

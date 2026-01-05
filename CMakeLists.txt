@@ -27,8 +27,10 @@ set(SOURCES
 set(TEST_RENDERER_SOURCES
 	src-extends/chineseSupport.c
 	src-test/test_codeRender.c
+	src-extends/screenManager.c
 	src-extends/codeRender.c
 	src-extends/fileHelper.c
+	src-extends/colorPrint.c
 )
 set(TEST_CHINESE_SOURCES
 	src-test/test_chineseSupport.c
