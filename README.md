@@ -3,6 +3,12 @@
 # 快速开始编译
 
 
+## 快速构建所有 （使用 run.sh 脚本）
+```bash
+chmod +x ./run.sh
+./run.sh
+```
+
 ## 预先
 ```bash
 git clone https://github.com/Asultop/CourseProject-Pub -b master 
@@ -30,6 +36,7 @@ make tool
 ```bash
 make test -j$(nproc)
 ```
+
 
 
 
