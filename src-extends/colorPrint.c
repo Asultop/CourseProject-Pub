@@ -1,4 +1,6 @@
 #include "colorPrint.h"
+#include "Def.h"
+#include <time.h>
 
 char * rainbowStringGenerator(size_t length){ // 带 ANSI 真彩色
     if(length == 0) return NULL;
@@ -42,6 +44,10 @@ char * rainbowStringGenerator(size_t length){ // 带 ANSI 真彩色
 //     return result;
 // }
 char * rainbowizeString(const char * input){
+
+    if(!RTXON)
+        return input ? strdup(input) : NULL;
+
     if(!input) return NULL;
     size_t len = strlen(input);
     size_t alloc = len * 16 + 5;
@@ -54,10 +60,17 @@ char * rainbowizeString(const char * input){
         return NULL;
     }
     size_t pos = 0;
+    #ifdef RANDOM_RTX_OFFSET
+    srand((unsigned int)time(NULL));
+    int random_offset = rand() % 100;
+    #else
+    int random_offset = 0;
+    #endif
+
     for(size_t i = 0; tokens[i] != NULL && strcmp(tokens[i], "EOL") != 0; i++){
-        int r = (int)(127 + 128 * sin(0.3 * i + 0));
-        int g = (int)(127 + 128 * sin(0.3 * i + 2));
-        int b = (int)(127 + 128 * sin(0.3 * i + 4));
+        int r = (int)(127 + 128 * sin(0.1 * (i + random_offset) + 0));
+        int g = (int)(127 + 128 * sin(0.1 * (i + random_offset) + 2));
+        int b = (int)(127 + 128 * sin(0.1 * (i + random_offset) + 4));
         /* 安全追加：确保不越界 */
         if (pos + 32 >= alloc) {
             /* 扩容 */

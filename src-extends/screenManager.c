@@ -1,5 +1,6 @@
 #include "screenManager.h"
 #include "chineseSupport.h"
+#include "colorPrint.h"
 #include <stdio.h>
 #include <stdlib.h>
 #ifdef _WIN32
@@ -386,7 +387,7 @@ void printConsole(const char *contentLine, PrintMarginType marginType){
             printLeft(contentLine);
             break;
         case MARGIN_CENTER:
-            printCenter(contentLine);
+            printCenter(rainbowizeString(contentLine));
             break;
         case MARGIN_RIGHT:
             printRight(contentLine);

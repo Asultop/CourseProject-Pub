@@ -78,6 +78,9 @@
 
 // 屏幕尺寸定义 (无符号类型 -1: 跟随终端宽度)
 #define SCREEN_CHAR_WIDTH -1
+// 开启 ColorPrint
+#define RTXON 1
+#define RANDOM_RTX_OFFSET // 注释则不开启
 // 左右Margin
 #define SCREEN_MARGIN_LEFT 1
 #define SCREEN_MARGIN_RIGHT 1
