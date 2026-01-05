@@ -814,7 +814,7 @@ static void problemDetailMenu(const char* problemsDir, const ProblemEntry* e) {
 							}
 							break;
 					}
-					printConsole(buf,MARGIN_CENTER);
+					printConsole(buf,MARGIN_LEFT);
 						
 					if(i < js.count - 1) printDivider();
 				}
