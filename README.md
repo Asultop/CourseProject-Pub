@@ -3,10 +3,10 @@
 # 快速开始编译
 
 
-## 快速构建所有 （使用 run.sh 脚本）
+## 快速构建所有 （使用 build.sh 脚本）
 ```bash
-chmod +x ./run.sh
-./run.sh
+chmod +x ./build.sh
+./build.sh
 ```
 
 ## 预先
@@ -37,7 +37,11 @@ make tool
 make test -j$(nproc)
 ```
 
-
+## 运行测试 (course_project 测试)
+```bash
+chmod +x ./run.sh
+./run.sh 
+```
 
 
 

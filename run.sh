@@ -1,7 +1,5 @@
 #!/bin/bash
-mkdir -p ./build
-cd ./build
-cmake ..
-make all -j$(nproc)
-cd ..
-echo 构建成功
+./build/course_project
+echo
+echo
+echo "[ === 运行结束 === ]"
