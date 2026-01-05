@@ -1,5 +1,5 @@
-#include <iostream>
+#include <stdio.h>
 int main(){
     int a[5]={1,2,3,4,5};
-    std::cout<< a[114514];
+    printf("%d",a[114514]);
 }
