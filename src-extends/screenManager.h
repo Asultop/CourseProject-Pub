@@ -18,6 +18,7 @@ void resumeDynamicRefresh();                                 // 恢复动态刷�
 void setRefreshCallback(ScreenRefreshCallback callback);     // 设置重绘回调
 void triggerRefresh();                                       // 手动触发刷新
 
+void printStartAnima();
 void printSplashScreen();
 void printMainScreen(const char * username);
 void printACMDetailScreen();

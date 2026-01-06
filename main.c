@@ -421,6 +421,10 @@ int main(int argc, char *argv[]){
     (void)argc; // 标记参数未使用
     (void)argv;
     
+    cleanScreen();
+    printStartAnima();
+    sleep(2);
+
     // 初始化环境
     if(!initEnvironment()){
         exit(EXIT_FAILURE);

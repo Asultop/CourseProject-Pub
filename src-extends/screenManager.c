@@ -3,10 +3,14 @@
 #include "colorPrint.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <error.h>
+#include <time.h>
 #ifdef _WIN32
 #include <windows.h>
 #else
 #include <sys/ioctl.h>
+#include <sys/time.h>
+#include <sys/select.h>
 #include <unistd.h>
 #include <signal.h>
 #endif
@@ -27,6 +31,14 @@ static void sigwinchHandler(int sig) {
     }
 }
 #endif
+
+void msleep(unsigned int milliseconds) {
+    struct timeval tv;
+    tv.tv_sec = milliseconds / 1000;
+    tv.tv_usec = (milliseconds % 1000) * 100; // 自定义
+    select(0, NULL, NULL, NULL, &tv);
+}
+
 
 // 启用动态刷新
 void enableDynamicRefresh(ScreenRefreshCallback callback) {
@@ -134,6 +146,76 @@ void moveUp(size_t lines){
 void moveDown(size_t lines){
     if(lines == 0) return;
     printf("\033[%zuB", lines);
+}
+void printStartAnima(){
+    /*
+    _____/\/\________/\/\/\/\/\__/\/\______/\/\_
+    ___/\/\/\/\____/\/\__________/\/\/\__/\/\/\_
+    _/\/\____/\/\__/\/\__________/\/\/\/\/\/\/\_
+    _/\/\/\/\/\/\__/\/\__________/\/\__/\__/\/\_
+    _/\/\____/\/\____/\/\/\/\/\__/\/\______/\/\_
+    ____________________________________________
+    */
+    char * line1 = justRainbowizeString("|| _____/\\/\\________/\\/\\/\\/\\/\\__/\\/\\______/\\/\\_ ||",0);
+    char * line2 = justRainbowizeString("|| ___/\\/\\/\\/\\____/\\/\\__________/\\/\\/\\__/\\/\\/\\_ ||",0);
+    char * line3 = justRainbowizeString("|| _/\\/\\____/\\/\\__/\\/\\__________/\\/\\/\\/\\/\\/\\/\\_ ||",0);
+    char * line4 = justRainbowizeString("|| _/\\/\\/\\/\\/\\/\\__/\\/\\__________/\\/\\__/\\__/\\/\\_ ||",0);
+    char * line5 = justRainbowizeString("|| _/\\/\\____/\\/\\____/\\/\\/\\/\\/\\__/\\/\\______/\\/\\_ ||",0);
+
+    // char line1[1024] = "_____%s________%s__%s______%s_"
+    //     ,line2[1024] = "___%s____%s__________%s__%s_"
+    //     ,line3[1024] = "_%s____%s__%s__________%s_"
+    //     ,line4[1024] = "_%s__%s__________%s__%s__%s_"
+    //     ,line5[1024] = "_%s____%s____%s__%s______%s_";
+    // snprintf(line1, sizeof(line1), justRainbowizeString("/\\/\\",0) 
+    //             , justRainbowizeString("/\\/\\/\\/\\/\\",0) 
+    //             , justRainbowizeString("/\\/\\",0) , justRainbowizeString("/\\/\\",2)
+    //         );
+    // snprintf(line2, sizeof(line2), justRainbowizeString("/\\/\\/\\/\\",0) 
+    //             , justRainbowizeString("/\\/\\",0) 
+    //             , justRainbowizeString("/\\/\\/\\",0) , justRainbowizeString("/\\/\\/\\",3)
+    //         );
+    // snprintf(line3, sizeof(line3), justRainbowizeString("/\\/\\",0) , justRainbowizeString("/\\/\\",2) 
+    //             , justRainbowizeString("/\\/\\",0) , justRainbowizeString("/\\/\\/\\/\\/\\/\\/\\",0)
+    //         );
+    // snprintf(line4, sizeof(line4), justRainbowizeString("/\\/\\/\\/\\/\\/\\",0) 
+    //             , justRainbowizeString("/\\/\\",0) 
+    //             , justRainbowizeString("/\\/\\",0) , justRainbowizeString("/\\",2) , justRainbowizeString("/\\/\\",3)
+    //         );
+    // snprintf(line5, sizeof(line5), justRainbowizeString("/\\/\\",0) , justRainbowizeString("/\\/\\",2) 
+    //             , justRainbowizeString("/\\/\\/\\/\\/\\",0) 
+    //             , justRainbowizeString("/\\/\\",0) , justRainbowizeString("/\\/\\",2)
+    //         );
+    printHeader();
+    printCenter(rainbowizeString("欢迎使用 —— 在线评测系统"));
+    printDivider();
+    printCenter(line1);
+    printCenter(line2);
+    printCenter(line3);
+    printCenter(line4);
+    printCenter(line5);
+    printDivider();
+    printConsole(rainbowizeString("ACM 竞赛管理与训练系统 V1.0 正在启动中..."),MARGIN_LEFT);
+    printDivider();
+    
+    for(int i = 0; i <= getScreenWidth() - SCREEN_MARGIN_LEFT - SCREEN_MARGIN_RIGHT - 2*2; i++){
+        msleep(i);
+        char buf[getScreenWidth() + 5];
+        for(int j = 0; j <= i; j++){
+            buf[j] = '=';
+        }
+        buf[i+1] = '>';
+        buf[i+2] = '\0';
+        printConsole(justRainbowizeString(buf, 0),MARGIN_LEFT);
+        printFooter();
+        moveUp(2);
+    }
+    moveDown(2);
+    free(line1);
+    free(line2);
+    free(line3);
+    free(line4);
+    free(line5);
 }
 void printSplashScreen(){
     // puts("╔════════════════════════════════════════╗");

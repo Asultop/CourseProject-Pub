@@ -67,10 +67,27 @@ char * rainbowizeString(const char * input){
     int random_offset = 0;
     #endif
 
+    return justRainbowizeString(input, random_offset);
+}
+char * justRainbowizeString(const char * input,int seed){
+
+    if(!input) return NULL;
+    size_t len = strlen(input);
+    size_t alloc = len * 16 + 5;
+    char * result = (char*)malloc(alloc);
+    if(!result) return NULL;
+    result[0] = '\0';
+    char ** tokens = processRawChar(input);
+    if(!tokens) {
+        free(result);
+        return NULL;
+    }
+    size_t pos = 0;
+
     for(size_t i = 0; tokens[i] != NULL && strcmp(tokens[i], "EOL") != 0; i++){
-        int r = (int)(127 + 128 * sin(0.1 * (i + random_offset) + 0));
-        int g = (int)(127 + 128 * sin(0.1 * (i + random_offset) + 2));
-        int b = (int)(127 + 128 * sin(0.1 * (i + random_offset) + 4));
+        int r = (int)(127 + 128 * sin(0.1 * (i + seed) + 0));
+        int g = (int)(127 + 128 * sin(0.1 * (i + seed) + 2));
+        int b = (int)(127 + 128 * sin(0.1 * (i + seed) + 4));
         /* 安全追加：确保不越界 */
         if (pos + 32 >= alloc) {
             /* 扩容 */

@@ -12,6 +12,8 @@ int main(){
     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == 0 && w.ws_col > 0) {
         printf("ws.col:%d\nws.row:%d\n", w.ws_col, w.ws_row);
     }
+    printStartAnima();
+
     printHeader();
     printContent("This is a test content line.");
     printContent("中文测试内容行");
